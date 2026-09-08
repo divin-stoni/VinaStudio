@@ -18,10 +18,11 @@ Deux problèmes à la fois : le docking classique ignore le risque de dérépres
 
 - **Filtre à double critère** (cœur du logiciel) : calcul de l'indice de sélectivité, seuil de risque de dérépression réglable, classement des candidats efficacité + sécurité
 - **Mode prédictif** : estimation du risque MexR à partir du seul score MexB (sans redocker), basé sur la corrélation MexB/MexR validée statistiquement
-- **Docking** : récepteurs MexB (PDB 3W9J) et MexR (PDB 1LNW) pré-configurés
-- **Analyse des interactions** : intégration PLIP, visualisation 3D (ChimeraX)
-- **Statistiques avancées** : corrélations Pearson/Spearman, régression, bootstrap, corrélation partielle
+- **Docking dual-cible** : récepteurs MexB (PDB 3W9J) et MexR (superposition 1LNW) pré-configurés avec grilles de docking calibrées (AutoDock Vina)
+- **Analyse des interactions** : calcul PLIP, diagrammes d'interaction 2D (reconstruction moléculaire RDKit) fidèles à la géométrie du complexe
+- **Statistiques avancées** : corrélations Pearson/Spearman par famille avec correction FDR, bootstrap, leave-one-out, corrélation partielle (contrôle MW/LogP), ANCOVA d'homogénéité des pentes
 - **Import externe** : possibilité d'importer des résultats de docking déjà réalisés ailleurs (CSV) pour appliquer le filtre à double critère sans redocker
+- **Frontière de session** : tout résultat généré pendant une session est temporaire tant qu'il n'est pas explicitement exporté par l'utilisateur ; nettoyage automatique à l'ouverture/fermeture, sans jamais toucher aux fichiers d'entrée, au code source ou aux exports déjà réalisés
 - **Interface** : français / anglais
 
 ## Téléchargement
@@ -53,14 +54,16 @@ cd VinaStudio-Linux-x86_64
 
 ## Stack technique
 
-Python / PySide6 · AutoDock Vina · Open Babel · PLIP · RDKit · pandas, NumPy, SciPy, statsmodels · Matplotlib · UCSF ChimeraX
+Python / PySide6 (interface) · AutoDock Vina 1.2.x (docking) · Open Babel (conversion de formats chimiques) · PLIP (calcul des interactions ligand-récepteur) · RDKit (reconstruction moléculaire et rendu des diagrammes d'interaction 2D) · pandas, NumPy, SciPy, statsmodels (moteur statistique) · Matplotlib (figures)
+
+UCSF ChimeraX est détecté comme dépendance externe par le logiciel, mais son intégration (visualisation 3D des poses) est fournie sous forme de scripts autonomes, non encore branchés à l'interface graphique actuelle. L'espace **Visualisation** de l'application s'appuie exclusivement sur le pipeline PLIP + diagrammes d'interaction 2D.
 
 ## Contexte scientifique
 
 Ce logiciel s'appuie sur la méthodologie développée dans :
 
-- *Criblage virtuel et évaluation in silico d'antidépresseurs comme inhibiteurs de la pompe d'efflux MexB* — ChemRxiv, DOI: [10.26434/chemrxiv.15005724](https://doi.org/10.26434/chemrxiv.15005724)
-- *Un filtre computationnel à double critère pour l'identification d'inhibiteurs sélectifs de la pompe d'efflux MexAB-OprM* — ChemRxiv, DOI: [10.26434/chemrxiv.15007681](https://doi.org/10.26434/chemrxiv.15007681)
+- *Criblage virtuel et évaluation in silico d'antidépresseurs comme inhibiteurs de la pompe d'efflux MexB* — ChemRxiv (v3) : [https://chemrxiv.org/doi/full/10.26434/chemrxiv.15005724/v3](https://chemrxiv.org/doi/full/10.26434/chemrxiv.15005724/v3)
+- *Un filtre computationnel à double critère pour l'identification d'inhibiteurs sélectifs de la pompe d'efflux MexAB-OprM* — ChemRxiv (v2) : [https://chemrxiv.org/doi/full/10.26434/chemrxiv.15007681/v2](https://chemrxiv.org/doi/full/10.26434/chemrxiv.15007681/v2)
 
 ## Auteur
 
