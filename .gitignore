@@ -1,0 +1,40 @@
+# Environnement virtuel (jamais sur Git, trop lourd)
+venv/
+__pycache__/
+*.pyc
+
+# Builds locaux
+build/
+dist/
+appimage_build/
+squashfs-root/
+*.spec
+
+# Archives et paquets generes (trop lourds pour Git, iront en Release)
+*.tar.gz
+*.deb
+*.AppImage
+src.zip
+
+# Sauvegardes accumulees pendant le developpement (tous formats rencontres)
+*.backup_*
+*.bak
+*.bak2
+*.bak_*
+*_before_*
+*.indent_backup
+*.v1_backup
+*(Copie)*
+*_report.txt
+*_log.txt
+
+# Doublons / fichiers generes a la racine deja presents dans src/
+/visualization_bridge.py
+
+# Donnees de test / resultats generes (pas la reference officielle)
+*_test.csv
+docking_results_combined.csv
+analysis_ready.csv
+
+# Donnees volumineuses generees (optionnel, a garder si tu veux les versionner)
+docking/results/
