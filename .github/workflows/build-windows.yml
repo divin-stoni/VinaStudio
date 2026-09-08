@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -20,15 +24,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-windows.txt
           pip install pyinstaller
 
       - name: Build .exe with PyInstaller
         run: |
-          pyinstaller --noconfirm --onefile --windowed `
-            --name VinaStudio `
-            --paths src `
+          set -e
+          pyinstaller --noconfirm --onefile --windowed \
+            --name VinaStudio \
+            --paths src \
             run_gui.py
 
       - name: Upload .exe as artifact
