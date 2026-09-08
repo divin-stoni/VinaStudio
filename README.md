@@ -2,18 +2,26 @@
 
 **VinaStudio** est une application de bureau pour le criblage virtuel (docking moléculaire) et l'analyse statistique de candidats inhibiteurs de la pompe d'efflux **MexAB-OprM** chez *Pseudomonas aeruginosa*.
 
-Le logiciel automatise une chaîne complète : préparation des ligands → docking (AutoDock Vina) → analyse des interactions (PLIP) → visualisation 3D, puis enchaîne directement vers un module d'analyse statistique dédié (corrélation MexB/MexR, indice de sélectivité, filtre à double critère, seuil de risque de dérépression via MexR).
+L'automatisation du docking (Vina, préparation des ligands, extraction des poses) existe déjà dans d'autres outils (PyRx, VSpipe, EasyDock). Ce que VinaStudio apporte de spécifique, et qui constitue le cœur du logiciel, c'est le **filtre à double critère** : un bon inhibiteur de MexB n'est pas forcément un candidat sûr — il peut aussi dé-réprimer le régulateur MexR et donc *sur-exprimer* la pompe qu'on cherche à inhiber. La plupart des criblages virtuels ignorent ce risque et classent les candidats sur le seul score de docking (ΔG MexB).
+
+VinaStudio calcule systématiquement deux affinités (MexB *et* MexR) pour chaque candidat, puis applique un double filtre :
+1. **Efficacité** — ΔG(MexB) suffisamment favorable
+2. **Sécurité de régulation** — ΔG(MexR) moins négatif qu'un seuil de risque calibré sur un contrôle positif de dérépression (pyocyanine)
+
+Un candidat n'est retenu que s'il passe les deux filtres. Cette approche a révélé qu'un classement au score MexB seul aurait sélectionné des molécules "à risque" (ex. Vilazodone) et écarté à tort des candidats plus sûrs (ex. Sertraline, Opipramol) — validée sur 139 composés à travers 4 familles chimiques (r = 0,834 à 0,924 selon la famille).
 
 ## Pourquoi cet outil
 
-De nombreux étudiants réalisent du docking moléculaire mais restent limités à la paillasse faute d'accès simple à la ligne de commande. VinaStudio vise à rendre le criblage in silico sur la pompe MexAB-OprM accessible via une interface graphique, sans connaissance préalable en bioinformatique.
+Deux problèmes à la fois : le docking classique ignore le risque de dérépression, et les étudiants qui voudraient appliquer ce contrôle restent souvent limités à la paillasse faute d'accès simple à la ligne de commande. VinaStudio rend le double filtre — le criblage en lui-même — accessible via une interface graphique, sans connaissance préalable en bioinformatique.
 
 ## Fonctionnalités
 
+- **Filtre à double critère** (cœur du logiciel) : calcul de l'indice de sélectivité, seuil de risque de dérépression réglable, classement des candidats efficacité + sécurité
+- **Mode prédictif** : estimation du risque MexR à partir du seul score MexB (sans redocker), basé sur la corrélation MexB/MexR validée statistiquement
 - **Docking** : récepteurs MexB (PDB 3W9J) et MexR (PDB 1LNW) pré-configurés
 - **Analyse des interactions** : intégration PLIP, visualisation 3D (ChimeraX)
-- **Module statistique** : corrélations Pearson/Spearman, régression, bootstrap, corrélation partielle, indice de sélectivité, filtre à double critère
-- **Import externe** : possibilité d'importer des résultats de docking déjà réalisés ailleurs (CSV) pour l'analyse statistique seule
+- **Statistiques avancées** : corrélations Pearson/Spearman, régression, bootstrap, corrélation partielle
+- **Import externe** : possibilité d'importer des résultats de docking déjà réalisés ailleurs (CSV) pour appliquer le filtre à double critère sans redocker
 - **Interface** : français / anglais
 
 ## Téléchargement
@@ -61,4 +69,4 @@ Divin Stoni Mbanimi — Master 1 Biotechnologie et Santé, Université Mohammed 
 
 ## Licence
 
-À définir.
+MIT
