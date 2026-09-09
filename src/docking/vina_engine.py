@@ -18,7 +18,7 @@ Aucune dépendance externe à part Python + AutoDock Vina.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Optional
 import csv
@@ -43,6 +43,29 @@ from src.session_runtime import reset_before_docking
 
 
 # ============================================================================
+# RESOLUTION DE L'EXECUTABLE VINA (PATCH WINDOWS PACKAGE)
+# ============================================================================
+
+def resolve_vina_executable() -> str:
+    """
+    Determine le chemin de l'executable Vina a utiliser.
+
+    - Si l'application tourne en executable package (PyInstaller,
+      typiquement sur Windows) ET qu'un vina.exe embarque existe
+      dans docking/bin/, on l'utilise directement.
+    - Sinon (execution normale en Python, notamment sur Linux),
+      on garde le comportement historique : "vina" recherche
+      dans le PATH systeme.
+    """
+    if getattr(sys, "frozen", False):
+        bundled = PROJECT_ROOT / "docking" / "bin" / "vina.exe"
+        if bundled.exists():
+            return str(bundled)
+
+    return "vina"
+
+
+# ============================================================================
 # CONFIGURATION
 # ============================================================================
 
@@ -50,7 +73,7 @@ from src.session_runtime import reset_before_docking
 class VinaConfig:
     """Configuration complète d'AutoDock Vina."""
 
-    vina_executable: str = "vina"
+    vina_executable: str = field(default_factory=resolve_vina_executable)
 
     receptor: Path = (
         PROJECT_ROOT / "docking/receptor/3W9J.pdbqt"
@@ -121,7 +144,7 @@ def create_target_config(
 
     if normalized == "mexb":
         return VinaConfig(
-            vina_executable="vina",
+            vina_executable=resolve_vina_executable(),
 
             receptor=(
                 project_root
@@ -161,7 +184,7 @@ def create_target_config(
 
     if normalized == "mexr":
         return VinaConfig(
-            vina_executable="vina",
+            vina_executable=resolve_vina_executable(),
 
             receptor=(
                 project_root
