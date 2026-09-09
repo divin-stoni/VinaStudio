@@ -29,12 +29,21 @@ jobs:
           pip install -r requirements-windows.txt
           pip install pyinstaller
 
+      - name: Download AutoDock Vina (Windows binary)
+        run: |
+          set -e
+          mkdir -p docking/bin
+          curl -L -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_windows_x86_64.exe
+
       - name: Build .exe with PyInstaller
         run: |
           set -e
           pyinstaller --noconfirm --onefile --windowed \
             --name VinaStudio \
             --paths src \
+            --add-data "reference_data;reference_data" \
+            --add-data "docking/receptor;docking/receptor" \
+            --add-binary "docking/bin/vina.exe;docking/bin" \
             run_gui.py
 
       - name: Upload .exe as artifact
