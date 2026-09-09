@@ -33,7 +33,7 @@ jobs:
         run: |
           set -e
           mkdir -p docking/bin
-          curl -L -f -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_windows_x86_64.exe
+          curl -L -f -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_win.exe
 
       - name: Verify Vina binary runs on this runner
         shell: pwsh
