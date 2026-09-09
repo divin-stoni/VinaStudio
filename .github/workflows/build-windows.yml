@@ -33,7 +33,22 @@ jobs:
         run: |
           set -e
           mkdir -p docking/bin
-          curl -L -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_windows_x86_64.exe
+          curl -L -f -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_windows_x86_64.exe
+
+      - name: Verify Vina binary runs on this runner
+        shell: pwsh
+        run: |
+          $size = (Get-Item docking/bin/vina.exe).Length
+          Write-Host "Taille du fichier vina.exe : $size octets"
+          if ($size -lt 100000) {
+            Write-Error "Fichier vina.exe suspicieusement petit -- probablement un telechargement rate (page d'erreur au lieu du binaire)."
+            exit 1
+          }
+          & .\docking\bin\vina.exe --help
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "vina.exe ne s'execute pas correctement sur ce runner Windows x64 -- binaire incompatible ou corrompu."
+            exit 1
+          }
 
       - name: Build .exe with PyInstaller
         run: |
