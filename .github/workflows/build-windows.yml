@@ -72,12 +72,18 @@ jobs:
       - name: Build .exe with PyInstaller
         run: |
           set -e
+          SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'].replace(chr(92), '/'))")
+          echo "site-packages resolu: $SITE_PACKAGES"
           pyinstaller --noconfirm --onefile --windowed \
             --name VinaStudio \
             --paths src \
             --add-data "reference_data;reference_data" \
             --add-data "docking/receptor;docking/receptor" \
             --add-binary "docking/bin/vina.exe;docking/bin" \
+            --add-data "$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin" \
+            --add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin" \
+            --add-data "$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin" \
+            --add-data "$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel" \
             run_gui.py
 
       - name: Upload .exe as artifact
