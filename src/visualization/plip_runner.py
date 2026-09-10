@@ -259,17 +259,29 @@ class PLIPRunner:
             exist_ok=True
         )
 
-        subprocess.run(
-            [
+        import sys
+
+        if getattr(sys, "frozen", False):
+            command = [
+                sys.executable,
+                "--plip-worker",
+                "-f",
+                str(complex_file),
+                "-o",
+                str(molecule_workdir),
+                "-x",
+            ]
+        else:
+            command = [
                 "plip",
                 "-f",
                 str(complex_file),
                 "-o",
                 str(molecule_workdir),
-                "-x"
-            ],
-            check=True
-        )
+                "-x",
+            ]
+
+        subprocess.run(command, check=True)
 
         # PLIP produit normalement :
         # <complex_name>_report.xml
