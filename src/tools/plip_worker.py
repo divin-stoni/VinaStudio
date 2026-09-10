@@ -32,6 +32,33 @@ def _fix_babel_datadir_for_python_bindings() -> None:
         os.environ["BABEL_DATADIR"] = str(data_dir)
 
 
+def _patch_inchikey_unavailable() -> None:
+    """
+    Certaines distributions d'Open Babel (dont celle utilisee ici,
+    openbabel-wheel) ne compilent pas le format "inchi"/"inchikey"
+    (licence InChI a part). PLIP appelle systematiquement
+    molecule.write(format="inchikey") pour chaque ligand -- sans ce
+    patch, l'absence du format fait planter tout le calcul PLIP.
+    L'inchikey n'est qu'une metadonnee informative du rapport, pas
+    utilisee pour la detection des interactions elle-meme : on peut
+    donc la remplacer par une chaine vide en cas d'indisponibilite,
+    sans affecter la qualite de l'analyse.
+    """
+    from openbabel import pybel
+
+    original_write = pybel.Molecule.write
+
+    def patched_write(self, format="", filename=None, overwrite=False, opt=None):
+        if format == "inchikey":
+            try:
+                return original_write(self, format, filename, overwrite, opt)
+            except ValueError:
+                return ""
+        return original_write(self, format, filename, overwrite, opt)
+
+    pybel.Molecule.write = patched_write
+
+
 def run_plip_worker() -> None:
     """
     A appeler quand sys.argv[1] == "--plip-worker".
@@ -39,6 +66,7 @@ def run_plip_worker() -> None:
     (qui lit sys.argv comme une vraie commande "plip ...").
     """
     _fix_babel_datadir_for_python_bindings()
+    _patch_inchikey_unavailable()
 
     from plip.plipcmd import main as plip_main
 
