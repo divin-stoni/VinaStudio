@@ -98,16 +98,22 @@ class PLIPRunner:
         )
 
 
+        from src.tools.obabel_locator import (
+            resolve_obabel_executable,
+            obabel_subprocess_env,
+        )
+
         subprocess.run(
             [
-                "obabel",
+                resolve_obabel_executable(),
                 "-ipdbqt",
                 str(tmp),
                 "-opdb",
                 "-O",
                 str(output)
             ],
-            check=True
+            check=True,
+            env=obabel_subprocess_env(),
         )
 
 

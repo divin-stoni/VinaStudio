@@ -35,9 +35,16 @@ def _safe_name(name: str, fallback: str) -> str:
 
 
 def _check_obabel() -> str:
-    executable = shutil.which("obabel")
+    from src.tools.obabel_locator import resolve_obabel_executable
 
-    if executable is None:
+    executable = resolve_obabel_executable()
+
+    if executable != "obabel" and not Path(executable).exists():
+        raise RuntimeError(
+            "Open Babel (obabel) est introuvable."
+        )
+
+    if executable == "obabel" and shutil.which("obabel") is None:
         raise RuntimeError(
             "Open Babel (obabel) est introuvable."
         )
@@ -342,10 +349,13 @@ def prepare_sdf_files(
                     "-h",
                 ]
 
+                from src.tools.obabel_locator import obabel_subprocess_env
+
                 process = subprocess.run(
                     command,
                     capture_output=True,
                     text=True,
+                    env=obabel_subprocess_env(),
                 )
 
                 if process.returncode != 0:
