@@ -75,6 +75,22 @@ jobs:
           mkdir -p vcredist
           curl -L -f -o vcredist/vc_redist.x64.exe https://aka.ms/vs/17/release/vc_redist.x64.exe
 
+      - name: Diagnose Open Babel plugin/inchi location
+        shell: pwsh
+        run: |
+          $pyLib = python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])"
+          Write-Host "--- Arborescence complete de openbabel (tous fichiers) ---"
+          Get-ChildItem -Path "$pyLib\openbabel" -Recurse -File |
+            ForEach-Object { Write-Host $_.FullName }
+
+          Write-Host "--- Recherche specifique de fichiers lies a inchi ---"
+          Get-ChildItem -Path "$pyLib\openbabel" -Recurse -File |
+            Where-Object { $_.Name -match "inchi" } |
+            ForEach-Object { Write-Host "INCHI trouve : $($_.FullName)" }
+
+          Write-Host "--- Test direct : obabel -L formats liste-t-il inchikey ? ---"
+          & "$pyLib\openbabel\bin\obabel.exe" -L formats | Select-String -Pattern "inchi"
+
       - name: Build .exe with PyInstaller
         run: |
           set -e
