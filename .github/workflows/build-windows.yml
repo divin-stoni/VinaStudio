@@ -91,6 +91,7 @@ jobs:
             --add-data "$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin" \
             --add-data "$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel" \
             --add-data "vcredist/vc_redist.x64.exe;vcredist" \
+            --collect-all plip \
             run_gui.py
 
       - name: Upload .exe as artifact
