@@ -281,7 +281,9 @@ class PLIPRunner:
                 "-x",
             ]
 
-        subprocess.run(command, check=True)
+        from src.tools.obabel_locator import obabel_subprocess_env
+
+        subprocess.run(command, check=True, env=obabel_subprocess_env())
 
         # PLIP produit normalement :
         # <complex_name>_report.xml
