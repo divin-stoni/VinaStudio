@@ -69,6 +69,12 @@ jobs:
             exit 1
           }
 
+      - name: Download Visual C++ Redistributable
+        run: |
+          set -e
+          mkdir -p vcredist
+          curl -L -f -o vcredist/vc_redist.x64.exe https://aka.ms/vs/17/release/vc_redist.x64.exe
+
       - name: Build .exe with PyInstaller
         run: |
           set -e
@@ -84,6 +90,7 @@ jobs:
             --add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin" \
             --add-data "$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin" \
             --add-data "$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel" \
+            --add-data "vcredist/vc_redist.x64.exe;vcredist" \
             run_gui.py
 
       - name: Upload .exe as artifact
