@@ -29,6 +29,25 @@ jobs:
           pip install -r requirements-windows.txt
           pip install pyinstaller
 
+      - name: Diagnose Open Babel install location
+        shell: pwsh
+        run: |
+          Write-Host "--- Recherche de obabel.exe sur le runner ---"
+          $obabelPath = (Get-Command obabel -ErrorAction SilentlyContinue).Source
+          Write-Host "obabel trouve via PATH : $obabelPath"
+
+          Write-Host "--- Recherche large dans site-packages ---"
+          $pyLib = python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])"
+          Write-Host "site-packages : $pyLib"
+          Get-ChildItem -Path $pyLib -Recurse -Include "obabel*.exe","*.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "openbabel" } |
+            ForEach-Object { Write-Host "EXE trouve : $($_.FullName)" }
+
+          Write-Host "--- Recherche des dossiers de donnees (BABEL_DATADIR probable) ---"
+          Get-ChildItem -Path $pyLib -Recurse -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match "openbabel|BABEL" } |
+            ForEach-Object { Write-Host "Dossier trouve : $($_.FullName)" }
+
       - name: Download AutoDock Vina (Windows binary)
         run: |
           set -e
