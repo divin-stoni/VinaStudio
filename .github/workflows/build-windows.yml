@@ -101,6 +101,7 @@ jobs:
             --paths src \
             --add-data "reference_data;reference_data" \
             --add-data "docking/receptor;docking/receptor" \
+            --add-data "src/assets/fonts;assets/fonts" \
             --add-binary "docking/bin/vina.exe;docking/bin" \
             --add-data "$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin" \
             --add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin" \
