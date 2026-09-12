@@ -894,9 +894,8 @@ class DockingPage(QWidget):
             True
         )
 
-        self.sdf_list.setMinimumHeight(
-            150
-        )
+        self.sdf_list.setMinimumHeight(150)
+        self.sdf_list.setMaximumHeight(350)
 
         panel_layout.addWidget(
             self.sdf_list
@@ -1028,7 +1027,13 @@ class DockingPage(QWidget):
 
         layout.addStretch()
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("SdfScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
     # ------------------------------------------------------------------
     # SELECTION SDF
@@ -1413,7 +1418,13 @@ class DockingPage(QWidget):
             1,
         )
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("PdbqtScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
     def refresh_pdbqt_table(self):
 
@@ -2003,12 +2014,16 @@ class DockingPage(QWidget):
             QHeaderView.Stretch,
         )
 
-        self.docking_log.setMaximumHeight(
-            150
+        self.docking_log.setMinimumHeight(150)
+        self.docking_log.setWordWrap(True)
+        self.docking_log.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding,
         )
 
         log_layout.addWidget(
-            self.docking_log
+            self.docking_log,
+            1,
         )
 
         layout.addWidget(
@@ -2858,6 +2873,7 @@ class DockingPage(QWidget):
             ),
         )
 
+        self.docking_log.resizeRowsToContents()
         self.docking_log.scrollToBottom()
 
     def status_message(self, message):
@@ -3237,7 +3253,13 @@ class AnalysisPage(QWidget):
                 1
             )
 
-            return page
+            scroll = QScrollArea()
+            scroll.setObjectName("ResultsEmptyScrollArea")
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setWidget(page)
+
+            return scroll
 
         csv_file = Path(csv_path)
 
@@ -3300,7 +3322,13 @@ class AnalysisPage(QWidget):
 
         layout.addWidget(table, 1)
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("ResultsScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
 
 
@@ -3552,7 +3580,13 @@ class AnalysisPage(QWidget):
 
         layout.addStretch()
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("AnalysisTypeScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
 
 
@@ -4072,8 +4106,13 @@ class AnalysisPage(QWidget):
             1
         )
 
+        scroll = QScrollArea()
+        scroll.setObjectName("AnalysisResultsScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
 
-        return page
+        return scroll
 
 
 # ============================================================================
@@ -4343,7 +4382,13 @@ class VisualizationPage(QWidget):
 
         layout.addWidget(table, 1)
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("ResiduesScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
     def _populate_residues_table(self, rows):
 
@@ -4399,13 +4444,32 @@ class VisualizationPage(QWidget):
             "Aucune erreur pour le moment.",
             "SectionDescription",
         )
+        self.plip_errors_label.setWordWrap(True)
+        self.plip_errors_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.plip_errors_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
-        panel_layout.addWidget(self.plip_errors_label)
+        # Zone defilante independante : le texte peut grandir avec le
+        # nombre d'erreurs accumulees, sans jamais faire deborder le
+        # panneau ni pousser le reste de l'interface hors de la fenetre.
+        plip_errors_scroll = QScrollArea()
+        plip_errors_scroll.setWidgetResizable(True)
+        plip_errors_scroll.setFrameShape(QFrame.NoFrame)
+        plip_errors_scroll.setMinimumHeight(90)
+        plip_errors_scroll.setMaximumHeight(320)
+        plip_errors_scroll.setWidget(self.plip_errors_label)
+
+        panel_layout.addWidget(plip_errors_scroll)
 
         layout.addWidget(panel)
         layout.addStretch()
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("PlipScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
     # ------------------------------------------------------------------
     # INTERACTION 2D (visualisation uniquement, rien à calculer ici)
@@ -4465,7 +4529,13 @@ class VisualizationPage(QWidget):
 
         layout.addWidget(viewer, 1)
 
-        return page
+        scroll = QScrollArea()
+        scroll.setObjectName("InteractionScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll
 
     def _refresh_molecule_combo(self):
 

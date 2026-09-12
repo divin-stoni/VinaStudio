@@ -50,15 +50,23 @@ def resolve_vina_executable() -> str:
     """
     Determine le chemin de l'executable Vina a utiliser.
 
-    - Si l'application tourne en executable package (PyInstaller,
-      typiquement sur Windows) ET qu'un vina.exe embarque existe
-      dans docking/bin/, on l'utilise directement.
-    - Sinon (execution normale en Python, notamment sur Linux),
-      on garde le comportement historique : "vina" recherche
-      dans le PATH systeme.
+    - Si l'application tourne en executable package (PyInstaller)
+      ET qu'un binaire vina embarque existe, on l'utilise
+      directement (docking/bin/vina.exe sur Windows,
+      docking/bin/vina sur Linux).
+    - Sinon (execution normale en Python), on garde le
+      comportement historique : "vina" recherche dans le PATH
+      systeme.
     """
+    from src.tools.runtime_env import configure_bundled_runtime
+    configure_bundled_runtime()
+
     if getattr(sys, "frozen", False):
-        bundled = PROJECT_ROOT / "docking" / "bin" / "vina.exe"
+        if sys.platform.startswith("linux"):
+            bundled = PROJECT_ROOT / "docking" / "bin" / "vina"
+        else:
+            bundled = PROJECT_ROOT / "docking" / "bin" / "vina.exe"
+
         if bundled.exists():
             return str(bundled)
 

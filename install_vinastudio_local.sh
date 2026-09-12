@@ -23,9 +23,9 @@ echo "Nettoyage termine."
 echo "=================================================="
 echo "ETAPE 2 : verification que le build PyInstaller existe toujours"
 echo "=================================================="
-if [ ! -d "$SRC_DIR/dist/$APP_NAME" ]; then
+if [ ! -d "$PROJECT_ROOT/dist/$APP_NAME" ]; then
     echo "ERREUR : dist/$APP_NAME introuvable. Le build a peut-etre ete efface."
-    echo "Relance d'abord : cd $SRC_DIR && pyinstaller --noconfirm --windowed --name $APP_NAME --paths $PROJECT_ROOT --icon=vinastudio_icon.png --add-data $PROJECT_ROOT/reference_data:reference_data --add-data $SRC_DIR/i18n:i18n main.py"
+    echo "Relance d'abord : cd $PROJECT_ROOT && pyinstaller --noconfirm src/VinaStudio.spec"
     exit 1
 fi
 echo "OK, build trouve."
@@ -35,7 +35,7 @@ echo "ETAPE 3 : installation dans un dossier PERSONNEL inscriptible (pas de lect
 echo "=================================================="
 rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
-cp -r "$SRC_DIR/dist/$APP_NAME/"* "$INSTALL_DIR/"
+cp -r "$PROJECT_ROOT/dist/$APP_NAME/"* "$INSTALL_DIR/"
 echo "Installe dans : $INSTALL_DIR"
 
 echo "=================================================="
