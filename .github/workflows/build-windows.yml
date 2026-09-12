@@ -112,6 +112,17 @@ jobs:
             --collect-all openbabel \
             run_gui.py
 
+      - name: Build installer with Inno Setup
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "VinaStudio.iss"
+
+      - name: Upload installer as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VinaStudio-Windows-Installer
+          path: installer_output/VinaStudio-Setup-*.exe
+
       - name: Upload .exe as artifact
         uses: actions/upload-artifact@v4
         with:
