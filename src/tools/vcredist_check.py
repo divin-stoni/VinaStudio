@@ -34,7 +34,10 @@ def ensure_vcredist_installed() -> None:
     fois, uniquement sur une machine qui n'a jamais eu le runtime).
     """
     if not getattr(sys, "frozen", False):
-        return  # dev/Linux : pas concerne
+        return  # dev : pas concerne
+
+    if not sys.platform.startswith("win"):
+        return  # Linux/macOS : le VC++ Redistributable n'existe pas ici
 
     if _vcredist_present():
         return

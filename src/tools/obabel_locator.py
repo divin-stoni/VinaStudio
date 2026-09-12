@@ -20,15 +20,23 @@ def resolve_obabel_executable() -> str:
     """
     Determine le chemin de l'executable obabel a utiliser.
 
-    - Si l'application tourne en executable package (PyInstaller,
-      typiquement sur Windows) ET qu'un obabel.exe embarque existe
-      dans obabel_runtime/bin/, on l'utilise directement.
-    - Sinon (execution normale en Python, notamment sur Linux),
-      on garde le comportement historique : "obabel" recherche
-      dans le PATH systeme.
+    - Si l'application tourne en executable package (PyInstaller)
+      ET qu'un binaire obabel embarque existe, on l'utilise
+      directement (obabel_runtime/bin/obabel.exe sur Windows,
+      obabel_runtime/bin/obabel sur Linux).
+    - Sinon (execution normale en Python), on garde le
+      comportement historique : "obabel" recherche dans le PATH
+      systeme.
     """
+    from src.tools.runtime_env import configure_bundled_runtime
+    configure_bundled_runtime()
+
     if getattr(sys, "frozen", False):
-        bundled = PROJECT_ROOT / "obabel_runtime" / "bin" / "obabel.exe"
+        if sys.platform.startswith("linux"):
+            bundled = PROJECT_ROOT / "obabel_runtime" / "bin" / "obabel"
+        else:
+            bundled = PROJECT_ROOT / "obabel_runtime" / "bin" / "obabel.exe"
+
         if bundled.exists():
             return str(bundled)
 
