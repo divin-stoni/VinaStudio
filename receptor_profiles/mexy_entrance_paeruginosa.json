@@ -1,0 +1,31 @@
+{
+  "profile_id": "mexy_entrance_paeruginosa",
+  "display_name": "MexY — P. aeruginosa (site 'entrée' prédit)",
+  "profile_type": "built_in",
+  "species": "Pseudomonas aeruginosa",
+  "role": "pump",
+  "pdbqt_path": "docking/receptor/MexY/9E9F.pdbqt",
+  "pdb_path_for_viewer": "receptor_profiles/mexy_9e9f_viewer.pdb",
+  "source_pdb": "9E9F",
+  "grid_box": {
+    "center": [
+      151.924,
+      199.308,
+      178.284
+    ],
+    "size": [
+      25.8,
+      33.5,
+      28.1
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "validated": false,
+  "notes": "ATTENTION : poche NON expérimentale (aucun ligand co-cristallisé dans 9E9F, structure cryo-EM apo). Site 'entrée' défini par homologie structurale avec AcrB/AdeB (résidus E644, Y659, N709, M711, E822, Q824 — Gregor et al., Microbiol Spectrum 2025). Chaîne A utilisée par défaut ; l'affectation binding/resting/extrusion des 3 protomères du trimère n'a pas pu être confirmée depuis le PDB local (info en tableau supplémentaire non fourni) — à vérifier si besoin d'une identification précise du protomère fonctionnellement actif. validated=false."
+}

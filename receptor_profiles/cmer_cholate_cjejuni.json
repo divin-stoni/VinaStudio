@@ -1,0 +1,37 @@
+{
+  "profile_id": "cmer_cholate_cjejuni",
+  "display_name": "CmeR — C. jejuni (cholate)",
+  "profile_type": "built_in",
+  "species": "Campylobacter jejuni",
+  "role": "repressor",
+  "pdbqt_path": "/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor/CmeR/3QPS.pdbqt",
+  "pdb_path_for_viewer": "/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles/cmer_3qps_viewer.pdb",
+  "source_pdb": "3QPS",
+  "grid_box": {
+    "center": [
+      -9.196,
+      -2.172,
+      -12.524
+    ],
+    "size": [
+      24.4,
+      28.0,
+      27.4
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "risk_calibration": null,
+  "validated": false,
+  "notes": "Poche de liaison définie par le cholate co-cristallisé (résidu CHD 211, chaîne A). Grid box calculée automatiquement à partir du centroïde du ligand co-cristallisé (+ marge de 9 Å). PAS ENCORE VALIDÉ avec un contrôle positif documenté (voir protocole Section 7) — validated=false tant que ce n'est pas fait.",
+  "partner_id": "cmeb_ampicillin_cjejuni",
+  "short_name": "CmeR (cholate)",
+  "partner_ids": [
+    "cmeb_ampicillin_cjejuni"
+  ]
+}

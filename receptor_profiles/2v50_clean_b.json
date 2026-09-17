@@ -1,0 +1,32 @@
+{
+  "profile_id": "2v50_clean_b",
+  "display_name": "2V50_clean_B",
+  "profile_type": "user_defined",
+  "species": "p_ariginossa",
+  "role": "pump",
+  "pdbqt_path": "/home/stoni/Documents/MON_PFE/memoire_divin_stoni/materiel/autres/2V50_clean_B.pdbqt",
+  "pdb_path_for_viewer": "/home/stoni/Documents/MON_PFE/memoire_divin_stoni/materiel/autres/2V50_clean_B.pdb",
+  "source_pdb": null,
+  "grid_box": {
+    "center": [
+      55.527840757808505,
+      40.01217601126472,
+      -23.36177995391705
+    ],
+    "size": [
+      25.0,
+      25.0,
+      25.0
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "risk_calibration": null,
+  "validated": false,
+  "notes": "Récepteur importé par l'utilisateur (Mode 2). Grid box par défaut = centroïde géométrique de tout le récepteur — AUCUNE signification biologique. À AJUSTER impérativement via les sliders avant tout docking réel."
+}

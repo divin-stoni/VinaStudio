@@ -1,0 +1,35 @@
+{
+  "profile_id": "7o9w_clean_a",
+  "display_name": "7o9w_clean_A",
+  "profile_type": "user_defined",
+  "species": null,
+  "role": "pump",
+  "pdbqt_path": "/home/stoni/MexAB_MexR_Analyzer_BETA/.session/session_20260915_155658_400113/prepared/7o9w_clean_A.pdbqt",
+  "pdb_path_for_viewer": "/home/stoni/MexAB_MexR_Analyzer_BETA/.session/session_20260915_155658_400113/prepared/7o9w_clean_A.pdb",
+  "source_pdb": null,
+  "grid_box": {
+    "center": [
+      159.45611244361314,
+      156.31562999229837,
+      133.5830774562658
+    ],
+    "size": [
+      25.0,
+      25.0,
+      25.0
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "risk_calibration": null,
+  "validated": false,
+  "notes": "Récepteur importé par l'utilisateur (Mode 2). Grid box par défaut = centroïde géométrique de tout le récepteur — AUCUNE signification biologique. À AJUSTER impérativement via les sliders avant tout docking réel.",
+  "partner_id": null,
+  "short_name": null,
+  "partner_ids": []
+}
