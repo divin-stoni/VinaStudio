@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import Optional
 import shutil
 
+from .receptor_profile import resolve_target_profile
+
 
 @dataclass
 class DockingConfig:
@@ -75,6 +77,50 @@ class DockingConfig:
         self.receptor_path = Path(self.receptor_path).expanduser().resolve()
         self.ligands_dir = Path(self.ligands_dir).expanduser().resolve()
         self.results_dir = Path(self.results_dir).expanduser().resolve()
+
+    # ==================================================================
+    # CONSTRUCTION DEPUIS UN RECEPTOR_PROFILE
+    # ==================================================================
+
+    @classmethod
+    def from_profile(
+        cls,
+        target: str,
+        project_root: Path,
+        ligands_dir: Path,
+        results_dir: Path,
+        vina_path: str = "vina",
+    ) -> "DockingConfig":
+        """
+        Construit une configuration à partir d'un receptor_profile
+        (source unique de vérité, voir receptor_profile.py).
+
+        `target` peut être un alias historique ("mexb", "mexr") ou un
+        profile_id complet (ex. "mexb_paeruginosa").
+        """
+
+        profile = resolve_target_profile(target)
+        params = profile.docking_params
+
+        return cls(
+            project_root=project_root,
+            receptor_path=profile.pdbqt_path,
+            ligands_dir=ligands_dir,
+            results_dir=results_dir,
+            vina_path=vina_path,
+            center_x=profile.grid_box.center[0],
+            center_y=profile.grid_box.center[1],
+            center_z=profile.grid_box.center[2],
+            size_x=profile.grid_box.size[0],
+            size_y=profile.grid_box.size[1],
+            size_z=profile.grid_box.size[2],
+            exhaustiveness=params.get("exhaustiveness", 32),
+            num_modes=params.get("num_modes", 9),
+            energy_range=params.get("energy_range", 3.0),
+            seed=params.get("seed", 2024),
+            cpu=params.get("cpu", 0),
+            scoring_function="vina",
+        )
 
     # ==================================================================
     # VALIDATION
@@ -392,21 +438,20 @@ def create_default_config() -> DockingConfig:
     """
     Crée la configuration correspondant à l'architecture actuelle
     de MexAB_MexR_Analyzer_BETA.
+
+    Les valeurs du récepteur et de la grid box proviennent désormais du
+    receptor_profile "mexb_paeruginosa" (source unique de vérité, voir
+    receptor_profile.py) au lieu d'être codées en dur ici.
     """
 
     project_root = Path(
         __file__
     ).resolve().parents[2]
 
-    return DockingConfig(
-        project_root=project_root,
+    return DockingConfig.from_profile(
+        target="mexb_paeruginosa",
 
-        receptor_path=(
-            project_root
-            / "docking"
-            / "receptor"
-            / "3W9J.pdbqt"
-        ),
+        project_root=project_root,
 
         ligands_dir=(
             project_root
@@ -423,22 +468,6 @@ def create_default_config() -> DockingConfig:
         ),
 
         vina_path="vina",
-
-        center_x=34.12,
-        center_y=16.29,
-        center_z=-58.71,
-
-        size_x=26.0,
-        size_y=26.0,
-        size_z=26.0,
-
-        exhaustiveness=32,
-        num_modes=9,
-        energy_range=3.0,
-        seed=2024,
-
-        cpu=0,
-        scoring_function="vina",
     )
 
 

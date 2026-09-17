@@ -19,6 +19,29 @@ PERCENTILE_SI_SEUIL_DEFAULT = 75
 # Détection automatique du mode d'analyse
 # ---------------------------------------------------------------------
 
+_GROUP_COLUMN_ALIASES = {
+    "groupe",
+    "group",
+    "famille",
+    "family",
+    "classe",
+    "class",
+    "category",
+    "category",
+}
+
+
+def _resolve_group_column(df, group_col="groupe"):
+    """Return the requested group column or a recognized alias."""
+    if group_col in df.columns:
+        return group_col
+
+    aliases = _GROUP_COLUMN_ALIASES | {str(group_col).strip().lower()}
+    for column in df.columns:
+        if str(column).strip().lower() in aliases:
+            return column
+    return None
+
 def detect_analysis_mode(df, group_col="groupe"):
     """
     Détecte automatiquement le type de référence chargé.
@@ -28,11 +51,12 @@ def detect_analysis_mode(df, group_col="groupe"):
         GLOBAL  -> aucune colonne groupe
     """
 
-    if group_col not in df.columns:
+    resolved_group_col = _resolve_group_column(df, group_col)
+    if resolved_group_col is None:
         return "GLOBAL"
 
     groupes = (
-        df[group_col]
+        df[resolved_group_col]
         .dropna()
         .astype(str)
         .str.strip()
@@ -71,15 +95,19 @@ def prepare_analysis_groups(df, group_col="groupe"):
 
     work = df.copy()
 
+    resolved_group_col = _resolve_group_column(work, group_col)
     mode = detect_analysis_mode(work, group_col)
 
     if mode == "GROUPES":
         work[group_col] = (
-            work[group_col]
+            work[resolved_group_col]
             .fillna("SANS_GROUPE")
             .astype(str)
             .str.strip()
         )
+
+        if resolved_group_col != group_col:
+            work = work.drop(columns=[resolved_group_col])
 
     return work, mode
 
@@ -168,6 +196,44 @@ def correlations_by_group(df, x_col="dg_mexb", y_col="dg_mexr",
 # 2. Intervalle de confiance bootstrap (percentile) pour r de Pearson
 # ---------------------------------------------------------------------
 SEED_BOOTSTRAP = 42
+
+
+def permutation_test_by_group(
+    df,
+    x_col="dg_mexb",
+    y_col="dg_mexr",
+    group_col="groupe",
+    n_permutations=10000,
+    seed=SEED_BOOTSTRAP,
+):
+    """P-value non paramétrique par permutation de l'appariement."""
+    work, mode = prepare_analysis_groups(df, group_col)
+    groups = ["GLOBAL"] if mode == "GLOBAL" else list(work[group_col].unique()) + ["GLOBAL"]
+    rng = np.random.default_rng(seed)
+    rows = []
+
+    for group in groups:
+        subset = work if group == "GLOBAL" else work[work[group_col] == group]
+        subset = subset.dropna(subset=[x_col, y_col])
+        if len(subset) < 3:
+            continue
+        x = subset[x_col].to_numpy(dtype=float)
+        y = subset[y_col].to_numpy(dtype=float)
+        if np.std(x) == 0 or np.std(y) == 0:
+            continue
+        observed = abs(float(np.corrcoef(x, y)[0, 1]))
+        extreme = 0
+        for _ in range(n_permutations):
+            permuted = rng.permutation(y)
+            extreme += abs(float(np.corrcoef(x, permuted)[0, 1])) >= observed
+        rows.append({
+            "groupe": group,
+            "n": len(subset),
+            "r_observe": observed,
+            "p_permutation": (extreme + 1) / (n_permutations + 1),
+            "n_permutations": n_permutations,
+        })
+    return pd.DataFrame(rows)
 
 
 def bootstrap_ci_r(x, y, n_boot=5000, ci=95, seed=SEED_BOOTSTRAP):
@@ -401,15 +467,32 @@ def homogeneity_of_slopes(
         .str.strip()
     )
 
+    work = work.dropna(subset=[x_col, y_col, group_col])
+    if len(work) < 6 or work[x_col].nunique() < 3:
+        return pd.DataFrame({
+            "status": ["NON_APPLICABLE"],
+            "raison": ["Pas assez de données distinctes pour l'ANCOVA"],
+        })
+
+    counts = work.groupby(group_col, observed=True).size()
+    if (counts < 3).any():
+        return pd.DataFrame({
+            "status": ["NON_APPLICABLE"],
+            "raison": ["Chaque famille doit contenir au moins 3 observations"],
+        })
+
     model = smf.ols(
         f"{y_col} ~ {x_col} * C({group_col})",
         data=work
     ).fit()
 
-    return sm.stats.anova_lm(
-        model,
-        typ=2
-    )
+    try:
+        return sm.stats.anova_lm(model, typ=2)
+    except (ValueError, np.linalg.LinAlgError):
+        return pd.DataFrame({
+            "status": ["NON_APPLICABLE"],
+            "raison": ["Modèle ANCOVA singulier pour ces données"],
+        })
 
 
 

@@ -40,6 +40,7 @@ if str(PROJECT_ROOT) not in sys.path:
 # docking_parser.py est à la racine du projet
 from ..docking_parser import parse_vina_log
 from src.session_runtime import reset_before_docking
+from .receptor_profile import resolve_target_profile, TARGET_ALIASES
 
 
 # ============================================================================
@@ -83,8 +84,11 @@ class VinaConfig:
 
     vina_executable: str = field(default_factory=resolve_vina_executable)
 
-    receptor: Path = (
-        PROJECT_ROOT / "docking/receptor/3W9J.pdbqt"
+    # Valeurs par défaut issues du receptor_profile "mexb" (source unique
+    # de vérité, voir receptor_profile.py) — plus aucune valeur MexB en
+    # dur ici.
+    receptor: Path = field(
+        default_factory=lambda: resolve_target_profile("mexb").pdbqt_path
     )
 
     ligands_dir: Path = (
@@ -96,13 +100,25 @@ class VinaConfig:
     )
 
     # Grid box
-    center_x: float = 34.12
-    center_y: float = 16.29
-    center_z: float = -58.71
+    center_x: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.center[0]
+    )
+    center_y: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.center[1]
+    )
+    center_z: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.center[2]
+    )
 
-    size_x: float = 26.0
-    size_y: float = 26.0
-    size_z: float = 26.0
+    size_x: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.size[0]
+    )
+    size_y: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.size[1]
+    )
+    size_z: float = field(
+        default_factory=lambda: resolve_target_profile("mexb").grid_box.size[2]
+    )
 
     # Vina
     exhaustiveness: int = 32
@@ -125,18 +141,16 @@ def create_target_config(
     """
     Crée une configuration Vina correspondant à une cible biologique.
 
-    Cibles supportées :
-        MexB
-        MexR
-
-    Le profil MexB conserve exactement les paramètres historiques
-    du moteur actuel.
-
-    Le profil MexR utilise le récepteur 1LNW et la grille validée
-    précédemment dans le projet.
+    La cible est résolue via receptor_profile.resolve_target_profile()
+    (alias historiques "MexB"/"MexR", ou n'importe quel profile_id présent
+    dans receptor_profiles/) : ajouter un nouveau couple pompe/dérépresseur
+    (Section 7 du protocole multi-récepteurs) ne nécessite AUCUNE
+    modification de cette fonction — seulement un nouvel alias dans
+    receptor_profile.TARGET_ALIASES + le fichier JSON correspondant.
     """
 
-    normalized = str(target).strip().lower()
+    profile = resolve_target_profile(target)
+    params = profile.docking_params
 
     project_root = PROJECT_ROOT
 
@@ -150,90 +164,42 @@ def create_target_config(
     else:
         results_root = Path(results_root)
 
-    if normalized == "mexb":
-        return VinaConfig(
-            vina_executable=resolve_vina_executable(),
+    # Nom du sous-dossier de résultats : on garde exactement le nom
+    # historique passé par l'appelant ("MexB", "MexR", ...).
+    folder_name = str(target).strip()
 
-            receptor=(
-                project_root
-                / "docking"
-                / "receptor"
-                / "3W9J.pdbqt"
-            ),
+    return VinaConfig(
+        vina_executable=resolve_vina_executable(),
 
-            ligands_dir=(
-                project_root
-                / "docking"
-                / "ligands"
-                / "prepared"
-            ),
+        receptor=profile.pdbqt_path,
 
-            results_dir=(
-                results_root
-                / "MexB"
-            ),
+        ligands_dir=(
+            project_root
+            / "docking"
+            / "ligands"
+            / "prepared"
+        ),
 
-            center_x=34.12,
-            center_y=16.29,
-            center_z=-58.71,
+        results_dir=(
+            results_root
+            / folder_name
+        ),
 
-            size_x=26.0,
-            size_y=26.0,
-            size_z=26.0,
+        center_x=profile.grid_box.center[0],
+        center_y=profile.grid_box.center[1],
+        center_z=profile.grid_box.center[2],
 
-            exhaustiveness=32,
-            num_modes=9,
-            energy_range=3.0,
+        size_x=profile.grid_box.size[0],
+        size_y=profile.grid_box.size[1],
+        size_z=profile.grid_box.size[2],
 
-            seed=2024,
-            cpu=0,
-            verbosity=1,
-        )
+        exhaustiveness=params.get("exhaustiveness", 32),
+        num_modes=params.get("num_modes", 9),
+        energy_range=params.get("energy_range", 3.0),
 
-    if normalized == "mexr":
-        return VinaConfig(
-            vina_executable=resolve_vina_executable(),
-
-            receptor=(
-                project_root
-                / "docking"
-                / "receptor"
-                / "MexR"
-                / "MEXR_1LNW.pdbqt"
-            ),
-
-            ligands_dir=(
-                project_root
-                / "docking"
-                / "ligands"
-                / "prepared"
-            ),
-
-            results_dir=(
-                results_root
-                / "MexR"
-            ),
-
-            center_x=9.11737,
-            center_y=34.0078,
-            center_z=3.24093,
-
-            size_x=25.0,
-            size_y=25.0,
-            size_z=25.0,
-
-            exhaustiveness=32,
-            num_modes=20,
-            energy_range=3.0,
-
-            seed=42,
-            cpu=8,
-            verbosity=1,
-        )
-
-    raise ValueError(
-        "Cible de docking inconnue : "
-        f"{target!r}. Cibles disponibles : MexB, MexR."
+        seed=params.get("seed", 2024),
+        cpu=params.get("cpu", 0),
+        verbosity=1,
     )
 
 
@@ -968,6 +934,8 @@ def export_combined_csv(
     mexb_results: list[VinaDockingResult],
     mexr_results: list[VinaDockingResult],
     output_path: str | Path,
+    pump_name: str = "MexB",
+    repressor_name: str = "MexR",
 ) -> Path:
     """
     Fusionne les résultats MexB et MexR par molécule.
@@ -980,6 +948,16 @@ def export_combined_csv(
     """
 
     output_path = Path(output_path)
+
+    def _suffix(name: str) -> str:
+        value = "".join(
+            char.lower() if char.isalnum() else "_"
+            for char in str(name)
+        ).strip("_")
+        return value or "target"
+
+    pump_suffix = _suffix(pump_name)
+    repressor_suffix = _suffix(repressor_name)
 
     output_path.parent.mkdir(
         parents=True,
@@ -1036,25 +1014,24 @@ def export_combined_csv(
         "ligand_file",
         "groupe",
 
-        "status_mexb",
-        "best_affinity_mexb",
-        "best_mode_mexb",
-        "n_modes_mexb",
-        "output_pdbqt_mexb",
-        "log_file_mexb",
-        "error_mexb",
-        "duration_seconds_mexb",
+        f"status_{pump_suffix}",
+        f"best_affinity_{pump_suffix}",
+        f"best_mode_{pump_suffix}",
+        f"n_modes_{pump_suffix}",
+        f"output_pdbqt_{pump_suffix}",
+        f"log_file_{pump_suffix}",
+        f"error_{pump_suffix}",
+        f"duration_seconds_{pump_suffix}",
 
-        "status_mexr",
-        "best_affinity_mexr",
-        "best_mode_mexr",
-        "n_modes_mexr",
-        "output_pdbqt_mexr",
-        "log_file_mexr",
-        "error_mexr",
-        "duration_seconds_mexr",
+        f"status_{repressor_suffix}",
+        f"best_affinity_{repressor_suffix}",
+        f"best_mode_{repressor_suffix}",
+        f"n_modes_{repressor_suffix}",
+        f"output_pdbqt_{repressor_suffix}",
+        f"log_file_{repressor_suffix}",
+        f"error_{repressor_suffix}",
+        f"duration_seconds_{repressor_suffix}",
     ]
-
     with output_path.open(
         "w",
         newline="",
@@ -1104,83 +1081,83 @@ def export_combined_csv(
                     )
                 ),
 
-                "status_mexb": (
+                f"status_{pump_suffix}": (
                     mexb.status
                     if mexb is not None
                     else "NOT_RUN"
                 ),
-                "best_affinity_mexb": (
+                f"best_affinity_{pump_suffix}": (
                     mexb.best_affinity
                     if mexb is not None
                     else ""
                 ),
-                "best_mode_mexb": (
+                f"best_mode_{pump_suffix}": (
                     mexb.best_mode
                     if mexb is not None
                     else ""
                 ),
-                "n_modes_mexb": (
+                f"n_modes_{pump_suffix}": (
                     mexb.n_modes
                     if mexb is not None
                     else ""
                 ),
-                "output_pdbqt_mexb": (
+                f"output_pdbqt_{pump_suffix}": (
                     mexb.output_pdbqt
                     if mexb is not None
                     else ""
                 ),
-                "log_file_mexb": (
+                f"log_file_{pump_suffix}": (
                     mexb.log_file
                     if mexb is not None
                     else ""
                 ),
-                "error_mexb": (
+                f"error_{pump_suffix}": (
                     mexb.error
                     if mexb is not None
                     else "Résultat MexB absent."
                 ),
-                "duration_seconds_mexb": (
+                f"duration_seconds_{pump_suffix}": (
                     mexb.duration_seconds
                     if mexb is not None
                     else ""
                 ),
 
-                "status_mexr": (
+                f"status_{repressor_suffix}": (
                     mexr.status
                     if mexr is not None
                     else "NOT_RUN"
                 ),
-                "best_affinity_mexr": (
+                f"best_affinity_{repressor_suffix}": (
                     mexr.best_affinity
                     if mexr is not None
                     else ""
                 ),
-                "best_mode_mexr": (
+                f"best_mode_{repressor_suffix}": (
                     mexr.best_mode
                     if mexr is not None
                     else ""
                 ),
-                "n_modes_mexr": (
+                f"n_modes_{repressor_suffix}": (
                     mexr.n_modes
                     if mexr is not None
                     else ""
                 ),
-                "output_pdbqt_mexr": (
+                f"output_pdbqt_{repressor_suffix}": (
                     mexr.output_pdbqt
                     if mexr is not None
                     else ""
                 ),
-                "log_file_mexr": (
+                f"log_file_{repressor_suffix}": (
                     mexr.log_file
                     if mexr is not None
                     else ""
                 ),
-                "error_mexr": (
+                f"error_{repressor_suffix}": (
                     mexr.error
                     if mexr is not None
                     else "Résultat MexR absent."
                 ),
-                "duration_seconds_mexr": (
+                f"duration_seconds_{repressor_suffix}": (
                     mexr.duration_seconds
                     if mexr is not None
                     else ""

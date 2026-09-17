@@ -40,8 +40,15 @@ class DockingWorker(QObject):
         ligands: list[str | Path],
         results_root: str | Path,
         ligand_groups: dict[str, str] | None = None,
+        pair_roles: dict[str, str] | None = None,
     ):
         super().__init__()
+
+        # pair_roles decrit le couple pompe/derepresseur de la campagne :
+        #     {"pump": "<nom du moteur>", "repressor": "<nom du moteur>"}
+        # Quand il est fourni, la fusion scientifique s'applique a
+        # n'importe quel couple et plus seulement a MexB/MexR.
+        self.pair_roles = dict(pair_roles or {})
 
         self.engines = engines
 
@@ -93,13 +100,14 @@ class DockingWorker(QObject):
                     "Aucun ligand à traiter."
                 )
 
-            mexb_results: list[
-                VinaDockingResult
-            ] = []
-
-            mexr_results: list[
-                VinaDockingResult
-            ] = []
+            # Résultats par moteur, quel que soit son nom (MexB, MexR,
+            # ou n'importe quel récepteur importé/générique). Remplace
+            # les anciennes listes mexb_results/mexr_results codées en
+            # dur par un dict générique.
+            results_by_engine = {
+                name: []
+                for name in self.engines
+            }
 
             for index, ligand in enumerate(
                 self.ligands,
@@ -107,153 +115,74 @@ class DockingWorker(QObject):
             ):
 
                 if self._is_cancelled:
-
                     self._emit_cancelled()
-
                     return
 
                 ligand_name = ligand.name
-
-                # Progression globale ligand
-                # Le moteur sera indiqué pendant chaque docking.
 
                 self.log_line.emit(
                     f"▶ Ligand {index}/{total} : "
                     f"{ligand_name}"
                 )
 
-                # ======================================================
-                # MEXB
-                # ======================================================
-
-                if "MexB" in self.engines:
+                for engine_name, engine in self.engines.items():
 
                     self.log_line.emit(
-                        f"▶ Docking MexB : "
+                        f"▶ Docking {engine_name} : "
                         f"{ligand_name}"
                     )
 
                     self.progress.emit(
-                        "MexB",
+                        engine_name,
                         index,
                         total,
                         ligand_name,
                     )
 
-                    result_mexb = (
-                        self.engines["MexB"]
-                        .dock_ligand(ligand)
-                    )
+                    result = engine.dock_ligand(ligand)
+                    result.groupe = self._get_group(ligand)
 
-                    result_mexb.groupe = (
-                        self._get_group(ligand)
-                    )
-
-                    mexb_results.append(
-                        result_mexb
-                    )
+                    results_by_engine[engine_name].append(result)
 
                     self.log_line.emit(
-                        self._format_result(
-                            "MexB",
-                            result_mexb,
-                        )
+                        self._format_result(engine_name, result)
                     )
 
-                if self._is_cancelled:
-
-                    self._emit_cancelled()
-
-                    return
-
-                # ======================================================
-                # MEXR
-                # ======================================================
-
-                if "MexR" in self.engines:
-
-                    self.log_line.emit(
-                        f"▶ Docking MexR : "
-                        f"{ligand_name}"
-                    )
-
-                    self.progress.emit(
-                        "MexR",
-                        index,
-                        total,
-                        ligand_name,
-                    )
-
-                    result_mexr = (
-                        self.engines["MexR"]
-                        .dock_ligand(ligand)
-                    )
-
-                    result_mexr.groupe = (
-                        self._get_group(ligand)
-                    )
-
-                    mexr_results.append(
-                        result_mexr
-                    )
-
-                    self.log_line.emit(
-                        self._format_result(
-                            "MexR",
-                            result_mexr,
-                        )
-                    )
-
-                if self._is_cancelled:
-
-                    self._emit_cancelled()
-
-                    return
+                    if self._is_cancelled:
+                        self._emit_cancelled()
+                        return
 
             # ==========================================================
             # EXPORT
             # ==========================================================
 
-            mexb_csv = None
-            mexr_csv = None
+            csv_by_engine = {}
 
-            if mexb_results:
-
-                mexb_csv = (
-                    self.engines["MexB"]
-                    .export_csv(
-                        mexb_results
+            for engine_name, results in results_by_engine.items():
+                if results:
+                    csv_by_engine[engine_name] = (
+                        self.engines[engine_name].export_csv(results)
                     )
-                )
 
-            if mexr_results:
+            active = [
+                name
+                for name, results in results_by_engine.items()
+                if results
+            ]
 
-                mexr_csv = (
-                    self.engines["MexR"]
-                    .export_csv(
-                        mexr_results
-                    )
+            if not active:
+                raise RuntimeError(
+                    "Aucun résultat à exporter."
                 )
 
             # ----------------------------------------------------------
-            # CAS SIMPLE : une seule cible
+            # CAS SIMPLE : une seule cible active (couvre maintenant
+            # aussi bien MexB seul, MexR seul, qu'un récepteur générique
+            # importé seul).
             # ----------------------------------------------------------
+            if len(active) == 1:
 
-            if not (
-                mexb_results
-                and mexr_results
-            ):
-
-                csv_path = (
-                    mexb_csv
-                    if mexb_csv is not None
-                    else mexr_csv
-                )
-
-                if csv_path is None:
-                    raise RuntimeError(
-                        "Aucun résultat à exporter."
-                    )
+                csv_path = csv_by_engine[active[0]]
 
                 self.finished.emit(
                     str(csv_path)
@@ -262,30 +191,130 @@ class DockingWorker(QObject):
                 return
 
             # ----------------------------------------------------------
-            # CAS DOUBLE : CSV fusionné
+            # COUPLE POMPE + DEREPRESSEUR -> fusion scientifique.
+            #
+            # Le couple MexB/MexR reste un cas particulier de la regle
+            # generale : la pompe alimente les colonnes _mexb, le
+            # derepresseur les colonnes _mexr. Les noms de colonnes sont
+            # volontairement inchanges pour que toute la chaine
+            # d'analyse existante fonctionne a l'identique sur n'importe
+            # quel couple.
             # ----------------------------------------------------------
+            pump_name, repressor_name = self._resolve_pair(active)
+
+            if pump_name and repressor_name:
+
+                combined_csv = (
+                    self.results_root
+                    / "docking_results_combined.csv"
+                )
+
+                export_combined_csv(
+                    results_by_engine[pump_name],
+                    results_by_engine[repressor_name],
+                    combined_csv,
+                    pump_name=pump_name,
+                    repressor_name=repressor_name,
+                )
+
+                # Copie nommee d'apres le couple : permet de garder
+                # cote a cote les resultats de plusieurs couples et de
+                # comparer leurs correlations sans ecrasement.
+                pair_csv = (
+                    self.results_root
+                    / (
+                        "docking_results_combined_"
+                        f"{self._slug(pump_name)}_"
+                        f"{self._slug(repressor_name)}.csv"
+                    )
+                )
+
+                try:
+                    import shutil as _shutil
+
+                    _shutil.copyfile(combined_csv, pair_csv)
+                except Exception:
+                    pair_csv = None
+
+                self.log_line.emit(
+                    f"✓ CSV {pump_name} (pompe) : "
+                    f"{csv_by_engine[pump_name]}"
+                )
+
+                self.log_line.emit(
+                    f"✓ CSV {repressor_name} (dérépresseur) : "
+                    f"{csv_by_engine[repressor_name]}"
+                )
+
+                self.log_line.emit(
+                    f"✓ CSV fusionné (filtre à double sélectivité) : "
+                    f"{combined_csv}"
+                )
+
+                if pair_csv is not None:
+                    self.log_line.emit(
+                        f"✓ Copie archivée du couple : {pair_csv}"
+                    )
+
+                self.finished.emit(
+                    str(combined_csv)
+                )
+
+                return
+
+            # ----------------------------------------------------------
+            # CAS GÉNÉRIQUE : 2 cibles actives ou plus, autres que le
+            # couple historique MexB/MexR. Pas encore de fusion
+            # scientifique dédiée (indice de sélectivité) pour un
+            # couple générique -> concaténation brute des résultats par
+            # cible, avec une colonne "cible", dans un seul CSV.
+            # ----------------------------------------------------------
+            import csv as _csv
 
             combined_csv = (
                 self.results_root
                 / "docking_results_combined.csv"
             )
 
-            export_combined_csv(
-                mexb_results,
-                mexr_results,
-                combined_csv,
-            )
+            fieldnames = [
+                "cible",
+                "molecule",
+                "ligand_file",
+                "groupe",
+                "status",
+                "best_affinity",
+                "best_mode",
+                "n_modes",
+                "output_pdbqt",
+                "log_file",
+                "error",
+                "duration_seconds",
+            ]
+
+            with combined_csv.open(
+                "w", newline="", encoding="utf-8"
+            ) as handle:
+
+                writer = _csv.DictWriter(
+                    handle, fieldnames=fieldnames
+                )
+                writer.writeheader()
+
+                for engine_name in active:
+                    for result in results_by_engine[engine_name]:
+                        row = result.to_dict()
+                        row["cible"] = engine_name
+                        writer.writerow(row)
+
+            for engine_name in active:
+                self.log_line.emit(
+                    f"✓ CSV {engine_name} : "
+                    f"{csv_by_engine[engine_name]}"
+                )
 
             self.log_line.emit(
-                f"✓ CSV MexB : {mexb_csv}"
-            )
-
-            self.log_line.emit(
-                f"✓ CSV MexR : {mexr_csv}"
-            )
-
-            self.log_line.emit(
-                f"✓ CSV fusionné : {combined_csv}"
+                "✓ CSV combiné (résultats bruts par cible, SANS indice "
+                f"de sélectivité) : {combined_csv}"
             )
 
             self.finished.emit(
@@ -298,9 +327,76 @@ class DockingWorker(QObject):
                 str(exc)
             )
 
+
     # ------------------------------------------------------------------
-    # UTILITAIRES
+    # RESOLUTION DU COUPLE POMPE / DEREPRESSEUR
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _slug(name: str) -> str:
+        """Nom de fichier sur, derive d'un nom de cible."""
+
+        safe = []
+
+        for char in str(name):
+            safe.append(char if char.isalnum() else "_")
+
+        return "".join(safe).strip("_") or "cible"
+
+    def _resolve_pair(self, active: list[str]):
+        """
+        Determine, parmi les cibles ayant produit des resultats, laquelle
+        joue le role de pompe et laquelle joue le role de derepresseur.
+
+        Trois sources, dans cet ordre :
+            1. pair_roles transmis par l'interface (source privilegiee) ;
+            2. le champ "role" des profils de recepteurs ;
+            3. le couple historique MexB / MexR.
+
+        Retourne (None, None) si les cibles actives ne forment pas un
+        couple exploitable — on retombe alors sur la concatenation brute.
+        """
+
+        if len(active) != 2:
+            return None, None
+
+        # --- 1. Information fournie par l'interface -------------------
+        pump = self.pair_roles.get("pump")
+        repressor = self.pair_roles.get("repressor")
+
+        if pump in active and repressor in active and pump != repressor:
+            return pump, repressor
+
+        # --- 2. Roles declares dans les profils -----------------------
+        try:
+            from src.docking.receptor_profile import (
+                normalize_role,
+                resolve_target_profile,
+            )
+
+            roles = {}
+
+            for name in active:
+                try:
+                    profile = resolve_target_profile(name)
+                except Exception:
+                    continue
+                roles[name] = normalize_role(profile.role)
+
+            pumps = [n for n, r in roles.items() if r == "pump"]
+            repressors = [n for n, r in roles.items() if r == "repressor"]
+
+            if len(pumps) == 1 and len(repressors) == 1:
+                return pumps[0], repressors[0]
+
+        except Exception:
+            pass
+
+        # --- 3. Couple historique -------------------------------------
+        if set(active) == {"MexB", "MexR"}:
+            return "MexB", "MexR"
+
+        return None, None
 
     def _get_group(
         self,

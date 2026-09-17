@@ -25,7 +25,21 @@ from src.stats_engine import (
     compute_si_and_classification,
     dual_filter,
     top_candidates,
+    permutation_test_by_group,
 )
+
+
+def _infer_affinity_columns(df):
+    if "dg_mexb" in df.columns and "dg_mexr" in df.columns:
+        return "dg_mexb", "dg_mexr"
+    if "dg_pump" in df.columns and "dg_repressor" in df.columns:
+        return "dg_pump", "dg_repressor"
+    candidates = [column for column in df.columns if str(column).startswith("dg_")]
+    if len(candidates) >= 2:
+        return candidates[0], candidates[1]
+    raise ValueError(
+        "Le CSV doit contenir deux colonnes d'affinité ΔG pour l'analyse."
+    )
 
 
 def run_statistics_pipeline(csv_path):
@@ -37,12 +51,14 @@ def run_statistics_pipeline(csv_path):
     df, mode = prepare_analysis_groups(
         df
     )
+    x_col, y_col = _infer_affinity_columns(df)
 
 
     result = {
         "file": str(csv_path),
         "mode": mode,
         "data": df,
+        "affinity_columns": {"pump": x_col, "repressor": y_col},
     }
 
 
@@ -51,7 +67,7 @@ def run_statistics_pipeline(csv_path):
     # --------------------------------------------------
 
     result["classification"] = (
-        compute_si_and_classification(df)
+        compute_si_and_classification(df, x_col=x_col, y_col=y_col)
     )
 
 
@@ -79,23 +95,27 @@ def run_statistics_pipeline(csv_path):
     # --------------------------------------------------
 
     result["correlations"] = (
-        correlations_by_group(df)
+        correlations_by_group(df, x_col=x_col, y_col=y_col)
     )
 
 
     result["bootstrap"] = (
-        bootstrap_ci_by_group(df)
+        bootstrap_ci_by_group(df, x_col=x_col, y_col=y_col)
+    )
+
+    result["permutation"] = permutation_test_by_group(
+        df, x_col=x_col, y_col=y_col
     )
 
 
     if mode == "GROUPES":
 
         result["leave_one_out"] = (
-            leave_one_out(df)
+            leave_one_out(df, x_col=x_col, y_col=y_col)
         )
 
         result["homogeneity"] = (
-            homogeneity_of_slopes(df)
+            homogeneity_of_slopes(df, x_col=x_col, y_col=y_col)
         )
 
 

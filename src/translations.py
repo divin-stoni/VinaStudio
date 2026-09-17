@@ -577,6 +577,14 @@ TR = {
         "fr": "Interaction 2D", "en": "Interaction 2D", "de": "Interaction 2D",
         "zh": "2D 相互作用", "ja": "2D相互作用",
     },
+    "viz_tab_interaction3d": {
+        "fr": "Interaction 3D", "en": "Interaction 3D", "de": "3D-Interaktion",
+        "zh": "3D 相互作用", "ja": "3D相互作用",
+    },
+    "viz_interaction_3d_title": {
+        "fr": "Complexe 3D et résidus interactifs", "en": "3D complex and interacting residues",
+        "de": "3D-Komplex und interagierende Reste", "zh": "3D 复合物与相互作用残基", "ja": "3D複合体と相互作用残基",
+    },
     "viz_btn_recompute": {
         "fr": "Recalculer tout", "en": "Recompute all",
         "de": "Alles neu berechnen", "zh": "全部重新计算", "ja": "すべて再計算",
@@ -617,6 +625,10 @@ TR = {
         "fr": "Ajouter un dossier", "en": "Add a folder",
         "de": "Ordner hinzufügen", "zh": "添加文件夹", "ja": "フォルダを追加",
     },
+    "sdf_btn_choose_families": {
+        "fr": "Choisir les familles de molécules", "en": "Choose molecule families",
+        "de": "Molekülfamilien auswählen", "zh": "选择分子家族", "ja": "分子ファミリーを選択",
+    },
     "sdf_btn_clear_selection": {
         "fr": "Vider la sélection", "en": "Clear selection",
         "de": "Auswahl leeren", "zh": "清空选择", "ja": "選択をクリア",
@@ -647,6 +659,10 @@ TR = {
     "pdbqt_btn_add_files": {
         "fr": "Ajouter des fichiers", "en": "Add files",
         "de": "Dateien hinzufügen", "zh": "添加文件", "ja": "ファイルを追加",
+    },
+    "pdbqt_btn_choose_families": {
+        "fr": "Choisir les familles", "en": "Choose families",
+        "de": "Familien auswählen", "zh": "选择家族", "ja": "ファミリーを選択",
     },
     "pdbqt_btn_refresh": {
         "fr": "Actualiser", "en": "Refresh", "de": "Aktualisieren",
@@ -734,6 +750,10 @@ TR = {
     "dock_mexr_config_panel_title": {
         "fr": "Configuration MexR", "en": "MexR configuration",
         "de": "MexR-Konfiguration", "zh": "MexR 配置", "ja": "MexR設定",
+    },
+    "dock_viewer_panel_title": {
+        "fr": "Visualisation 3D", "en": "3D visualization",
+        "de": "3D-Visualisierung", "zh": "3D 可视化", "ja": "3D可視化",
     },
     "dock_execution_panel_title": {
         "fr": "Exécution", "en": "Execution", "de": "Ausführung",

@@ -318,13 +318,18 @@ def render_diagram(mol, interactions, atoms, output_png: Path, molecule: str):
         )
     for idx, notes in atom_notes.items():
         mol.GetAtomWithIdx(idx).SetProp("atomNote", " / ".join(notes))
-    canvas_w = max(1400, 60 * mol.GetNumAtoms())
-    canvas_h = max(1100, 45 * mol.GetNumAtoms())
+    # Toile stable : une taille proportionnelle au nombre d'atomes rendait
+    # les grandes molécules trop plates et produisait des PNG inutilement
+    # lourds. RDKit centre ensuite la structure dans cette zone.
+    atom_count = mol.GetNumAtoms()
+    canvas_w = min(1800, max(1100, 900 + atom_count * 8))
+    canvas_h = min(1200, max(800, 650 + atom_count * 5))
     drawer = rdMolDraw2D.MolDraw2DCairo(canvas_w, canvas_h)
     options = drawer.drawOptions()
     options.addAtomIndices = False
     options.bondLineWidth = 2
     options.annotationFontScale = 0.75
+    options.padding = 0.16
     rdMolDraw2D.PrepareAndDrawMolecule(
         drawer, mol, highlightAtoms=highlight_atoms,
         highlightAtomColors=highlight_colors,

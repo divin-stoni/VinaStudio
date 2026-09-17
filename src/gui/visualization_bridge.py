@@ -43,6 +43,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 from src.visualization.plip_runner import PLIPRunner
 from src.plip_2d_diagram import generate as render_2d_diagram
+from src.docking.receptor_profile import resolve_target_profile, TARGET_ALIASES
 
 DEFAULT_TARGET = "MexB"
 
@@ -50,10 +51,57 @@ DEFAULT_TARGET = "MexB"
 # utilisateur) — mettre une valeur haute revient à "tous les hits".
 AUTO_TOP_N = 500
 
-RECEPTORS = {
-    "MexB": PROJECT_ROOT / "docking" / "receptor" / "3W9J.pdbqt",
-    "MexR": PROJECT_ROOT / "docking" / "receptor" / "MexR" / "MEXR_1LNW.pdbqt",
-}
+# Noms de cibles historiques utilisés comme noms de dossiers de résultats
+# (docking/results/batch_vina_engine/<target>/). Le récepteur lui-même
+# n'est plus jamais stocké ici — il est résolu via receptor_profile
+# (voir _receptor() ci-dessous), source unique de vérité. Étendre cette
+# liste manuellement quand un nouveau couple pompe/dérépresseur est ajouté
+# (Section 7 du protocole multi-récepteurs), en plus de l'alias
+# correspondant dans receptor_profile.TARGET_ALIASES.
+# Cibles historiques, conservées comme socle minimal.
+KNOWN_TARGET_LABELS = ["MexB", "MexR"]
+
+
+def known_target_labels() -> list:
+    """
+    Toutes les cibles connues du logiciel, découvertes dynamiquement.
+
+    Trois sources cumulées :
+        1. les cibles historiques MexB / MexR ;
+        2. tous les profils déclarés dans receptor_profiles/*.json ;
+        3. tous les dossiers de résultats réellement présents sous
+           docking/results/batch_vina_engine/.
+
+    La source 3 est indispensable : un récepteur importé puis son
+    profil supprimé laisse malgré tout des fichiers à nettoyer, et un
+    récepteur docké doit voir ses hits chargés même si son profil a
+    changé de nom entre-temps.
+
+    Remplace la liste écrite en dur, qui faisait que le nettoyage de
+    fin de session et le traitement PLIP en lot ignoraient purement et
+    simplement tous les récepteurs ajoutés après MexB/MexR.
+    """
+
+    labels = list(KNOWN_TARGET_LABELS)
+
+    try:
+        from src.docking.receptor_profile import list_profile_ids
+
+        for profile_id in list_profile_ids():
+            if profile_id not in labels:
+                labels.append(profile_id)
+    except Exception:
+        pass
+
+    try:
+        if BATCH_ROOT.is_dir():
+            for child in sorted(BATCH_ROOT.iterdir()):
+                if child.is_dir() and child.name not in labels:
+                    labels.append(child.name)
+    except Exception:
+        pass
+
+    return labels
 
 BATCH_ROOT = PROJECT_ROOT / "docking" / "results" / "batch_vina_engine"
 
@@ -114,9 +162,7 @@ def _plip_report_xml(target: str, molecule: str) -> Path:
 
 
 def _receptor(target: str) -> Path:
-    if target not in RECEPTORS:
-        raise ValueError(f"Cible inconnue : {target}. Attendu : {list(RECEPTORS)}")
-    return RECEPTORS[target]
+    return resolve_target_profile(target).pdbqt_path
 
 
 # ============================================================================
@@ -483,6 +529,8 @@ class BatchWorker(QObject):
                 results[hit.molecule] = {
                     "interactions": interactions,
                     "diagram": str(output_png),
+                    "complex": str(_plip_complex_pdb(hit.target, hit.molecule)),
+                    "target": hit.target,
                 }
 
             except Exception as exc:
@@ -551,7 +599,9 @@ def export_visualization_results(target: str, batch_payload: dict, destination_d
 # ============================================================================
 
 def cleanup_visualization_outputs(targets=None) -> None:
-    targets = targets or list(RECEPTORS.keys())
+    # Toutes les cibles, pas seulement MexB/MexR : sinon les sorties
+    # des récepteurs ajoutés après coup ne sont jamais nettoyées.
+    targets = targets or known_target_labels()
 
     for target in targets:
         for folder in (_plip_workdir(target), _diagrams_dir(target), _selected_poses_dir(target)):
