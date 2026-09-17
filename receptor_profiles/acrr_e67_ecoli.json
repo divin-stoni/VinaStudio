@@ -1,0 +1,34 @@
+{
+  "profile_id": "acrr_e67_ecoli",
+  "display_name": "AcrR — E. coli (poche prédite, résidu E67)",
+  "profile_type": "built_in",
+  "species": "Escherichia coli",
+  "role": "repressor",
+  "pdbqt_path": "/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor/AcrR/2QOP.pdbqt",
+  "pdb_path_for_viewer": "/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles/acrr_2qop_viewer.pdb",
+  "source_pdb": "2QOP",
+  "grid_box": {
+    "center": [
+      16.003,
+      45.687,
+      25.578
+    ],
+    "size": [
+      20.0,
+      20.0,
+      20.0
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "risk_calibration": null,
+  "validated": false,
+  "notes": "ATTENTION : poche NON expérimentale, uniquement prédite par docking computationnel (Li et al., J Bacteriol 2007) et validée fonctionnellement par mutagenèse du seul résidu E67 (mutant E67A perd l'affinité pour éthidium/proflavine/rhodamine 6G). Structure 2QOP apo (aucun ligand co-cristallisé). Taille de grid box arbitraire (20x20x20 Å, pas de bbox réelle disponible pour un site à un seul résidu). validated=false — à traiter avec prudence, contrôle positif expérimental absent.",
+  "partner_id": "acrb_site2_ecoli",
+  "short_name": null
+}

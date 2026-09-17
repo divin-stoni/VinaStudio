@@ -1,0 +1,31 @@
+{
+  "profile_id": "mexr_paeruginosa",
+  "display_name": "MexR — Pseudomonas aeruginosa (dérépresseur)",
+  "profile_type": "built_in",
+  "species": "Pseudomonas aeruginosa",
+  "role": "derepressor",
+  "pdbqt_path": "docking/receptor/MexR/MEXR_1LNW.pdbqt",
+  "pdb_path_for_viewer": "receptor_profiles/mexr_viewer.pdb",
+  "source_pdb": "1LNW",
+  "grid_box": {
+    "center": [
+      9.11737,
+      34.0078,
+      3.24093
+    ],
+    "size": [
+      25.0,
+      25.0,
+      25.0
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 20,
+    "energy_range": 3.0,
+    "seed": 42,
+    "cpu": 8
+  },
+  "validated": true,
+  "notes": "Profil historique MexR, paramètres identiques à ceux précédemment codés en dur dans vina_engine.py."
+}

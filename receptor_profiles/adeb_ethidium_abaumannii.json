@@ -1,0 +1,31 @@
+{
+  "profile_id": "adeb_ethidium_abaumannii",
+  "display_name": "AdeB — A. baumannii (éthidium)",
+  "profile_type": "built_in",
+  "species": "Acinetobacter baumannii",
+  "role": "pump",
+  "pdbqt_path": "docking/receptor/AdeB/7KGG.pdbqt",
+  "pdb_path_for_viewer": "receptor_profiles/adeb_7kgg_viewer.pdb",
+  "source_pdb": "7KGG",
+  "grid_box": {
+    "center": [
+      195.81,
+      151.048,
+      166.318
+    ],
+    "size": [
+      25.3,
+      24.4,
+      26.5
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "validated": false,
+  "notes": "Site de liaison éthidium (résidu HETATM ET 1103, chaîne C — protomère 'binding' du trimère cryo-EM AdeB-ET-I). Grid box calculée automatiquement à partir du centroïde du ligand co-cristallisé (+ marge de 9 Å). PAS ENCORE VALIDÉ avec un contrôle positif documenté (voir protocole Section 7) — validated=false."
+}

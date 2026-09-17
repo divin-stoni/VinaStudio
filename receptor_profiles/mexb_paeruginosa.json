@@ -1,0 +1,31 @@
+{
+  "profile_id": "mexb_paeruginosa",
+  "display_name": "MexB — Pseudomonas aeruginosa (pompe d'efflux)",
+  "profile_type": "built_in",
+  "species": "Pseudomonas aeruginosa",
+  "role": "pump",
+  "pdbqt_path": "docking/receptor/3W9J.pdbqt",
+  "pdb_path_for_viewer": "receptor_profiles/mexb_viewer.pdb",
+  "source_pdb": "3W9J",
+  "grid_box": {
+    "center": [
+      34.12,
+      16.29,
+      -58.71
+    ],
+    "size": [
+      26.0,
+      26.0,
+      26.0
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "validated": true,
+  "notes": "Profil historique MexB, paramètres identiques à ceux précédemment codés en dur dans vina_engine.py/config_manager.py."
+}

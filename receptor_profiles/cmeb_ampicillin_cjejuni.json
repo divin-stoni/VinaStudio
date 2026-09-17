@@ -1,0 +1,38 @@
+{
+  "profile_id": "cmeb_ampicillin_cjejuni",
+  "display_name": "CmeB (RE-CmeB) — C. jejuni (ampicilline)",
+  "profile_type": "built_in",
+  "species": "Campylobacter jejuni",
+  "role": "pump",
+  "pdbqt_path": "/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor/CmeB/8GJK.pdbqt",
+  "pdb_path_for_viewer": "/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles/cmeb_8gjk_viewer.pdb",
+  "source_pdb": "8GJK",
+  "grid_box": {
+    "center": [
+      162.864,
+      167.385,
+      175.551
+    ],
+    "size": [
+      28.1,
+      25.3,
+      23.7
+    ]
+  },
+  "docking_params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "risk_calibration": null,
+  "validated": false,
+  "notes": "Site de liaison ampicilline hydrolysée (résidu HETATM ZZ7 1101, chaîne C — variante RE-CmeB, cryo-EM). Grid box calculée automatiquement à partir du centroïde du ligand co-cristallisé (+ marge de 9 Å). PAS ENCORE VALIDÉ avec un contrôle positif documenté (voir protocole Section 7) — validated=false.",
+  "partner_id": "cmer_cholate_cjejuni",
+  "short_name": null,
+  "partner_ids": [
+    "cmer_cholate_cjejuni",
+    "cmer_taurocholate_cjejuni"
+  ]
+}
