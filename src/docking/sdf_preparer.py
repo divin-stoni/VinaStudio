@@ -34,6 +34,47 @@ def _safe_name(name: str, fallback: str) -> str:
     return value or fallback
 
 
+_CID_RE = re.compile(r"\bCID\s*[-_]?\s*(\d+)\b", re.IGNORECASE)
+
+
+def molecule_output_name(
+    sdf_file: Path,
+    index: int,
+    naming_mode: str = "preserve",
+    cleanup_text: str = "",
+    source_name: str = "",
+) -> str:
+    """Construit un nom sans transformer un nombre isolé en faux CID."""
+    source_name = source_name or sdf_file.stem
+    first_line = ""
+    try:
+        first_line = sdf_file.read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines()[0].strip()
+    except Exception:
+        pass
+
+    mode = str(naming_mode or "preserve").lower()
+    if mode == "cid":
+        match = _CID_RE.search(f"{source_name} {first_line}")
+        if match:
+            return _safe_name(f"CID_{match.group(1)}", f"compose_{index}")
+        # Pas de marqueur CID : le numéro reste un nom utilisateur normal.
+        return _safe_name(source_name or first_line, f"compose_{index}")
+
+    if mode == "clean":
+        value = first_line or source_name
+        for unwanted in str(cleanup_text or "").split(","):
+            unwanted = unwanted.strip()
+            if unwanted:
+                value = value.replace(unwanted, "")
+        return _safe_name(value, f"compose_{index}")
+
+    preserved = (source_name or first_line).strip()
+    preserved = preserved.replace("/", "_").replace("\\", "_")
+    return preserved or f"compose_{index}"
+
+
 def _check_obabel() -> str:
     from src.tools.obabel_locator import resolve_obabel_executable
 
@@ -177,24 +218,16 @@ def _split_sdf(
 def _molecule_name_from_sdf(
     sdf_file: Path,
     index: int,
+    naming_mode: str = "preserve",
+    cleanup_text: str = "",
+    source_name: str = "",
 ) -> str:
-
-    try:
-        first_line = (
-            sdf_file
-            .read_text(
-                encoding="utf-8",
-                errors="replace",
-            )
-            .splitlines()[0]
-            .strip()
-        )
-    except Exception:
-        first_line = ""
-
-    return _safe_name(
-        first_line,
-        f"compose_{index}",
+    return molecule_output_name(
+        sdf_file,
+        index,
+        naming_mode=naming_mode,
+        cleanup_text=cleanup_text,
+        source_name=source_name,
     )
 
 
@@ -250,6 +283,8 @@ def prepare_sdf(
 def prepare_sdf_files(
     inputs: list[str | Path],
     output_dir: str | Path,
+    naming_mode: str = "preserve",
+    cleanup_text: str = "",
 ) -> list[Path]:
     """
     Convertit toutes les molécules provenant de plusieurs SDF
@@ -331,6 +366,9 @@ def prepare_sdf_files(
                     _molecule_name_from_sdf(
                         individual_sdf,
                         global_index,
+                        naming_mode=naming_mode,
+                        cleanup_text=cleanup_text,
+                        source_name=sdf_file.stem,
                     )
                 )
 

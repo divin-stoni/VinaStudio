@@ -29,6 +29,54 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.column_matcher import apply_column_mapping
 
 
+def _target_slug(name: str) -> str:
+    return "".join(
+        char.lower() if char.isalnum() else "_"
+        for char in str(name)
+    ).strip("_")
+
+
+def _find_affinity_columns(df, pair_roles=None):
+    columns = list(df.columns)
+    if "dg_mexb" in columns and "dg_mexr" in columns:
+        return "dg_mexb", "dg_mexr", "MexB", "MexR"
+
+    role_names = pair_roles or {}
+    pump_name = role_names.get("pump")
+    repressor_name = role_names.get("repressor")
+
+    def candidates_for(target):
+        slug = _target_slug(target)
+        return [
+            column for column in columns
+            if _target_slug(column).endswith(slug)
+            and any(token in _target_slug(column) for token in (
+                "bestaffinity", "affinity", "dg", "delta",
+            ))
+        ]
+
+    if pump_name and repressor_name:
+        pump = candidates_for(pump_name)
+        repressor = candidates_for(repressor_name)
+        if pump and repressor:
+            return pump[0], repressor[0], pump_name, repressor_name
+
+    discovered = [
+        column for column in columns
+        if any(token in _target_slug(column) for token in (
+            "bestaffinity", "affinity", "dg", "delta",
+        ))
+        and not _target_slug(column).startswith(("status", "duration"))
+    ]
+    if len(discovered) >= 2:
+        return discovered[0], discovered[1], discovered[0], discovered[1]
+
+    raise ValueError(
+        "Deux colonnes d'affinité de cibles sont nécessaires pour "
+        "l'analyse à double sélectivité."
+    )
+
+
 def detect_groups(df, group_col="groupe"):
     """
     Détection des vrais groupes.
@@ -54,11 +102,16 @@ def detect_groups(df, group_col="groupe"):
 
 def create_scientific_scores(
     input_csv,
-    output_dir="reference_data"
+    output_dir=None,
+    pair_roles=None,
 ):
 
     input_csv = Path(input_csv)
-    output_dir = Path(output_dir)
+    output_dir = (
+        input_csv.parent / "scientific_analysis"
+        if output_dir is None
+        else Path(output_dir)
+    )
 
     output_dir.mkdir(
         parents=True,
@@ -73,26 +126,10 @@ def create_scientific_scores(
     # NORMALISATION AUTOMATIQUE DES COLONNES SCIENTIFIQUES
     # --------------------------------------------------
 
-    df = apply_column_mapping(
-        df,
-        verbose=True
+    df = apply_column_mapping(df, verbose=True, required=["molecule"])
+    pump_col, repressor_col, pump_name, repressor_name = _find_affinity_columns(
+        df, pair_roles=pair_roles
     )
-
-    required = [
-        "molecule",
-        "dg_mexb",
-        "dg_mexr",
-    ]
-
-    missing = [
-        c for c in required
-        if c not in df.columns
-    ]
-
-    if missing:
-        raise ValueError(
-            f"Colonnes manquantes : {missing}"
-        )
 
 
     out = pd.DataFrame()
@@ -121,32 +158,34 @@ def create_scientific_scores(
         out["groupe"] = "SANS_GROUPE"
 
 
-    out["dg_mexb"] = (
+    pump_output_col = "dg_mexb" if pump_name == "MexB" else "dg_pump"
+    repressor_output_col = "dg_mexr" if repressor_name == "MexR" else "dg_repressor"
+    out[pump_output_col] = (
         pd.to_numeric(
-            df["dg_mexb"],
+            df[pump_col],
             errors="coerce"
         )
     )
 
-    out["dg_mexr"] = (
+    out[repressor_output_col] = (
         pd.to_numeric(
-            df["dg_mexr"],
+            df[repressor_col],
             errors="coerce"
         )
     )
 
 
     out["indice_selectivite"] = (
-        out["dg_mexr"]
+        out[repressor_output_col]
         -
-        out["dg_mexb"]
+        out[pump_output_col]
     )
 
 
     out = out.dropna(
         subset=[
-            "dg_mexb",
-            "dg_mexr"
+            pump_output_col,
+            repressor_output_col,
         ]
     )
 
@@ -173,8 +212,8 @@ def create_scientific_scores(
     global_out = out[
         [
             "molecule",
-            "dg_mexb",
-            "dg_mexr",
+            pump_output_col,
+            repressor_output_col,
             "indice_selectivite"
         ]
     ]

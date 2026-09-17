@@ -272,14 +272,42 @@ class PLIPRunner:
                 "-x",
             ]
         else:
-            command = [
-                "plip",
-                "-f",
-                str(complex_file),
-                "-o",
-                str(molecule_workdir),
-                "-x",
-            ]
+            import shutil as _shutil
+
+            plip_exe = _shutil.which("plip")
+
+            if plip_exe:
+                command = [
+                    plip_exe,
+                    "-f",
+                    str(complex_file),
+                    "-o",
+                    str(molecule_workdir),
+                    "-x",
+                ]
+            else:
+                try:
+                    import plip  # noqa: F401
+                except ImportError as exc:
+                    raise RuntimeError(
+                        "PLIP introuvable : ni la commande 'plip' sur le PATH, "
+                        "ni le module 'plip' importable depuis l'interpreteur "
+                        f"actuel ({sys.executable}). Verifie que PLIP est "
+                        "installe dans le meme environnement Python que celui "
+                        "qui execute l'application, ou active le venv du "
+                        "projet avant de la lancer."
+                    ) from exc
+
+                command = [
+                    sys.executable,
+                    "-m",
+                    "plip.plipcmd",
+                    "-f",
+                    str(complex_file),
+                    "-o",
+                    str(molecule_workdir),
+                    "-x",
+                ]
 
         from src.tools.obabel_locator import obabel_subprocess_env
 

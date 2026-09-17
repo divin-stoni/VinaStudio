@@ -77,6 +77,85 @@ class ReceptorInfo:
 
 
 # ======================================================================
+# ======================================================================
+# DESINFECTION PDBQT — compatibilite AutoDock Vina
+# ======================================================================
+
+_VINA_ALLOWED_PREFIXES = (
+    "ATOM",
+    "HETATM",
+    "TER",
+    "END",
+    "ROOT",
+    "ENDROOT",
+    "BRANCH",
+    "ENDBRANCH",
+    "TORSDOF",
+    "MODEL",
+    "ENDMDL",
+)
+
+
+def sanitize_receptor_pdbqt(path) -> int:
+    """
+    Supprime d'un fichier PDBQT de recepteur toute ligne dont le tag
+    n'est pas reconnu par AutoDock Vina (HEADER, TITLE, COMPND, SEQRES,
+    HELIX, SHEET, CONECT, MASTER, ANISOU...).
+
+    Vina 1.2.x rejette le fichier entier des la premiere ligne inconnue :
+        PDBQT parsing error: Unknown or inappropriate tag found
+        in rigid receptor.
+    ... et rend le code 1, ce qui fait echouer TOUS les ligands.
+
+    Retourne le nombre de lignes supprimees. Ne fait rien si le fichier
+    est deja propre. Sauvegarde l'original en <nom>.raw_pdbqt avant
+    toute modification.
+    """
+
+    from pathlib import Path as _Path
+
+    path = _Path(path)
+
+    if not path.is_file():
+        return 0
+
+    raw = path.read_text(encoding="utf-8", errors="replace")
+    lines = raw.splitlines()
+
+    kept = []
+    removed = 0
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.upper().startswith(_VINA_ALLOWED_PREFIXES):
+            kept.append(line)
+        else:
+            removed += 1
+
+    if removed == 0:
+        return 0
+
+    has_atoms = any(
+        ln.strip().upper().startswith(("ATOM", "HETATM"))
+        for ln in kept
+    )
+
+    if not has_atoms:
+        raise ValueError(
+            "Nettoyage refuse : aucun atome ATOM/HETATM ne subsisterait."
+        )
+
+    backup = path.with_suffix(path.suffix + ".raw_pdbqt")
+    if not backup.exists():
+        backup.write_text(raw, encoding="utf-8")
+
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+    return removed
+
+
 # GESTIONNAIRE DU RÉCEPTEUR
 # ======================================================================
 
@@ -300,6 +379,28 @@ class ReceptorManager:
                 "Le récepteur doit avoir l'extension .pdbqt."
             )
             return info
+
+        # --------------------------------------------------------------
+        # Desinfection PDBQT (obligatoire pour AutoDock Vina)
+        # --------------------------------------------------------------
+        # Vina refuse tout tag non-PDBQT dans un recepteur rigide
+        # (HEADER, TITLE, COMPND, SEQRES, HELIX, CONECT, MASTER...) et
+        # sort avec le code retour 1 sans docker un seul ligand.
+        # Tout recepteur importe est donc nettoye ici, une fois pour
+        # toutes, avec sauvegarde du fichier d'origine.
+
+        try:
+            removed = sanitize_receptor_pdbqt(self.path)
+            if removed:
+                info.warnings.append(
+                    f"{removed} ligne(s) non-PDBQT supprimee(s) "
+                    "(incompatibles avec AutoDock Vina) ; "
+                    "fichier d'origine sauvegarde en .raw_pdbqt"
+                )
+        except Exception as exc:
+            info.warnings.append(
+                f"Desinfection PDBQT impossible : {exc}"
+            )
 
         # --------------------------------------------------------------
         # Parsing
