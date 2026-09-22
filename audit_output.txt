@@ -1,0 +1,1072 @@
+======================================================================
+1) CONTENU COMPLET DU WORKFLOW WINDOWS
+======================================================================
+     1	name: Build Windows executable
+     2	
+     3	on:
+     4	  push:
+     5	    branches: [ main ]
+     6	  workflow_dispatch:
+     7	
+     8	defaults:
+     9	  run:
+    10	    shell: bash
+    11	
+    12	jobs:
+    13	  build-windows:
+    14	    runs-on: windows-latest
+    15	
+    16	    steps:
+    17	      - name: Checkout code
+    18	        uses: actions/checkout@v4
+    19	
+    20	      - name: Set up Python
+    21	        uses: actions/setup-python@v5
+    22	        with:
+    23	          python-version: '3.11'
+    24	
+    25	      - name: Install dependencies
+    26	        run: |
+    27	          set -e
+    28	          python -m pip install --upgrade pip
+    29	          pip install -r requirements-windows.txt
+    30	          pip install pyinstaller
+    31	
+    32	      - name: Diagnose Open Babel install location
+    33	        shell: pwsh
+    34	        run: |
+    35	          Write-Host "--- Recherche de obabel.exe sur le runner ---"
+    36	          $obabelPath = (Get-Command obabel -ErrorAction SilentlyContinue).Source
+    37	          Write-Host "obabel trouve via PATH : $obabelPath"
+    38	
+    39	          Write-Host "--- Recherche large dans site-packages ---"
+    40	          $pyLib = python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])"
+    41	          Write-Host "site-packages : $pyLib"
+    42	          Get-ChildItem -Path $pyLib -Recurse -Include "obabel*.exe","*.exe" -ErrorAction SilentlyContinue |
+    43	            Where-Object { $_.FullName -match "openbabel" } |
+    44	            ForEach-Object { Write-Host "EXE trouve : $($_.FullName)" }
+    45	
+    46	          Write-Host "--- Recherche des dossiers de donnees (BABEL_DATADIR probable) ---"
+    47	          Get-ChildItem -Path $pyLib -Recurse -Directory -ErrorAction SilentlyContinue |
+    48	            Where-Object { $_.Name -match "openbabel|BABEL" } |
+    49	            ForEach-Object { Write-Host "Dossier trouve : $($_.FullName)" }
+    50	
+    51	      - name: Download AutoDock Vina (Windows binary)
+    52	        run: |
+    53	          set -e
+    54	          mkdir -p docking/bin
+    55	          curl -L -f -o docking/bin/vina.exe https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_win.exe
+    56	
+    57	      - name: Verify Vina binary runs on this runner
+    58	        shell: pwsh
+    59	        run: |
+    60	          $size = (Get-Item docking/bin/vina.exe).Length
+    61	          Write-Host "Taille du fichier vina.exe : $size octets"
+    62	          if ($size -lt 100000) {
+    63	            Write-Error "Fichier vina.exe suspicieusement petit -- probablement un telechargement rate (page d'erreur au lieu du binaire)."
+    64	            exit 1
+    65	          }
+    66	          & .\docking\bin\vina.exe --help
+    67	          if ($LASTEXITCODE -ne 0) {
+    68	            Write-Error "vina.exe ne s'execute pas correctement sur ce runner Windows x64 -- binaire incompatible ou corrompu."
+    69	            exit 1
+    70	          }
+    71	
+    72	      - name: Download Visual C++ Redistributable
+    73	        run: |
+    74	          set -e
+    75	          mkdir -p vcredist
+    76	          curl -L -f -o vcredist/vc_redist.x64.exe https://aka.ms/vs/17/release/vc_redist.x64.exe
+    77	
+    78	      - name: Diagnose Open Babel plugin/inchi location
+    79	        shell: pwsh
+    80	        run: |
+    81	          $pyLib = python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])"
+    82	          Write-Host "--- Arborescence complete de openbabel (tous fichiers) ---"
+    83	          Get-ChildItem -Path "$pyLib\openbabel" -Recurse -File |
+    84	            ForEach-Object { Write-Host $_.FullName }
+    85	
+    86	          Write-Host "--- Recherche specifique de fichiers lies a inchi ---"
+    87	          Get-ChildItem -Path "$pyLib\openbabel" -Recurse -File |
+    88	            Where-Object { $_.Name -match "inchi" } |
+    89	            ForEach-Object { Write-Host "INCHI trouve : $($_.FullName)" }
+    90	
+    91	          Write-Host "--- Test direct : obabel -L formats liste-t-il inchikey ? ---"
+    92	          & "$pyLib\openbabel\bin\obabel.exe" -L formats | Select-String -Pattern "inchi"
+    93	
+    94	      - name: Build .exe with PyInstaller
+    95	        run: |
+    96	          set -e
+    97	          SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'].replace(chr(92), '/'))")
+    98	          echo "site-packages resolu: $SITE_PACKAGES"
+    99	          pyinstaller --noconfirm --onefile --windowed \
+   100	            --name VinaStudio \
+   101	            --paths src \
+   102	            --add-data "src/reference_data;reference_data" \
+   103	            --add-data "src/i18n;i18n" \
+   104	            --add-data "docking/receptor;docking/receptor" \
+   105	            --add-data "src/assets/fonts;assets/fonts" \
+   106	            --add-data "image_theme;image_theme" \
+   107	            --add-data "receptor_profiles;receptor_profiles" \
+   108	            --add-binary "docking/bin/vina.exe;docking/bin" \
+   109	            --add-data "$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin" \
+   110	            --add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin" \
+   111	            --add-data "$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin" \
+   112	            --add-data "$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel" \
+   113	            --add-data "vcredist/vc_redist.x64.exe;vcredist" \
+   114	            --collect-all plip \
+   115	            --collect-all openbabel \
+   116	            run_gui.py
+   117	
+   118	      - name: Copy credit_du_logiciel next to the exe (required by _credits_root())
+   119	        shell: pwsh
+   120	        run: |
+   121	          Copy-Item -Path "credit_du_logiciel" -Destination "dist\credit_du_logiciel" -Recurse -Force
+   122	          if (-not (Test-Path "dist\credit_du_logiciel")) {
+   123	            Write-Error "credit_du_logiciel absent apres copie -- abandon."
+   124	            exit 1
+   125	          }
+   126	          Write-Host "OK : credit_du_logiciel copie dans dist\credit_du_logiciel"
+   127	
+   128	      - name: Build installer with Inno Setup
+   129	        shell: pwsh
+   130	        run: |
+   131	          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "VinaStudio.iss"
+   132	
+   133	      - name: Upload installer as artifact
+   134	        uses: actions/upload-artifact@v4
+   135	        with:
+   136	          name: VinaStudio-Windows-Installer
+   137	          path: installer_output/VinaStudio-Setup-*.exe
+   138	
+   139	      - name: Upload .exe as artifact
+   140	        uses: actions/upload-artifact@v4
+   141	        with:
+   142	          name: VinaStudio-Windows
+   143	          path: |
+   144	            dist/VinaStudio.exe
+   145	            dist/credit_du_logiciel/**
+
+======================================================================
+2) TOUS LES FICHIERS .spec DU DEPOT
+======================================================================
+--- ./src/VinaStudio.spec ---
+     1	# -*- mode: python ; coding: utf-8 -*-
+     2	
+     3	from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
+     4	
+     5	# Collecte complete du module Python openbabel (wheel autonome utilise
+     6	# par PLIP via "from openbabel import pybel") : plugins de formats
+     7	# (lib/openbabel/<version>/*.so) et donnees (share/openbabel/*), qui
+     8	# ne sont PAS suivis automatiquement par PyInstaller car charges
+     9	# dynamiquement a l'execution, pas via une dependance liee (ldd).
+    10	_openbabel_datas = collect_data_files('openbabel')
+    11	_openbabel_binaries = collect_dynamic_libs('openbabel')
+    12	
+    13	# Plugins du module Python openbabel (chargement dynamique via
+    14	# BABEL_LIBDIR, invisibles pour l'analyse automatique de PyInstaller
+    15	# car non lies directement). Copies manuellement dans
+    16	# openbabel_python_plugins/ puis places explicitement sous
+    17	# openbabel/lib/openbabel/3.2.1 dans le build, la ou
+    18	# plip_worker._fix_babel_datadir_for_python_bindings() les attend.
+    19	_openbabel_plugin_dir = '/home/stoni/MexAB_MexR_Analyzer_BETA/openbabel_python_plugins'
+    20	_openbabel_plugin_datas = [
+    21	    (_openbabel_plugin_dir, 'openbabel/lib/openbabel/3.2.1')
+    22	]
+    23	
+    24	
+    25	a = Analysis(
+    26	    ['../run_gui.py'],
+    27	    pathex=['/home/stoni/MexAB_MexR_Analyzer_BETA'],
+    28	    binaries=[
+    29	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina', 'docking/bin'),
+    30	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel', 'obabel_runtime/bin'),
+    31	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0', 'runtime_libs'),
+    32	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0', 'runtime_libs'),
+    33	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0', 'runtime_libs'),
+    34	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7', 'runtime_libs'),
+    35	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07', 'runtime_libs'),
+    36	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1', 'runtime_libs'),
+    37	    ] + _openbabel_binaries,
+    38	    datas=[
+    39	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data', 'reference_data'),
+    40	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n', 'i18n'),
+    41	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor', 'docking/receptor'),
+    42	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/lib/openbabel', 'obabel_runtime/lib/openbabel'),
+    43	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/share/openbabel', 'obabel_runtime/share/openbabel'),
+    44	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/assets/fonts', 'assets/fonts'),
+    45	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/image_theme', 'image_theme'),
+    46	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles', 'receptor_profiles'),
+    47	    ] + _openbabel_datas + _openbabel_plugin_datas,
+    48	    hiddenimports=[],
+    49	    hookspath=[],
+    50	    hooksconfig={},
+    51	    runtime_hooks=[],
+    52	    excludes=[],
+    53	    noarchive=False,
+    54	    optimize=0,
+    55	)
+    56	pyz = PYZ(a.pure)
+    57	
+    58	exe = EXE(
+    59	    pyz,
+    60	    a.scripts,
+    61	    [],
+    62	    exclude_binaries=True,
+    63	    name='VinaStudio',
+    64	    debug=False,
+    65	    bootloader_ignore_signals=False,
+    66	    strip=False,
+    67	    upx=True,
+    68	    console=False,
+    69	    disable_windowed_traceback=False,
+    70	    argv_emulation=False,
+    71	    target_arch=None,
+    72	    codesign_identity=None,
+    73	    entitlements_file=None,
+    74	    icon=['/home/stoni/MexAB_MexR_Analyzer_BETA/src/vinastudio_icon.png'],
+    75	)
+    76	coll = COLLECT(
+    77	    exe,
+    78	    a.binaries,
+    79	    a.datas,
+    80	    strip=False,
+    81	    upx=True,
+    82	    upx_exclude=[],
+    83	    name='VinaStudio',
+    84	)
+
+
+======================================================================
+3) EXTRACTION DES --add-data / --add-binary (workflow Windows)
+======================================================================
+"src/reference_data;reference_data"
+"src/i18n;i18n"
+"docking/receptor;docking/receptor"
+"src/assets/fonts;assets/fonts"
+"image_theme;image_theme"
+"receptor_profiles;receptor_profiles"
+"docking/bin/vina.exe;docking/bin"
+"$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin"
+"$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin"
+"$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin"
+"$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel"
+"vcredist/vc_redist.x64.exe;vcredist"
+
+======================================================================
+4) VERIFICATION D'EXISTENCE DE CHAQUE CHEMIN SOURCE (cote Windows)
+======================================================================
+Note: Windows utilise ';' comme separateur src;dest, mais on split sur les deux
+      au cas ou pour attraper une entree mal formee.
+
+"src/reference_data                                     -> MANQUANT
+"src/i18n                                               -> MANQUANT
+"docking/receptor                                       -> MANQUANT
+"src/assets/fonts                                       -> MANQUANT
+"image_theme                                            -> MANQUANT
+"receptor_profiles                                      -> MANQUANT
+"docking/bin/vina.exe                                   -> MANQUANT
+"$SITE_PACKAGES/openbabel/bin                           -> MANQUANT
+"$SITE_PACKAGES/openbabel.libs                          -> MANQUANT
+"$SITE_PACKAGES/openbabel_wheel.libs                    -> MANQUANT
+"$SITE_PACKAGES/openbabel/share/openbabel               -> MANQUANT
+"vcredist/vc_redist.x64.exe                             -> MANQUANT
+
+======================================================================
+5) MEME EXTRACTION POUR LE(S) .spec (reference de verite probable)
+======================================================================
+--- Chemins declares dans ./src/VinaStudio.spec ---
+/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina   -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1 -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n           -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor   -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/lib/openbabel -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/share/openbabel -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/assets/fonts   -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/image_theme        -> OK
+/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles  -> OK
+
+
+======================================================================
+6) ARBORESCENCE REELLE (src/ + racine, profondeur 3) POUR COMPARAISON VISUELLE
+======================================================================
+.
+./analysis_ready.csv
+./apply_liquid_glass.sh
+./arborescence.txt
+./_archive_backups
+./_archive_backups/20260921_205859
+./_archive_backups/20260921_205859/pre_patch16
+./_archive_backups/20260921_210308
+./_archive_backups/20260921_210308/pre_patch17_main_window.py
+./_archive_backups/20260921_210841
+./_archive_backups/20260921_210841/pre_patch18_main_window.py
+./_archive_backups/20260921_211122
+./_archive_backups/20260921_211122/pre_patch19_main_window.py
+./_archive_backups/20260921_212612
+./_archive_backups/20260921_212612/pre_patch20
+./_archive_backups/20260921_212640
+./_archive_backups/20260921_212640/pre_patch20
+./_archive_backups/20260921_214531_patch21
+./_archive_backups/20260921_214531_patch21/phyto_api.py
+./_archive_backups/20260921_214531_patch21/phyto_page.py
+./_archive_backups/20260921_215803_patch22
+./_archive_backups/20260921_215803_patch22/phyto_api.py
+./_archive_backups/20260921_215803_patch22/phyto_page.py
+./_archive_pdbqt_raw
+./_archive_pdbqt_raw/20260915_080629
+./_archive_pdbqt_raw/20260915_080629/docking
+./_a_supprimer
+./_a_supprimer/src
+./_a_supprimer/src/analysis
+./_a_supprimer/src/dist
+./_a_supprimer/src/docking
+./_a_supprimer/src/gui
+./_a_supprimer/src/i18n
+./_a_supprimer/src/plotting.py.bak_libelles_20260921_071739
+./_a_supprimer/src/scientific_fusion.py.bak_libelles_20260921_071739
+./_a_supprimer/src/stats_engine.py.bak_familles_20260920_220917
+./_a_supprimer/src/tools
+./_a_supprimer/src/visualization
+./audit_build_windows.sh
+./audit_output.txt
+./audit_windows_paths.sh
+./backups
+./backups/resultats_docking_MexB_MexR_20260821_0527.tar.gz
+./backups/stoni_vina_fonctionnel_20260821_0527.tar.gz
+./build_and_package.sh
+./build_and_package_v2.sh
+./build_and_package_v2.sh.bak_20260922_041827
+./build_deb_final.sh
+./build_deb_package.sh
+./build_portable_archive.sh
+./clean_git_repo.sh
+./credit_du_logiciel
+./credit_du_logiciel/captions.json
+./credit_du_logiciel/stage_ollombo
+./credit_du_logiciel/stage_ollombo/photo_1_2026-09-20_17-35-04.jpg
+./credit_du_logiciel/stage_ollombo/photo_2_2026-09-20_17-35-04.jpg
+./credit_du_logiciel/stage_pointe_noire
+./credit_du_logiciel/stage_pointe_noire/photo_1_2026-09-19_18-11-16.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_21_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_22_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_24_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_26_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_27_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_28_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_33_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_35_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_36_2026-09-19_18-12-58.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_5_2026-09-19_18-11-16.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_62_2026-09-19_18-10-03.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_8_2026-09-19_18-11-16.jpg
+./credit_du_logiciel/stage_pointe_noire/photo_91_2026-09-19_18-10-03.jpg
+./credit_du_logiciel/stage_pointe_noire/VID_20251026_211730.mp4
+./credit_du_logiciel/stage_pointe_noire/VID-20251026-WA0007.mp4
+./credit_du_logiciel/stage_pointe_noire/VID_20251029_162411.mp4
+./credit_du_logiciel/um6ss
+./credit_du_logiciel/um6ss/photo_19_2026-09-19_18-12-01.jpg
+./credit_du_logiciel/um6ss/photo_68_2026-09-19_18-11-16.jpg
+./credit_du_logiciel/um6ss/photo_73_2026-09-19_18-11-16.jpg
+./credit_du_logiciel/um6ss/photo_82_2026-09-19_18-12-01.jpg
+./credit_du_logiciel/um6ss/photo_85_2026-09-19_18-12-01.jpg
+./dev
+./dev/scripts_maintenance
+./dev/scripts_maintenance/diag_and_fix_env_issue.sh
+./dev/scripts_maintenance/diag_appimage_content.sh
+./dev/scripts_maintenance/fix_apprun_and_repack.sh
+./dev/scripts_maintenance/install_vinastudio_local.sh
+./dev/scripts_maintenance/prepare_linux_runtime.sh
+./dev/scripts_maintenance/push_to_github.sh
+./dev/scripts_maintenance/setup_git_local.sh
+./dev/scripts_maintenance/start_vinastudio.sh
+./diag_credits_20260920_174357.log
+./diag_credits.sh
+./diag_deb_content.sh
+./diag_dist_exe.sh
+./diag_launch_failure.sh
+./diagnose_build.sh
+./diagnostic_csv_campagnes.py
+./diagnostic_csv_campagnes.txt
+./diagnostic_phytomolecules.py
+./diagnostic_phytomolecules_rapport.json
+./diag_packaging.sh
+./diag_plip2.sh
+./diag_plip.sh
+./docking
+./docking/bin
+./docking/bin/vina
+./docking/ligands
+./docking/receptor
+./docking/receptor/3W9J.pdbqt
+./docking/receptor/AcrB
+./docking/receptor/AcrR
+./docking/receptor/AdeB
+./docking/receptor/CmeB
+./docking/receptor/CmeR
+./docking/receptor/MexR
+./docking/receptor/MexY
+./docking_results_combined_acrb_site2_ecoli_acrr_e67_ecoli.csv
+./docking_results_combined.csv
+./docking_results_combined_MexB_MexR.csv
+./docs
+./docs/technical_notes
+./docs/technical_notes/article_mexab_mexr_analyzer.md
+./docs/technical_notes/chemrxiv.15007681_v1.pdf
+./env_info.txt
+./extraire_gui.py
+./extraire_session.py
+./extrait_analyse.txt
+./extrait_docking.txt
+./extrait_gui_analyse.txt
+./extrait_onglets_fin.txt
+./extrait_results_page.txt
+./extrait_session.txt
+./files
+./fix_fichier_invalide_windows.sh
+./fix_receptor_pdbqt.py
+./fix_viewer_perf_color_slider.py
+./fix_viewer_rendering.py
+./image_theme
+./image_theme/2014-05-20.jpg
+./image_theme/a-c-NqXqLPhdbvU-unsplash.jpg
+./image_theme/alex-shuper-iUy-W6TL7yw-unsplash.jpg
+./image_theme/anders-jilden-GjwsHRIcQjU-unsplash.jpg
+./image_theme/anna-wangler-_GqwoiT7QY8-unsplash.jpg
+./image_theme/asif-aether-L3n_CsmKSR4-unsplash.jpg
+./image_theme/daniel-deiev-AQhIKR0YKlk-unsplash.jpg
+./image_theme/darcy-liu-k6zJD-DEdng-unsplash.jpg
+./image_theme/edewaa-foster-aWkpMIIC5aY-unsplash.jpg
+./image_theme/faded_gallery-V3gOc5dbq9c-unsplash.jpg
+./image_theme/geranimo-bKhETeDV1WM-unsplash.jpg
+./image_theme/giulio-casagrande-rnpYkwn7bJw-unsplash.jpg
+./image_theme/greg-rakozy-0LU4vO5iFpM-unsplash.jpg
+./image_theme/greg-rakozy-oMpAz-DN-9I-unsplash.jpg
+./image_theme/ian-dooley-DuBNA1QMpPA-unsplash.jpg
+./image_theme/image_2da1bd1b.jpg
+./image_theme/jms-kFHz9Xh3PPU-unsplash.jpg
+./image_theme/jonatan-pie-h8nxGssjQXs-unsplash.jpg
+./image_theme/martin-martz-xA4v5VqLATs-unsplash.jpg
+./image_theme/nasa-V4ZksNimxLk-unsplash.jpg
+./image_theme/patrick-fore-850jTF12RSQ-unsplash.jpg
+./image_theme/pavel-s-HzZs7r8Z9Hc-unsplash.jpg
+./image_theme/pexels-doubleseven-1035364.jpg
+./image_theme/pexels-fatih-2160365314-36683914.jpg
+./image_theme/pexels-fayette-reynolds-m-s-181007507-11198500.jpg
+./image_theme/pexels-googledeepmind-25626509.jpg
+./image_theme/pexels-jeff-burkholder-219258325-11899950.jpg
+./image_theme/pexels-luisfe-5191961.jpg
+./image_theme/pexels-luisfe-5191975.jpg
+./image_theme/pexels-magda-ehlers-pexels-5322711.jpg
+./image_theme/pexels-marek-piwnicki-3907296-6107989.jpg
+./image_theme/pexels-mikhail-nilov-8851079.jpg
+./image_theme/pexels-muhammed-mahsum-tunc-859110584-35102257.jpg
+./image_theme/pexels-nicola-narracci-157460431-35967917.jpg
+./image_theme/pexels-solyartphotos-8584226.jpg
+./image_theme/pexels-steve-30630118.jpg
+./image_theme/pexels-tara-winstead-7722923.jpg
+./image_theme/pexels-thales13-39353297.jpg
+./image_theme/pexels-turek3024-8741786.jpg
+./image_theme/pexels-valeria-drozdova-2148646707-35324889.jpg
+./image_theme/plufow-le-studio-EoLAWkskAIc-unsplash.jpg
+./image_theme/qingbao-meng-01_igFr7hd4-unsplash.jpg
+./image_theme/sean-fahrenbruch-_07FxAO8oG0-unsplash.jpg
+./image_theme/sean-fahrenbruch-Ir2dJmcJpys-unsplash.jpg
+./image_theme/sebastian-svenson-d2w-_1LJioQ-unsplash.jpg
+./image_theme/siora-photography-R1JvvBHh3v8-unsplash.jpg
+./image_theme/stefan-stefancik-TPv9dh822VA-unsplash.jpg
+./image_theme/steve-a-johnson-3pFy7N6louU-unsplash.jpg
+./image_theme/steve-a-johnson-5dFfx_aASpI-unsplash.jpg
+./image_theme/steve-a-johnson-Asyq14c-KtQ-unsplash.jpg
+./image_theme/steve-a-johnson-hgOpejiYhvU-unsplash.jpg
+./image_theme/steve-a-johnson-PyOuwV2_dyA-unsplash.jpg
+./image_theme/Um6ss_logo.png
+./image_theme/umng.png
+./image_theme/urban-vintage-78A265wPiO4-unsplash.jpg
+./image_theme/vincent-guth-62V7ntlKgL8-unsplash.jpg
+./image_theme/wade-meng-LgCj9qcrfhI-unsplash.jpg
+./init_et_push_github.sh
+./inspecter_remote.sh
+./install_and_verify.sh
+./ligands
+./ligands/antidepresseur
+./ligands/antidepresseur/SDF_brute
+./ligands/antihistaminiques_individuels
+./ligands/antihistaminiques_individuels/Alcaftadine_CID19371515.sdf
+./ligands/antihistaminiques_individuels/Astemizole_CID2247.sdf
+./ligands/antihistaminiques_individuels/Azelastine_CID2267.sdf
+./ligands/antihistaminiques_individuels/Bilastine_CID185460.sdf
+./ligands/antihistaminiques_individuels/Brompheniramine_CID6834.sdf
+./ligands/antihistaminiques_individuels/Cetirizine_CID2678.sdf
+./ligands/antihistaminiques_individuels/-_-Chlorpheniramine_CID2725.sdf
+./ligands/antihistaminiques_individuels/Clemastine_CID26987.sdf
+./ligands/antihistaminiques_individuels/Cyclizine_CID6726.sdf
+./ligands/antihistaminiques_individuels/Cyproheptadine_CID2913.sdf
+./ligands/antihistaminiques_individuels/Desloratadine_CID124087.sdf
+./ligands/antihistaminiques_individuels/Dimenhydrinate_CID10660.sdf
+./ligands/antihistaminiques_individuels/Diphenhydramine_CID3100.sdf
+./ligands/antihistaminiques_individuels/Doxylamine_CID3162.sdf
+./ligands/antihistaminiques_individuels/Ebastine_CID3191.sdf
+./ligands/antihistaminiques_individuels/Emedastine_CID3219.sdf
+./ligands/antihistaminiques_individuels/Fexofenadine_CID3348.sdf
+./ligands/antihistaminiques_individuels/Hydroxyzine_CID3658.sdf
+./ligands/antihistaminiques_individuels/Ketotifen_CID3827.sdf
+./ligands/antihistaminiques_individuels/Levocetirizine_CID1549000.sdf
+./ligands/antihistaminiques_individuels/Loratadine_CID3957.sdf
+./ligands/antihistaminiques_individuels/Meclizine_CID4034.sdf
+./ligands/antihistaminiques_individuels/Mizolastine_CID65906.sdf
+./ligands/antihistaminiques_individuels/Olopatadine_CID5281071.sdf
+./ligands/antihistaminiques_individuels/Oxatomide_CID4615.sdf
+./ligands/antihistaminiques_individuels/Rupatadine_CID133017.sdf
+./ligands/antihistaminiques_individuels/Terfenadine_CID5405.sdf
+./ligands/antihistaminiques_individuels/Triprolidine_CID5282443.sdf
+./ligands/antihistaminiques.sdf
+./ligands/antipsychotiques_individuels
+./ligands/antipsychotiques_individuels/Amisulpride_CID2159.sdf
+./ligands/antipsychotiques_individuels/Aripiprazole_CID60795.sdf
+./ligands/antipsychotiques_individuels/Asenapine_CID163091.sdf
+./ligands/antipsychotiques_individuels/Brexpiprazole_CID11978813.sdf
+./ligands/antipsychotiques_individuels/Cariprazine_CID11154555.sdf
+./ligands/antipsychotiques_individuels/Chlorpromazine_CID2726.sdf
+./ligands/antipsychotiques_individuels/Chlorprothixene_CID667467.sdf
+./ligands/antipsychotiques_individuels/Clozapine_CID135398737.sdf
+./ligands/antipsychotiques_individuels/Droperidol_CID3168.sdf
+./ligands/antipsychotiques_individuels/Flupentixol_CID5281881.sdf
+./ligands/antipsychotiques_individuels/Fluphenazine_CID3372.sdf
+./ligands/antipsychotiques_individuels/Haloperidol_CID3559.sdf
+./ligands/antipsychotiques_individuels/Iloperidone_CID71360.sdf
+./ligands/antipsychotiques_individuels/Levomepromazine_CID72287.sdf
+./ligands/antipsychotiques_individuels/Loxapine_CID3964.sdf
+./ligands/antipsychotiques_individuels/Lurasidone_CID213046.sdf
+./ligands/antipsychotiques_individuels/Molindone_CID23897.sdf
+./ligands/antipsychotiques_individuels/Olanzapine_CID135398745.sdf
+./ligands/antipsychotiques_individuels/Paliperidone_CID115237.sdf
+./ligands/antipsychotiques_individuels/Perphenazine_CID4748.sdf
+./ligands/antipsychotiques_individuels/Pimavanserin_CID10071196.sdf
+./ligands/antipsychotiques_individuels/Promethazine_CID4927.sdf
+./ligands/antipsychotiques_individuels/Quetiapine_CID5002.sdf
+./ligands/antipsychotiques_individuels/Risperidone_CID5073.sdf
+./ligands/antipsychotiques_individuels/Sulpiride_CID5355.sdf
+./ligands/antipsychotiques_individuels/Thioridazine_CID5452.sdf
+./ligands/antipsychotiques_individuels/Trifluoperazine_CID5566.sdf
+./ligands/antipsychotiques_individuels/Ziprasidone_CID60854.sdf
+./ligands/antipsychotiques_individuels/Zuclopenthixol_CID5311507.sdf
+./ligands/antipsychotiques.sdf
+./ligands/cid_nom_cache.json
+./ligands/cid_nom_cache_v4.json
+./ligands/download_sdf.sh
+./ligands/pdbqt
+./ligands/pdbqt/antidepresseurs_pdbqt
+./ligands/pdbqt/antihistaminiques_pdbqt
+./ligands/pdbqt/antipsychotiques_pdbqt
+./ligands/phytomolecules_individuels
+./ligands/phytomolecules_individuels/Apigenin_CID5280443.sdf
+./ligands/phytomolecules_individuels/Baicalein_CID5281605.sdf
+./ligands/phytomolecules_individuels/Berberine_CID2353.sdf
+./ligands/phytomolecules_individuels/Caffeic_Acid_CID689043.sdf
+./ligands/phytomolecules_individuels/Carnosol_CID442009.sdf
+./ligands/phytomolecules_individuels/Carvacrol_CID10364.sdf
+./ligands/phytomolecules_individuels/Catechin_CID9064.sdf
+./ligands/phytomolecules_individuels/Chlorogenic_Acid_CID1794427.sdf
+./ligands/phytomolecules_individuels/Cinnamaldehyde_CID637511.sdf
+./ligands/phytomolecules_individuels/Curcumin_CID969516.sdf
+./ligands/phytomolecules_individuels/Daidzein_CID5281708.sdf
+./ligands/phytomolecules_individuels/Diosmin_CID5281613.sdf
+./ligands/phytomolecules_individuels/Ellagic_Acid_CID5281855.sdf
+./ligands/phytomolecules_individuels/Epicatechin_CID72276.sdf
+./ligands/phytomolecules_individuels/Eugenol_CID3314.sdf
+./ligands/phytomolecules_individuels/Ferulic_Acid_CID445858.sdf
+./ligands/phytomolecules_individuels/Fisetin_CID5281614.sdf
+./ligands/phytomolecules_individuels/Gallic_Acid_CID370.sdf
+./ligands/phytomolecules_individuels/Genistein_CID5280961.sdf
+./ligands/phytomolecules_individuels/Hesperidin_CID10621.sdf
+./ligands/phytomolecules_individuels/Kaempferol_CID5280863.sdf
+./ligands/phytomolecules_individuels/Luteolin_CID5280445.sdf
+./ligands/phytomolecules_individuels/Morin_CID5281670.sdf
+./ligands/phytomolecules_individuels/Myricetin_CID5281672.sdf
+./ligands/phytomolecules_individuels/Naringenin_CID439246.sdf
+./ligands/phytomolecules_individuels/Quercetin_CID5280343.sdf
+./ligands/phytomolecules_individuels/Resveratrol_CID445154.sdf
+./ligands/phytomolecules_individuels/Rosmarinic_Acid_CID5281792.sdf
+./ligands/phytomolecules_individuels/Rutin_CID5280805.sdf
+./ligands/phytomolecules_individuels/Silibinin_CID31553.sdf
+./ligands/phytomolecules_individuels/Thymol_CID6989.sdf
+./ligands/phytomolecules.sdf
+./ligands/sdf_vers_pdbqt.sh
+./ligands/split_sdf_nomme.py
+./ligands/split_sdf_nomme_v2.py
+./ligands/split_sdf_nomme_v3.py
+./ligands/split_sdf_nomme_v4.py
+./main
+./main_window_broken_blocks.txt
+./obabel_runtime
+./obabel_runtime/bin
+./obabel_runtime/bin/obabel
+./obabel_runtime/lib
+./obabel_runtime/lib/openbabel
+./obabel_runtime/share
+./obabel_runtime/share/openbabel
+./openbabel_python_plugins
+./openbabel_python_plugins/abinitformat.so
+./openbabel_python_plugins/acesformat.so
+./openbabel_python_plugins/acrformat.so
+./openbabel_python_plugins/adfformat.so
+./openbabel_python_plugins/alchemyformat.so
+./openbabel_python_plugins/amberformat.so
+./openbabel_python_plugins/aoforceformat.so
+./openbabel_python_plugins/APIInterface.so
+./openbabel_python_plugins/asciiformat.so
+./openbabel_python_plugins/balstformat.so
+./openbabel_python_plugins/bgfformat.so
+./openbabel_python_plugins/boxformat.so
+./openbabel_python_plugins/cacaoformat.so
+./openbabel_python_plugins/cacheformat.so
+./openbabel_python_plugins/carformat.so
+./openbabel_python_plugins/castepformat.so
+./openbabel_python_plugins/cccformat.so
+./openbabel_python_plugins/cdxmlformat.so
+./openbabel_python_plugins/chem3dformat.so
+./openbabel_python_plugins/chemdoodlejsonformat.so
+./openbabel_python_plugins/chemdrawcdx.so
+./openbabel_python_plugins/chemdrawct.so
+./openbabel_python_plugins/chemicaljsonformat.so
+./openbabel_python_plugins/chemkinformat.so
+./openbabel_python_plugins/chemtoolformat.so
+./openbabel_python_plugins/cifformat.so
+./openbabel_python_plugins/cmlformat.so
+./openbabel_python_plugins/cmlreactformat.so
+./openbabel_python_plugins/cofformat.so
+./openbabel_python_plugins/confabreport.so
+./openbabel_python_plugins/copyformat.so
+./openbabel_python_plugins/crkformat.so
+./openbabel_python_plugins/crystal09format.so
+./openbabel_python_plugins/CSRformat.so
+./openbabel_python_plugins/cssrformat.so
+./openbabel_python_plugins/daltonformat.so
+./openbabel_python_plugins/dlpolyformat.so
+./openbabel_python_plugins/dmolformat.so
+./openbabel_python_plugins/exyzformat.so
+./openbabel_python_plugins/fastaformat.so
+./openbabel_python_plugins/fastsearchformat.so
+./openbabel_python_plugins/fchkformat.so
+./openbabel_python_plugins/featformat.so
+./openbabel_python_plugins/fhformat.so
+./openbabel_python_plugins/fhiaimsformat.so
+./openbabel_python_plugins/fingerprintformat.so
+./openbabel_python_plugins/fpsformat.so
+./openbabel_python_plugins/freefracformat.so
+./openbabel_python_plugins/gamessformat.so
+./openbabel_python_plugins/gamessukformat.so
+./openbabel_python_plugins/gausscubeformat.so
+./openbabel_python_plugins/gaussformat.so
+./openbabel_python_plugins/gausszmatformat.so
+./openbabel_python_plugins/ghemicalformat.so
+./openbabel_python_plugins/groformat.so
+./openbabel_python_plugins/gromos96format.so
+./openbabel_python_plugins/gulpformat.so
+./openbabel_python_plugins/hinformat.so
+./openbabel_python_plugins/inchiformat.so
+./openbabel_python_plugins/jaguarformat.so
+./openbabel_python_plugins/ketformat.so
+./openbabel_python_plugins/lmpdatformat.so
+./openbabel_python_plugins/lpmdformat.so
+./openbabel_python_plugins/MCDLformat.so
+./openbabel_python_plugins/mdffformat.so
+./openbabel_python_plugins/mdlformat.so
+./openbabel_python_plugins/mmcifformat.so
+./openbabel_python_plugins/mmodformat.so
+./openbabel_python_plugins/MNAformat.so
+./openbabel_python_plugins/mol2format.so
+./openbabel_python_plugins/moldenformat.so
+./openbabel_python_plugins/molproformat.so
+./openbabel_python_plugins/molreport.so
+./openbabel_python_plugins/mopacformat.so
+./openbabel_python_plugins/mpdformat.so
+./openbabel_python_plugins/mpqcformat.so
+./openbabel_python_plugins/msiformat.so
+./openbabel_python_plugins/msmsformat.so
+./openbabel_python_plugins/nulformat.so
+./openbabel_python_plugins/nwchemformat.so
+./openbabel_python_plugins/opendxformat.so
+./openbabel_python_plugins/orcaformat.so
+./openbabel_python_plugins/outformat.so
+./openbabel_python_plugins/painterformat.so
+./openbabel_python_plugins/pcmodelformat.so
+./openbabel_python_plugins/pdbformat.so
+./openbabel_python_plugins/pdbqtformat.so
+./openbabel_python_plugins/plugin_charges.so
+./openbabel_python_plugins/plugin_descriptors.so
+./openbabel_python_plugins/plugin_fingerprints.so
+./openbabel_python_plugins/plugin_forcefields.so
+./openbabel_python_plugins/plugin_ops.so
+./openbabel_python_plugins/pngformat.so
+./openbabel_python_plugins/pointcloudformat.so
+./openbabel_python_plugins/posformat.so
+./openbabel_python_plugins/povrayformat.so
+./openbabel_python_plugins/pqrformat.so
+./openbabel_python_plugins/PQSformat.so
+./openbabel_python_plugins/pubchemjsonformat.so
+./openbabel_python_plugins/pubchem.so
+./openbabel_python_plugins/pwscfformat.so
+./openbabel_python_plugins/qchemformat.so
+./openbabel_python_plugins/reportformat.so
+./openbabel_python_plugins/rinchiformat.so
+./openbabel_python_plugins/rsmiformat.so
+./openbabel_python_plugins/rxnformat.so
+./openbabel_python_plugins/shelxformat.so
+./openbabel_python_plugins/siestaformat.so
+./openbabel_python_plugins/smilesformat.so
+./openbabel_python_plugins/smileyformat.so
+./openbabel_python_plugins/stlformat.so
+./openbabel_python_plugins/svgformat.so
+./openbabel_python_plugins/textformat.so
+./openbabel_python_plugins/thermoformat.so
+./openbabel_python_plugins/tinkerformat.so
+./openbabel_python_plugins/titleformat.so
+./openbabel_python_plugins/turbomoleformat.so
+./openbabel_python_plugins/unichemformat.so
+./openbabel_python_plugins/vaspformat.so
+./openbabel_python_plugins/viewmolformat.so
+./openbabel_python_plugins/wlnformat.so
+./openbabel_python_plugins/xedformat.so
+./openbabel_python_plugins/xmlformat.so
+./openbabel_python_plugins/xsfformat.so
+./openbabel_python_plugins/xtcformat.so
+./openbabel_python_plugins/xyzformat.so
+./openbabel_python_plugins/yasaraformat.so
+./openbabel_python_plugins/zindoformat.so
+./patch16_phytomolecules_tab.py
+./patch17_phytomolecules_finish.py
+./patch18_phytomolecules_label_fix.py
+./patch19_switch_primary_fix.py
+./patch20_phyto_search_fixes.py
+./patch21_phyto_fixes.py
+./patch22_phyto_ui_image_sdf.py
+./_patch_backups
+./_patch_backups/main.py.backup_20260920_161922
+./_patch_backups/main_window.py.backup_20260920_161922
+./_patch_backups/main_window.py.backup_darkzones_20260920_165835
+./_patch_backups/main_window.py.backup_poller_20260920_163848
+./patch_build_credits_data.py
+./patch_build_windows.py
+./patch_campagne.py
+./patch_credits_about.py
+./patch_credits_stop_video.py
+./patch_entetes.py
+./patch_familles.py
+./patch_libelles.py
+./patch_multi_recepteurs_visu.py
+./patch_phyto_table_ux.py
+./patch_reference_data_windows.py
+./patch_session_entete.py
+./patch_spec_datas.sh
+./patch_table_dynamique.py
+./preview_ice_v2.png
+./README.md
+./receptor_profiles
+./receptor_profiles/2v50_clean_acd.json
+./receptor_profiles/2v50_clean_b_2.json
+./receptor_profiles/2v50_clean_b_3.json
+./receptor_profiles/2v50_clean_b.json
+./receptor_profiles/7o9w_clean_a.json
+./receptor_profiles/7o9w_clean_b.json
+./receptor_profiles/acrb_1t9x_viewer.pdb
+./receptor_profiles/acrb_site2_ecoli.json
+./receptor_profiles/acrr_2qop_viewer.pdb
+./receptor_profiles/acrr_e67_ecoli.json
+./receptor_profiles/adeb_7kgg_viewer.pdb
+./receptor_profiles/adeb_ethidium_abaumannii.json
+./receptor_profiles/cmeb_8gjk_viewer.pdb
+./receptor_profiles/cmeb_ampicillin_cjejuni.json
+./receptor_profiles/cmer_3qps_viewer.pdb
+./receptor_profiles/cmer_3qqa_viewer.pdb
+./receptor_profiles/cmer_cholate_cjejuni.json
+./receptor_profiles/cmer_taurocholate_cjejuni.json
+./receptor_profiles/mexb_paeruginosa.json
+./receptor_profiles/mexb_viewer.pdb
+./receptor_profiles/mexr_paeruginosa.json
+./receptor_profiles/mexr_viewer.pdb
+./receptor_profiles/mexy_9e9f_viewer.pdb
+./receptor_profiles/mexy_entrance_paeruginosa.json
+./receptor_profiles/user_grid_overrides
+./reconcilier_et_push.sh
+./requirements.txt
+./requirements-windows.txt
+./run_gui.py
+./runtime_libs
+./runtime_libs/libboost_filesystem.so.1.88.0
+./runtime_libs/libboost_program_options.so.1.88.0
+./runtime_libs/libboost_thread.so.1.88.0
+./runtime_libs/libinchi.so.1.07
+./runtime_libs/libmaeparser.so.1
+./runtime_libs/libopenbabel.so.7
+./scientific_analysis
+./scientific_analysis/scores_fusionnes.csv
+./scientific_analysis/scores_fusionnes_global.csv
+./scientific_analysis/scores_fusionnes_meta.json
+./scripts
+./.session
+./src
+./src/analysis
+./src/analysis/analysis_controller.py
+./src/analysis/comparative_analysis.py
+./src/analysis/hit_selector.py
+./src/analysis/__init__.py
+./src/analysis/integrated_hit_report.py
+./src/analysis/interaction_analyzer.py
+./src/analysis/interaction_summary.py
+./src/analysis/pocket_detector.py
+./src/analysis/pose_convergence.py
+./src/analysis/pose_validator.py
+./src/analysis/statistics_pipeline.py
+./src/analysis/structural_validator.py
+./src/assets
+./src/assets/fonts
+./src/a.zip
+./src/build
+./src/build_appimage.sh
+./src/campaign_table.py
+./src/column_matcher.py
+./src/crash_trace.txt
+./src/diag18_segfault.sh
+./src/diag_3d_crash_20260920_162311.log
+./src/diag_3d_freeze_20260920_163847.log
+./src/diag_dark_zones_20260920_165035.log
+./src/diag_dark_zones.py
+./src/diagnose_docking_ui.py
+./src/diagnose_generic_docking_2.py
+./src/diagnose_generic_docking.py
+./src/diagnostic_analyse.py
+./src/diagnostic_analyse.txt
+./src/diag_segfault_20260920_161301.log
+./src/diag_segfault2_20260920_161443.log
+./src/diag_segfault3_20260920_161558.log
+./src/dist
+./src/docking
+./src/docking/config_manager.py
+./src/docking/docking_results.py
+./src/docking/fusion_results.py
+./src/docking/__init__.py
+./src/docking/ligand_manager.py
+./src/docking/ligands
+./src/docking_parser.py
+./src/docking/receptor_manager.py
+./src/docking/receptor_profile.py
+./src/docking/receptor_viewer_pdb_prep.py
+./src/docking/results
+./src/docking/sdf_preparer.py
+./src/docking/vina_engine.py
+./src/docking/vina_worker.py
+./src/environment
+./src/environment/environment_manager.py
+./src/environment/__init__.py
+./src/fetch_mw_logp.py
+./src/fix_receptor_pdbqt.py
+./src/folder_scanner.py
+./src/gui
+./src/gui/credits_page.py
+./src/gui/credits_page.py.bak_frozenpath_20260921_162345
+./src/gui/credits_page.py.bak_frozenpath2_20260921_162446
+./src/gui/files.zip
+./src/gui/__init__.py
+./src/gui/main_window.py
+./src/gui/main_window.py.backup_20260920_161000
+./src/gui/main_window.py.backup_test_no_scroll_20260917_182935
+./src/gui/main_window.py.bak_20260921_233022
+./src/gui/main_window.py.bak_20260921_233255
+./src/gui/main_window.py.bak_20260922_001317
+./src/gui/main_window.zip
+./src/gui/main.zip
+./src/gui/patch_phyto_table_ux.py
+./src/gui/phyto_page.before_table_ux_20260921_225031.py
+./src/gui/phyto_page.py
+./src/gui/phyto_page.py.bak_avant_patch23
+./src/gui/theme_manager.py
+./src/gui/viewer_template.py
+./src/gui/visualization_bridge.py
+./src/gui/visualization_bridge.py.bak_20260922_001317
+./src/i18n
+./src/i18n/__init__.py
+./src/i18n/language_manager.py
+./src/main.py
+./src/patch_dark_zones.py
+./src/patch_glass_no_app_filter.py
+./src/patch_interaction3d.py
+./src/patch_poller_and_watch.sh
+./src/patch_theme_blur.py
+./src/phyto_api.py
+./src/phyto_api.py.bak_avant_patch23
+./src/plip_2d_diagram.py
+./src/plip_engine.py
+./src/plotting.py
+./src/reference_data
+./src/reference_data/scores_fusionnes.csv
+./src/reference_data/scores_fusionnes_global.csv
+./src/regression_model.py
+./src/sauvegarde_projet.sh
+./src/scientific_fusion.py
+./src/session_manager.py
+./src/session_runtime.py
+./src/statistics_pipeline.py
+./src/stats_engine.py
+./src/tools
+./src/tools/__init__.py
+./src/tools/obabel_locator.py
+./src/tools/plip_worker.py
+./src/tools/runtime_env.py
+./src/tools/tool_manager.py
+./src/tools/vcredist_check.py
+./src/translations.py
+./src/vinastudio_icon.ico
+./src/vinastudio_icon.png
+./src/VinaStudio.spec
+./src/visualization
+./src/visualization/__init__.py
+./src/visualization/interaction_3d.py
+./src/visualization/interaction_visualizer.py
+./src/visualization/plip_runner.py
+./src/visualization/pose_manager.py
+./src/visualization/visualization_manager.py
+./tests
+./tests/test_analysis_pipeline_priority.py
+./tests/test_plip_complex_merge.py
+./tests/test_viewer_drag_repaint.py
+./trouver_blocs2.sh
+./trouver_blocs3.sh
+./trouver_blocs.sh
+./trouver_packaging2.sh
+./trouver_packaging3.sh
+./trouver_packaging.sh
+./trouver_visualisation2.sh
+./trouver_visualisation3.sh
+./trouver_visualisation4.sh
+./trouver_visualisation5.sh
+./trouver_visualisation6.sh
+./trouver_visualisation7.sh
+./trouver_visualisation.sh
+./trouver_windows2.sh
+./trouver_windows.sh
+./uninstall_vinastudio.sh
+./usages.txt
+./venv
+./venv/bin
+./venv/bin/activate
+./venv/bin/activate.csh
+./venv/bin/activate.fish
+./venv/bin/Activate.ps1
+./venv/bin/f2py
+./venv/bin/fonttools
+./venv/bin/idna
+./venv/bin/normalizer
+./venv/bin/numpy-config
+./venv/bin/obabel
+./venv/bin/pip
+./venv/bin/pip3
+./venv/bin/pip3.14
+./venv/bin/plip
+./venv/bin/pyftmerge
+./venv/bin/pyftsubset
+./venv/bin/pyi-archive_viewer
+./venv/bin/pyi-bindepend
+./venv/bin/pyi-grab_version
+./venv/bin/pyi-makespec
+./venv/bin/pyinstaller
+./venv/bin/pyi-set_version
+./venv/bin/pyside6-android-deploy
+./venv/bin/pyside6-assistant
+./venv/bin/pyside6-balsam
+./venv/bin/pyside6-balsamui
+./venv/bin/pyside6-deploy
+./venv/bin/pyside6-designer
+./venv/bin/pyside6-genpyi
+./venv/bin/pyside6-linguist
+./venv/bin/pyside6-lrelease
+./venv/bin/pyside6-lupdate
+./venv/bin/pyside6-metaobjectdump
+./venv/bin/pyside6-project
+./venv/bin/pyside6-qml
+./venv/bin/pyside6-qmlcachegen
+./venv/bin/pyside6-qmlformat
+./venv/bin/pyside6-qmlimportscanner
+./venv/bin/pyside6-qmllint
+./venv/bin/pyside6-qmlls
+./venv/bin/pyside6-qmltyperegistrar
+./venv/bin/pyside6-qsb
+./venv/bin/pyside6-qtpy2cpp
+./venv/bin/pyside6-rcc
+./venv/bin/pyside6-svgtoqml
+./venv/bin/pyside6-uic
+./venv/bin/python
+./venv/bin/python3
+./venv/bin/python3.14
+./venv/bin/ttx
+./venv/bin/𝜋thon
+./venv/include
+./venv/lib
+./venv/lib64
+./venv/lib/python3.14
+./venv/pyvenv.cfg
+./venv/share
+./venv/share/man
+./verif_archive_backups.sh
+./verif_avant_git.sh
+./vinastudio_1.0.1_amd64.deb
+./vinastudio_1.0.1_linux_portable.tar.gz
+./VinaStudio.iss
+./VinaStudio.iss.bak_20260922_043308
+./visualization_bridge.py
+
+======================================================================
+7) HIDDEN IMPORTS / DATAS PYINSTALLER DANS LE WORKFLOW (grep large)
+======================================================================
+30:          pip install pyinstaller
+94:      - name: Build .exe with PyInstaller
+99:          pyinstaller --noconfirm --onefile --windowed \
+
+======================================================================
+8) DIFF RAPIDE: chemins .spec (Linux, verite) vs chemins workflow (Windows)
+======================================================================
+Chemins presents dans .spec mais ABSENTS du workflow Windows:
+/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina
+/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor
+/home/stoni/MexAB_MexR_Analyzer_BETA/image_theme
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/lib/openbabel
+/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/share/openbabel
+/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1
+/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/assets/fonts
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n
+/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data
+(comparaison impossible, verifier extraction ci-dessus)
+
+Chemins presents dans le workflow Windows mais ABSENTS du .spec:
+"$SITE_PACKAGES/openbabel/bin
+"$SITE_PACKAGES/openbabel.libs
+"$SITE_PACKAGES/openbabel/share/openbabel
+"$SITE_PACKAGES/openbabel_wheel.libs
+"docking/bin/vina.exe
+"docking/receptor
+"image_theme
+"receptor_profiles
+"src/assets/fonts
+"src/i18n
+"src/reference_data
+"vcredist/vc_redist.x64.exe
+(comparaison impossible, verifier extraction ci-dessus)
+
+======================================================================
+FIN DE L'AUDIT
+======================================================================

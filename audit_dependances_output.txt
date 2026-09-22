@@ -1,0 +1,328 @@
+======================================================================
+1) Registre central : src/tools/tool_manager.py
+   (toutes les cles 'executables'/'commands' declarees)
+======================================================================
+46-                "name": "AutoDock Vina",
+47-                "required": True,
+48:                "executables": ["vina"],
+49-            },
+50-            "openbabel": {
+51-                "name": "Open Babel",
+52-                "required": True,
+53:                "executables": ["obabel"],
+54-            },
+55-            "pymol": {
+56-                "name": "PyMOL",
+57-                "required": False,
+58:                "executables": ["pymol"],
+59-                "python_modules": ["pymol"],
+60-                "python_runtimes": [
+61-                    "/usr/bin/python3",
+62-                    "/usr/local/bin/python3",
+--
+66-                "name": "ChimeraX",
+67-                "required": False,
+68:                "executables": ["chimerax", "ChimeraX"],
+69-            },
+70-        }
+71-
+72-    # ------------------------------------------------------------------
+--
+195-
+196-        path = self.find_executable(
+197:            definition["executables"]
+198-        )
+199-
+200-        if not path:
+201-            return ToolResult(
+--
+235-
+236-        path = self.find_executable(
+237:            definition["executables"]
+238-        )
+239-
+240-        if not path:
+241-            return ToolResult(
+--
+275-
+276-        executable = self.find_executable(
+277:            definition["executables"]
+278-        )
+279-
+280-        python_path, module_path = self.find_python_module(
+281-            "pymol",
+--
+345-
+346-        executable = self.find_executable(
+347:            definition["executables"]
+348-        )
+349-
+350-        # Recherche complémentaire des emplacements courants.
+351-        candidates = [
+
+======================================================================
+2) Registre central : src/environment/environment_manager.py
+   (toutes les cles 'commands' declarees)
+======================================================================
+40-                name="AutoDock Vina",
+41-                key="vina",
+42:                commands=["vina"],
+43-                required=True,
+44-            ),
+45-
+46-            Dependency(
+47-                name="Open Babel",
+48-                key="openbabel",
+49:                commands=["obabel"],
+50-                required=True,
+51-            ),
+52-
+53-            Dependency(
+54-                name="PyMOL",
+55-                key="pymol",
+56:                commands=["pymol"],
+57-                required=False,
+58-            ),
+59-
+60-            Dependency(
+61-                name="ChimeraX",
+62-                key="chimerax",
+63:                commands=["chimerax"],
+64-                required=False,
+65-            ),
+66-        ]
+67-
+
+======================================================================
+3) Toute la liste des outils/dependances declares (noms complets)
+======================================================================
+--- Cles 'key=' dans tool_manager.py ---
+chimerax
+openbabel
+pymol
+vina
+
+--- Cles 'key=' dans environment_manager.py ---
+chimerax
+openbabel
+pymol
+vina
+
+======================================================================
+4) TOUS les appels directs a un binaire externe dans le code
+   (subprocess.run/Popen/check_output/call, shutil.which)
+   -- pour attraper ce qui NE PASSE PAS par les registres ci-dessus
+======================================================================
+./src/analysis/pocket_detector.py:146:    subprocess.run(
+./src/environment/environment_manager.py:161:            path = shutil.which(command)
+./src/environment/environment_manager.py:176:            result = subprocess.run(
+./src/environment/environment_manager.py:338:            shutil.which("python3"),
+./src/docking/config_manager.py:255:        vina_executable = shutil.which(self.vina_path)
+./src/docking/vina_engine.py:328:        executable = shutil.which(
+./src/docking/vina_engine.py:341:            process = subprocess.run(
+./src/docking/vina_engine.py:458:        executable = shutil.which(
+./src/docking/vina_engine.py:604:            process = subprocess.Popen(
+./src/docking/sdf_preparer.py:88:    if executable == "obabel" and shutil.which("obabel") is None:
+./src/docking/sdf_preparer.py:392:                process = subprocess.run(
+./src/gui/main_window.py:6256:            result = subprocess.run(
+./src/tools/vcredist_check.py:49:    subprocess.run(
+./src/tools/tool_manager.py:79:            path = shutil.which(name)
+./src/tools/tool_manager.py:87:            result = subprocess.run(
+./src/visualization/plip_runner.py:163:        subprocess.run(
+./src/visualization/plip_runner.py:313:            plip_exe = _shutil.which("plip")
+./src/visualization/plip_runner.py:350:        subprocess.run(command, check=True, env=obabel_subprocess_env())
+./src/visualization/pose_manager.py:350:        process = subprocess.Popen(
+./src/visualization/interaction_visualizer.py:254:        process = subprocess.Popen(
+./src/visualization/interaction_3d.py:291:    process = subprocess.Popen(
+./ligands/antidepresseur/SDF_brute/convert_api_final.py:10:    subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "rdkit", "meeko"])
+./ligands/antidepresseur/SDF_brute/convert_final.py:6:result = subprocess.run(
+./ligands/antidepresseur/SDF_brute/convert_final.py:40:    r = subprocess.run(cmd, capture_output=True, text=True)
+./patch_build_credits_data.py:133:    check = subprocess.run(["bash", "-n", str(path)], capture_output=True, text=True)
+
+======================================================================
+5) Chemins binaires codes en dur type /usr/... ou /usr/local/... 
+   (souvent signe d'un outil installe manuellement, comme fpocket)
+======================================================================
+./fix_viewer_rendering.py:1:#!/usr/bin/env python3
+./src/analysis/integrated_hit_report.py:1:#!/usr/bin/env python3
+./src/analysis/pose_convergence.py:1:#!/usr/bin/env python3
+./src/analysis/interaction_summary.py:1:#!/usr/bin/env python3
+./src/patch_theme_blur.py:1:#!/usr/bin/env python3
+./src/environment/environment_manager.py:1:#!/usr/bin/env python3
+./src/environment/environment_manager.py:337:            "/usr/bin/python3",
+./src/diagnose_generic_docking.py:1:#!/usr/bin/env python3
+./src/diagnose_generic_docking_2.py:1:#!/usr/bin/env python3
+./src/fix_receptor_pdbqt.py:1:#!/usr/bin/env python3
+./src/patch_interaction3d.py:1:#!/usr/bin/env python3
+./src/diagnostic_analyse.py:1:#!/usr/bin/env python3
+./src/gui/patch_phyto_table_ux.py:1:#!/usr/bin/env python3
+./src/tools/tool_manager.py:1:#!/usr/bin/env python3
+./src/tools/tool_manager.py:61:                    "/usr/bin/python3",
+./src/tools/tool_manager.py:62:                    "/usr/local/bin/python3",
+./src/tools/tool_manager.py:352:            "/usr/lib/ucsf-chimerax/bin/ChimeraX",
+./src/tools/tool_manager.py:353:            "/usr/bin/chimerax",
+./src/tools/tool_manager.py:354:            "/usr/local/bin/chimerax",
+./src/diagnose_docking_ui.py:1:#!/usr/bin/env python3
+./src/visualization/pose_manager.py:1:#!/usr/bin/env python3
+./src/visualization/interaction_visualizer.py:1:#!/usr/bin/env python3
+./src/visualization/interaction_3d.py:1:#!/usr/bin/env python3
+./src/visualization/interaction_3d.py:10:CHIMERAX = "/usr/lib/ucsf-chimerax/bin/ChimeraX"
+./patch22_phyto_ui_image_sdf.py:1:#!/usr/bin/env python3
+./patch18_phytomolecules_label_fix.py:1:#!/usr/bin/env python3
+./patch19_switch_primary_fix.py:1:#!/usr/bin/env python3
+./run_gui.py:1:#!/usr/bin/env python3
+./fix_receptor_pdbqt.py:1:#!/usr/bin/env python3
+./patch20_phyto_search_fixes.py:1:#!/usr/bin/env python3
+./diagnostic_phytomolecules.py:1:#!/usr/bin/env python3
+./patch_phyto_table_ux.py:1:#!/usr/bin/env python3
+./ligands/split_sdf_nomme_v4.py:1:#!/usr/bin/env python3
+./ligands/split_sdf_nomme_v2.py:1:#!/usr/bin/env python3
+./ligands/split_sdf_nomme.py:1:#!/usr/bin/env python3
+./ligands/split_sdf_nomme_v3.py:1:#!/usr/bin/env python3
+./patch_multi_recepteurs_visu.py:1:#!/usr/bin/env python3
+./patch16_phytomolecules_tab.py:1:#!/usr/bin/env python3
+./patch_build_credits_data.py:1:#!/usr/bin/env python3
+./patch21_phyto_fixes.py:1:#!/usr/bin/env python3
+./patch_reference_data_windows.py:1:#!/usr/bin/env python3
+./patch_credits_about.py:1:#!/usr/bin/env python3
+./patch_build_windows.py:1:#!/usr/bin/env python3
+./patch_credits_stop_video.py:1:#!/usr/bin/env python3
+./patch17_phytomolecules_finish.py:1:#!/usr/bin/env python3
+
+======================================================================
+6) Nom de chaque binaire externe trouve (extraction, dedoublonnee)
+======================================================================
+chimerax
+env
+python
+
+======================================================================
+7) Rappel : ce qui est DEJA embarque dans le workflow Windows
+   (--add-data / --add-binary, extrait direct du fichier)
+======================================================================
+--add-data "src/reference_data;reference_data"
+--add-data "src/i18n;i18n"
+--add-data "docking/receptor;docking/receptor"
+--add-data "src/assets/fonts;assets/fonts"
+--add-data "image_theme;image_theme"
+--add-data "receptor_profiles;receptor_profiles"
+--add-binary "docking/bin/vina.exe;docking/bin"
+--add-data "$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin"
+--add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin"
+--add-data "$SITE_PACKAGES/openbabel_wheel.libs;obabel_runtime/bin"
+--add-data "$SITE_PACKAGES/openbabel/share/openbabel;obabel_runtime/share/openbabel"
+--add-data "vcredist/vc_redist.x64.exe;vcredist"
+
+======================================================================
+8) pocket_detector.py -- comment fpocket est localise/appele
+======================================================================
+3-src/analysis/pocket_detector.py
+4-
+5:Detection de poches via fpocket (appel subprocess), pattern calque sur
+6-src/visualization/plip_runner.py : travail dans un dossier dedie, jamais
+7-dans le dossier source des recepteurs.
+8-
+9:fpocket doit etre installe et accessible dans le PATH (commande `fpocket`).
+10-
+11-Comportement :
+12:- fpocket est appele avec -i MIN_ALPHA_SPHERES pour que les poches
+13-  microscopiques (replis de surface sans interet pharmacologique) ne
+14-  soient meme pas generees. S'applique a n'importe quel recepteur
+15-  (precharge ou importe).
+16-- Chaque poche retournee contient le contenu BRUT du fichier
+17:  pocket<N>_vert.pqr produit par fpocket (`alpha_spheres_pqr`) : ce
+18-  fichier PQR contient chaque sphere alpha avec son propre centre et
+19-  son propre rayon. Le viewer 3D charge ce PQR directement dans
+20-  3Dmol.js et calcule une vraie surface VDW dessus, ce qui donne une
+21-  forme de cavite continue et lisse (comme dans les figures de
+22:  publication fpocket / PyMOL), au lieu d'un nuage de petites boules
+23-  visibles individuellement.
+24-- Tous les descripteurs numeriques de <n>_info.txt sont remontes
+25-  (score, druggability, hydrophobicite, polarite, volume, SASA,
+26-  nombre de spheres alpha, etc.).
+27-
+--
+45-
+46-# Nombre minimum de spheres alpha pour qu'une poche soit conservee par
+47:# fpocket lui-meme (flag -i). En dessous, ce sont des micro-cavites de
+48-# surface sans interet pour y loger un ligand. A ajuster si besoin.
+49-MIN_ALPHA_SPHERES = 20
+50-
+51-_POCKET_HEADER_RE = re.compile(r"^Pocket\s+(\d+)\s*:", re.IGNORECASE)
+52-_DESCRIPTOR_RE = re.compile(r"^\s*([A-Za-z][A-Za-z0-9 ._/\-]*?)\s*:\s*([\-\d.]+)\s*$")
+--
+55-def _parse_info_txt(info_path: Path) -> dict:
+56-    """
+57:    Parse <n>_info.txt produit par fpocket. Retourne
+58-    {pocket_id: {descriptor_key: float, ...}, ...} avec TOUS les
+59:    descripteurs numeriques listes par fpocket pour chaque poche.
+60-    """
+61-    descriptors: dict = {}
+62-    if not info_path.exists():
+63-        return descriptors
+64-
+--
+128-def detect_pockets(receptor_pdb, workdir, min_alpha_spheres: int = MIN_ALPHA_SPHERES):
+129-    """
+130:    Lance fpocket sur `receptor_pdb` et retourne la liste des poches
+131-    detectees, triees par score de druggabilite decroissant.
+132-    `workdir` est un dossier de travail dedie (jamais le dossier
+133-    source du recepteur).
+134-
+135:    Le flag -i (min_alpha_spheres) est passe directement a fpocket :
+136-    les micro-poches sont ecartees a la source, pour n'importe quel
+137-    recepteur (precharge ou importe) affiche dans le viewer.
+138-    """
+139-    receptor_pdb = Path(receptor_pdb)
+140-    workdir = Path(workdir)
+--
+145-
+146-    subprocess.run(
+147:        ["fpocket", "-f", str(local_pdb), "-i", str(min_alpha_spheres)],
+148-        check=True,
+149-    )
+150-
+151-    out_dir = workdir / f"{local_pdb.stem}_out"
+152-    if not out_dir.exists():
+153-        raise RuntimeError(
+154:            f"fpocket n'a produit aucun dossier de resultats attendu : {out_dir}"
+155-        )
+156-
+157-    info_descriptors = _parse_info_txt(out_dir / f"{local_pdb.stem}_info.txt")
+158-
+159-    pockets_dir = out_dir / "pockets"
+
+======================================================================
+9) Recherche large de TOUT nom de binaire externe connu du projet
+   (obabel, vina, fpocket, chimerax + tout autre trouve en 3/6)
+======================================================================
+--- obabel ---
+Reference dans le code (hors venv/tests) :
+8
+Embarque dans le workflow Windows :
+10
+
+--- vina ---
+Reference dans le code (hors venv/tests) :
+7
+Embarque dans le workflow Windows :
+7
+
+--- fpocket ---
+Reference dans le code (hors venv/tests) :
+3
+Embarque dans le workflow Windows :
+0
+0
+
+--- chimerax ---
+Reference dans le code (hors venv/tests) :
+6
+Embarque dans le workflow Windows :
+0
+0
+
+
+======================================================================
+FIN DE L'AUDIT
+======================================================================

@@ -1,0 +1,819 @@
+======================================================================
+1) Tous les fichiers qui importent ou referencent les modules de visu
+   (interaction_3d, InteractionVisualizer, PoseManager, visualization_manager)
+======================================================================
+./src/patch_interaction3d.py
+./src/translations.py
+./src/gui/main_window.py
+./src/visualization/pose_manager.py
+./src/visualization/interaction_visualizer.py
+./src/visualization/visualization_manager.py
+./tests/test_viewer_drag_repaint.py
+./visualization_bridge.py
+
+======================================================================
+2) Contenu complet de visualization_manager.py (couche d'orchestration probable)
+======================================================================
+     1	
+     2	from pathlib import Path
+     3	import xml.etree.ElementTree as ET
+     4	
+     5	
+     6	class VisualizationManager:
+     7	
+     8	
+     9	    def __init__(self, output_dir="visualization_results"):
+    10	
+    11	        self.output_dir = Path(output_dir)
+    12	
+    13	
+    14	
+    15	    def scan(self):
+    16	
+    17	        result = {
+    18	
+    19	            "files": [],
+    20	            "xml": None,
+    21	            "images": [],
+    22	            "structures": [],
+    23	            "tables": []
+    24	
+    25	        }
+    26	
+    27	
+    28	        if not self.output_dir.exists():
+    29	
+    30	            return result
+    31	
+    32	
+    33	
+    34	        for file in self.output_dir.rglob("*"):
+    35	
+    36	            if not file.is_file():
+    37	                continue
+    38	
+    39	
+    40	            result["files"].append(str(file))
+    41	
+    42	
+    43	            ext = file.suffix.lower()
+    44	
+    45	
+    46	            if ext == ".xml":
+    47	
+    48	                result["xml"] = str(file)
+    49	
+    50	
+    51	            elif ext in [".png",".jpg",".jpeg"]:
+    52	
+    53	                result["images"].append(str(file))
+    54	
+    55	
+    56	            elif ext in [".pdb",".pdbqt",".sdf",".mol2"]:
+    57	
+    58	                result["structures"].append(str(file))
+    59	
+    60	
+    61	            elif ext in [".csv",".json"]:
+    62	
+    63	                result["tables"].append(str(file))
+    64	
+    65	
+    66	        return result
+    67	
+    68	
+    69	
+    70	    def read_plip(self, xml):
+    71	
+    72	        data = {
+    73	
+    74	            "residues": [],
+    75	            "interactions": []
+    76	
+    77	        }
+    78	
+    79	
+    80	        if not xml:
+    81	            return data
+    82	
+    83	
+    84	        path = Path(xml)
+    85	
+    86	
+    87	        if not path.exists():
+    88	            return data
+    89	
+    90	
+    91	        tree = ET.parse(path)
+    92	
+    93	        root = tree.getroot()
+    94	
+    95	
+    96	        for r in root.findall(".//bs_residue"):
+    97	
+    98	            data["residues"].append(
+    99	                r.attrib
+   100	            )
+   101	
+   102	
+   103	        for i in root.findall(".//interactions/*"):
+   104	
+   105	            data["interactions"].append(
+   106	
+   107	                {
+   108	                    "type": i.tag,
+   109	                    "data": i.attrib
+   110	                }
+   111	
+   112	            )
+   113	
+   114	
+   115	        return data
+
+======================================================================
+3) Import de visualization_manager (ou de la classe) dans main_window.py
+======================================================================
+50:from src.gui import visualization_bridge as viz_bridge
+3528:from src.visualization.visualization_manager import VisualizationManager
+3676:        self.visualization_manager = VisualizationManager()
+3678:        self.visualization_data = self.visualization_manager.scan()
+
+======================================================================
+4) Appels a la couche visu depuis main_window.py (self.viz_*, self.visu_*, etc.)
+======================================================================
+62:        self.viewer = viewer_widget
+3676:        self.visualization_manager = VisualizationManager()
+3678:        self.visualization_data = self.visualization_manager.scan()
+5504:        self.viewer_stack = QStackedWidget()
+5525:        self.viewer_placeholder = make_label(
+10739:        self.visualization_page = VisualizationPage(
+
+======================================================================
+5) Boutons/actions lies a '3D', 'pose', 'interaction' dans main_window.py
+======================================================================
+
+======================================================================
+6) Import de visualization_bridge.py dans main_window.py, et son contenu
+======================================================================
+50:from src.gui import visualization_bridge as viz_bridge
+--- Contenu de src/gui/visualization_bridge.py ---
+     1	# -*- coding: utf-8 -*-
+     2	"""
+     3	src/gui/visualization_bridge.py
+     4	
+     5	Pont entre l'interface (main_window.py -> VisualizationPage) et les
+     6	moteurs backend :
+     7	    - plip_runner.py      -> calcul PLIP (extraction pose + XML + complex.pdb)
+     8	    - plip_2d_diagram.py  -> génération du diagramme 2D (structure réelle
+     9	                              de la molécule, RDKit) à partir du XML PLIP
+    10	
+    11	Le projet a deux cibles (MexB, MexR), chacune avec son récepteur et
+    12	son propre dossier docking/results/batch_vina_engine/<cible>/.
+    13	Toutes les fonctions publiques prennent un paramètre `target`
+    14	(défaut "MexB", la cible principale du PFE).
+    15	
+    16	Le circuit intermédiaire CSV (interaction_2d.py) a été retiré :
+    17	tout part désormais directement du XML + complex.pdb produits par
+    18	PLIPRunner, sans fichier CSV intermédiaire.
+    19	
+    20	API attendue par main_window.py (NE PAS renommer) :
+    21	    load_top_hits(top_n)               -> list[Hit]
+    22	    compute_interactions_for_hit(hit)  -> {"summary": [...], "total": int, "xml": str}
+    23	    PlipWorker(hit)                    -> QObject (signals finished/failed)
+    24	    generate_2d_for_molecule(molecule) -> {"output": str}
+    25	"""
+    26	
+    27	from __future__ import annotations
+    28	
+    29	import csv
+    30	import re
+    31	import shutil
+    32	import xml.etree.ElementTree as ET
+    33	from dataclasses import dataclass
+    34	from pathlib import Path
+    35	
+    36	from PySide6.QtCore import QObject, Signal
+    37	
+    38	# ============================================================================
+    39	# CONFIG
+    40	# ============================================================================
+    41	
+    42	PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    43	
+    44	from src.visualization.plip_runner import PLIPRunner
+    45	from src.plip_2d_diagram import generate as render_2d_diagram
+    46	from src.docking.receptor_profile import resolve_target_profile, TARGET_ALIASES
+    47	
+    48	DEFAULT_TARGET = "MexB"
+    49	
+    50	# Nombre de hits traités automatiquement en batch (aucune sélection
+    51	# utilisateur) — mettre une valeur haute revient à "tous les hits".
+    52	AUTO_TOP_N = 500
+    53	
+    54	# Noms de cibles historiques utilisés comme noms de dossiers de résultats
+    55	# (docking/results/batch_vina_engine/<target>/). Le récepteur lui-même
+    56	# n'est plus jamais stocké ici — il est résolu via receptor_profile
+    57	# (voir _receptor() ci-dessous), source unique de vérité. Étendre cette
+    58	# liste manuellement quand un nouveau couple pompe/dérépresseur est ajouté
+    59	# (Section 7 du protocole multi-récepteurs), en plus de l'alias
+    60	# correspondant dans receptor_profile.TARGET_ALIASES.
+    61	# Cibles historiques, conservées comme socle minimal.
+    62	KNOWN_TARGET_LABELS = ["MexB", "MexR"]
+    63	
+    64	
+    65	def known_target_labels() -> list:
+    66	    """
+    67	    Toutes les cibles connues du logiciel, découvertes dynamiquement.
+    68	
+    69	    Trois sources cumulées :
+    70	        1. les cibles historiques MexB / MexR ;
+    71	        2. tous les profils déclarés dans receptor_profiles/*.json ;
+    72	        3. tous les dossiers de résultats réellement présents sous
+    73	           docking/results/batch_vina_engine/.
+    74	
+    75	    La source 3 est indispensable : un récepteur importé puis son
+    76	    profil supprimé laisse malgré tout des fichiers à nettoyer, et un
+    77	    récepteur docké doit voir ses hits chargés même si son profil a
+    78	    changé de nom entre-temps.
+    79	
+    80	    Remplace la liste écrite en dur, qui faisait que le nettoyage de
+    81	    fin de session et le traitement PLIP en lot ignoraient purement et
+    82	    simplement tous les récepteurs ajoutés après MexB/MexR.
+    83	    """
+    84	
+    85	    labels = list(KNOWN_TARGET_LABELS)
+    86	
+    87	    try:
+    88	        from src.docking.receptor_profile import list_profile_ids
+    89	
+    90	        for profile_id in list_profile_ids():
+    91	            if profile_id not in labels:
+    92	                labels.append(profile_id)
+    93	    except Exception:
+    94	        pass
+    95	
+    96	    try:
+    97	        if BATCH_ROOT.is_dir():
+    98	            for child in sorted(BATCH_ROOT.iterdir()):
+    99	                if child.is_dir() and child.name not in labels:
+   100	                    labels.append(child.name)
+   101	    except Exception:
+   102	        pass
+   103	
+   104	    return labels
+   105	
+   106	BATCH_ROOT = PROJECT_ROOT / "docking" / "results" / "batch_vina_engine"
+   107	
+   108	PLIP_WORKDIR_ROOT = PROJECT_ROOT / "visualization_results" / "plip"
+   109	
+   110	
+   111	def _target_root(target: str) -> Path:
+   112	    return BATCH_ROOT / target
+   113	
+   114	
+   115	def _ligands_dir(target: str) -> Path:
+   116	    return _target_root(target) / "individual"
+   117	
+   118	
+   119	def _results_csv(target: str) -> Path:
+   120	    return _target_root(target) / "docking_results.csv"
+   121	
+   122	
+   123	def _diagrams_dir(target: str) -> Path:
+   124	    return _target_root(target) / "2d_diagrams"
+   125	
+   126	
+   127	def _selected_poses_dir(target: str) -> Path:
+   128	    return _target_root(target) / "selected_poses"
+   129	
+   130	
+   131	def _plip_workdir(target: str) -> Path:
+   132	    return PLIP_WORKDIR_ROOT / target
+   133	
+   134	
+   135	def _plip_complex_pdb(target: str, molecule: str) -> Path:
+   136	    return _plip_workdir(target) / f"{molecule}_complex.pdb"
+   137	
+   138	
+   139	def _plip_report_xml(target: str, molecule: str) -> Path:
+   140	    # PLIPRunner crée un sous-dossier par molécule :
+   141	    # visualization_results/plip/<target>/<molecule>/
+   142	    # et écrit le rapport XML à l'intérieur.
+   143	    molecule_dir = _plip_workdir(target) / molecule
+   144	
+   145	    expected = molecule_dir / f"{molecule}_complex_report.xml"
+   146	    if expected.exists():
+   147	        return expected
+   148	
+   149	    # Fallback robuste : PLIP peut modifier le nom du complexe.
+   150	    reports = sorted(
+   151	        molecule_dir.glob("*_report.xml"),
+   152	        key=lambda p: p.stat().st_mtime,
+   153	        reverse=True,
+   154	    )
+   155	
+   156	    if reports:
+   157	        return reports[0]
+   158	
+   159	    # Retourne le chemin attendu même s'il n'existe pas encore.
+   160	    # Cela permet au code appelant de produire son propre message d'erreur.
+   161	    return expected
+   162	
+   163	
+   164	def _receptor(target: str) -> Path:
+   165	    return resolve_target_profile(target).pdbqt_path
+   166	
+   167	
+   168	# ============================================================================
+   169	# HIT — un ligand docké candidat pour la visualisation
+   170	# ============================================================================
+   171	
+   172	@dataclass
+   173	class Hit:
+   174	    molecule: str
+   175	    score: float
+   176	    ligand_pdbqt: Path
+   177	    receptor: Path
+   178	    target: str
+   179	
+   180	
+   181	def hit_result_key(target: str, molecule: str) -> str:
+   182	    """Clé unique pour hit_results : deux cibles différentes (MexB, MexR,
+   183	    ou tout autre couple pompe/dérépresseur) peuvent doquer un ligand du
+   184	    même nom — sans le suffixe cible, la seconde cible traitée écrasait
+   185	    purement et simplement les résultats de la première dans le
+   186	    dictionnaire (c'était toujours la dernière de known_target_labels()
+   187	    qui survivait, en général le dérépresseur)."""
+   188	    return f"{molecule} — {target}"
+   189	
+   190	
+   191	_VINA_SCORE_RE = re.compile(
+   192	    r"VINA RESULT:\s*(-?\d+(?:\.\d+)?)",
+   193	    re.IGNORECASE,
+   194	)
+   195	
+   196	_MODEL_RE = re.compile(r"^MODEL\s+(\d+)", re.IGNORECASE)
+   197	
+   198	_SCORE_COLUMN_CANDIDATES = ["score", "affinity", "binding_energy", "vina_score", "best_score", "energy"]
+   199	_MOLECULE_COLUMN_CANDIDATES = ["molecule", "ligand", "ligand_id", "name", "id", "cid"]
+   200	
+   201	
+   202	def _load_scores_from_csv(csv_path: Path) -> dict[str, float] | None:
+   203	    if not csv_path.exists():
+   204	        return None
+   205	
+   206	    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+   207	        reader = csv.DictReader(handle)
+   208	
+   209	        if not reader.fieldnames:
+   210	            return None
+   211	
+   212	        lower_fields = {name.lower(): name for name in reader.fieldnames}
+   213	
+   214	        molecule_col = next(
+   215	            (lower_fields[c] for c in _MOLECULE_COLUMN_CANDIDATES if c in lower_fields),
+   216	            None,
+   217	        )
+   218	        score_col = next(
+   219	            (lower_fields[c] for c in _SCORE_COLUMN_CANDIDATES if c in lower_fields),
+   220	            None,
+   221	        )
+   222	
+   223	        if not molecule_col or not score_col:
+   224	            return None
+   225	
+   226	        scores = {}
+   227	        for row in reader:
+   228	            try:
+   229	                scores[str(row[molecule_col]).strip()] = float(row[score_col])
+   230	            except (ValueError, TypeError, KeyError):
+   231	                continue
+   232	
+   233	    return scores or None
+   234	
+   235	
+   236	def _best_score_in_pdbqt(pdbqt_path: Path) -> float | None:
+   237	    best = None
+   238	
+   239	    with pdbqt_path.open("r", encoding="utf-8", errors="ignore") as handle:
+   240	        for line in handle:
+   241	            match = _VINA_SCORE_RE.search(line)
+   242	            if match:
+   243	                value = float(match.group(1))
+   244	                if best is None or value < best:
+   245	                    best = value
+   246	
+   247	    return best
+   248	
+   249	
+   250	def load_top_hits(top_n: int, target: str = DEFAULT_TARGET) -> list["Hit"]:
+   251	    ligands_dir = _ligands_dir(target)
+   252	    receptor = _receptor(target)
+   253	
+   254	    if not ligands_dir.exists():
+   255	        raise FileNotFoundError(f"Dossier des ligands dockés introuvable : {ligands_dir}")
+   256	
+   257	    pdbqt_by_molecule = {}
+   258	    for pdbqt_file in ligands_dir.glob("*_out.pdbqt"):
+   259	        molecule = pdbqt_file.stem
+   260	        if molecule.endswith("_out"):
+   261	            molecule = molecule[: -len("_out")]
+   262	        pdbqt_by_molecule[molecule] = pdbqt_file
+   263	
+   264	    scores = _load_scores_from_csv(_results_csv(target))
+   265	
+   266	    candidates = []
+   267	
+   268	    if scores:
+   269	        for molecule, score in scores.items():
+   270	            pdbqt_file = pdbqt_by_molecule.get(molecule)
+   271	            if pdbqt_file is None:
+   272	                continue
+   273	            candidates.append(
+   274	                Hit(
+   275	                    molecule=molecule,
+   276	                    score=score,
+   277	                    ligand_pdbqt=pdbqt_file,
+   278	                    receptor=receptor,
+   279	                    target=target,
+   280	                )
+   281	            )
+   282	    else:
+   283	        for molecule, pdbqt_file in pdbqt_by_molecule.items():
+   284	            score = _best_score_in_pdbqt(pdbqt_file)
+   285	            if score is None:
+   286	                continue
+   287	            candidates.append(
+   288	                Hit(
+   289	                    molecule=molecule,
+   290	                    score=score,
+   291	                    ligand_pdbqt=pdbqt_file,
+   292	                    receptor=receptor,
+   293	                    target=target,
+   294	                )
+   295	            )
+   296	
+   297	    candidates.sort(key=lambda hit: hit.score)
+   298	
+   299	    return candidates[: max(0, int(top_n))]
+   300	
+   301	
+   302	# ============================================================================
+   303	# RESIDUS / INTERACTIONS — onglet "Résidus de référence"
+   304	# (lecture directe du XML PLIP, plus de CSV intermédiaire)
+   305	# ============================================================================
+   306	
+   307	_CATEGORY_LABELS = {
+   308	    "hydrophobic_interactions": "Hydrophobic",
+   309	    "hydrogen_bonds": "Polar/H-bond",
+   310	    "pi_stacks": "pi-Stacking",
+   311	    "pi_cation_interactions": "pi-Cation",
+   312	    "salt_bridges": "Salt bridge",
+   313	    "halogen_bonds": "Halogen bond",
+   314	    "water_bridges": "Water bridge",
+   315	    "metal_complexes": "Metal complex",
+   316	}
+   317	
+   318	
+   319	def _category_label(tag: str) -> str:
+   320	    return _CATEGORY_LABELS.get(tag, tag.replace("_", " ").capitalize())
+   321	
+   322	
+   323	def _extract_distance(fields: dict) -> float | None:
+   324	    values = []
+   325	    for key, value in fields.items():
+   326	        if "dist" not in key.lower() or value is None:
+   327	            continue
+   328	        try:
+   329	            values.append(float(value))
+   330	        except ValueError:
+   331	            continue
+   332	    return min(values) if values else None
+   333	
+   334	
+   335	def _parse_plip_interactions(xml_path: Path) -> list[dict]:
+   336	    tree = ET.parse(xml_path)
+   337	    root = tree.getroot()
+   338	
+   339	    rows = []
+   340	
+   341	    for category in root.findall(".//interactions/*"):
+   342	        label = _category_label(category.tag)
+   343	
+   344	        for interaction_elem in category:
+   345	            fields = {child.tag: (child.text or "").strip() for child in interaction_elem}
+   346	
+   347	            residue = fields.get("restype", "").strip()
+   348	            residue_id = fields.get("resnr", "").strip()
+   349	            chain = fields.get("reschain", "").strip()
+   350	            distance = _extract_distance(fields)
+   351	
+   352	            if not residue or not residue_id or distance is None:
+   353	                continue
+   354	
+   355	            rows.append(
+   356	                {
+   357	                    "residue": residue,
+   358	                    "residue_id": residue_id,
+   359	                    "chain": chain,
+   360	                    "distance": distance,
+   361	                    "interaction_types": label,
+   362	                }
+   363	            )
+   364	
+   365	    if not rows:
+   366	        raise RuntimeError(f"Aucune interaction exploitable dans {xml_path}")
+   367	
+   368	    return rows
+   369	
+   370	
+   371	def _deduplicate_interactions(rows: list[dict]) -> list[dict]:
+   372	    grouped = {}
+   373	
+   374	    for row in rows:
+   375	        key = (row["residue"], row["residue_id"], row["chain"])
+   376	        current = grouped.get(key)
+   377	
+   378	        if current is None or row["distance"] < current["distance"]:
+   379	            grouped[key] = row
+   380	
+   381	    return sorted(grouped.values(), key=lambda item: item["distance"])
+   382	
+   383	
+   384	def compute_interactions_for_hit(hit: Hit) -> dict:
+   385	    xml_path = _plip_report_xml(hit.target, hit.molecule)
+   386	
+   387	    if not xml_path.exists():
+   388	        raise FileNotFoundError(
+   389	            f"Aucune interaction PLIP calculée pour {hit.molecule}. "
+   390	            f"Lance d'abord le calcul PLIP pour cette molécule."
+   391	        )
+   392	
+   393	    rows = _parse_plip_interactions(xml_path)
+   394	    deduped = _deduplicate_interactions(rows)
+   395	
+   396	    return {
+   397	        "summary": deduped,
+   398	        "total": len(deduped),
+   399	        "xml": str(xml_path),
+   400	    }
+   401	
+   402	
+   403	# ============================================================================
+   404	# EXTRACTION DE POSE (pose unique pour PLIP)
+   405	# ============================================================================
+   406	
+   407	def _extract_best_pose(ligand_pdbqt: Path, output_path: Path) -> Path:
+   408	    best_pose_number = None
+   409	    best_score = None
+   410	    current_pose_number = None
+   411	
+   412	    with ligand_pdbqt.open("r", encoding="utf-8", errors="ignore") as handle:
+   413	        for line in handle:
+   414	            stripped = line.strip()
+   415	
+   416	            model_match = _MODEL_RE.match(stripped)
+   417	            if model_match:
+   418	                current_pose_number = int(model_match.group(1))
+   419	                continue
+   420	
+   421	            score_match = _VINA_SCORE_RE.search(stripped)
+   422	            if score_match and current_pose_number is not None:
+   423	                current_score = float(score_match.group(1))
+   424	                if best_score is None or current_score < best_score:
+   425	                    best_score = current_score
+   426	                    best_pose_number = current_pose_number
+   427	
+   428	    if best_pose_number is None:
+   429	        best_pose_number = 1
+   430	
+   431	    inside = False
+   432	    lines = []
+   433	
+   434	    model_pattern = re.compile(rf"^MODEL\s+{best_pose_number}\s*$", re.IGNORECASE)
+   435	    next_model_pattern = re.compile(r"^MODEL\s+\d+", re.IGNORECASE)
+   436	
+   437	    with ligand_pdbqt.open("r", encoding="utf-8", errors="ignore") as handle:
+   438	        for line in handle:
+   439	            stripped = line.strip()
+   440	
+   441	            if model_pattern.match(stripped):
+   442	                inside = True
+   443	                lines.append(line)
+   444	                continue
+   445	
+   446	            if inside and next_model_pattern.match(stripped):
+   447	                break
+   448	
+   449	            if inside:
+   450	                lines.append(line)
+   451	                if stripped.upper() == "ENDMDL":
+   452	                    break
+   453	
+   454	    if not lines:
+   455	        raise RuntimeError(f"Impossible d'extraire une pose depuis {ligand_pdbqt}")
+   456	
+   457	    output_path.parent.mkdir(parents=True, exist_ok=True)
+   458	    output_path.write_text("".join(lines), encoding="utf-8")
+   459	
+   460	    return output_path
+   461	
+   462	
+   463	# ============================================================================
+   464	# PLIP WORKER — onglet "Calcul PLIP" (thread dédié, ne bloque pas l'UI)
+   465	# ============================================================================
+   466	
+   467	class PlipWorker(QObject):
+   468	
+   469	    finished = Signal(dict)
+   470	    failed = Signal(str)
+   471	
+   472	    def __init__(self, hit: Hit):
+   473	        super().__init__()
+   474	        self.hit = hit
+   475	
+   476	    def run(self):
+   477	        try:
+   478	            pose_file = _selected_poses_dir(self.hit.target) / f"{self.hit.molecule}_pose_best.pdbqt"
+   479	            _extract_best_pose(self.hit.ligand_pdbqt, pose_file)
+   480	
+   481	            runner = PLIPRunner(workdir=str(_plip_workdir(self.hit.target)))
+   482	            plip_result = runner.run(
+   483	                receptor=self.hit.receptor,
+   484	                pose=pose_file,
+   485	                ligand_id=self.hit.molecule,
+   486	            )
+   487	
+   488	            self.finished.emit(
+   489	                {
+   490	                    "xml": plip_result["xml"],
+   491	                    "complex": plip_result["complex"],
+   492	                }
+   493	            )
+   494	
+   495	        except Exception as exc:
+   496	            self.failed.emit(str(exc))
+   497	
+   498	
+   499	# ============================================================================
+   500	# BATCH — PLIP + diagramme 2D pour TOUS les hits, sans sélection manuelle
+   501	# ============================================================================
+   502	
+   503	class BatchWorker(QObject):
+   504	
+   505	    progress = Signal(str, int, int)
+   506	    finished = Signal(dict)
+   507	
+   508	    def __init__(self, hits):
+   509	        super().__init__()
+   510	        self.hits = hits
+   511	
+   512	    def run(self):
+   513	        results = {}
+   514	        errors = []
+   515	        total = len(self.hits)
+   516	
+   517	        for index, hit in enumerate(self.hits, start=1):
+   518	            self.progress.emit(f"{hit.molecule} ({hit.target})", index, total)
+   519	
+   520	            try:
+   521	                pose_file = _selected_poses_dir(hit.target) / f"{hit.molecule}_pose_best.pdbqt"
+   522	                _extract_best_pose(hit.ligand_pdbqt, pose_file)
+   523	
+   524	                runner = PLIPRunner(workdir=str(_plip_workdir(hit.target)))
+   525	                runner.run(receptor=hit.receptor, pose=pose_file, ligand_id=hit.molecule)
+   526	
+   527	                interactions = compute_interactions_for_hit(hit)
+   528	
+   529	                output_png = _diagrams_dir(hit.target) / hit.molecule / f"{hit.molecule}_interaction_2d.png"
+   530	                output_png.parent.mkdir(parents=True, exist_ok=True)
+   531	
+   532	                render_2d_diagram(
+   533	                    _plip_report_xml(hit.target, hit.molecule),
+   534	                    _plip_complex_pdb(hit.target, hit.molecule),
+   535	                    output_png,
+   536	                    hit.molecule,
+   537	                )
+   538	
+   539	                key = hit_result_key(hit.target, hit.molecule)
+   540	                results[key] = {
+   541	                    "interactions": interactions,
+   542	                    "diagram": str(output_png),
+   543	                    "complex": str(_plip_complex_pdb(hit.target, hit.molecule)),
+   544	                    "target": hit.target,
+   545	                    "molecule": hit.molecule,
+   546	                }
+   547	
+   548	            except Exception as exc:
+   549	                errors.append(f"{hit.molecule} : {exc}")
+   550	
+   551	        self.finished.emit({"results": results, "errors": errors})
+   552	
+   553	
+   554	# ============================================================================
+   555	# DIAGRAMME 2D — onglet "Interaction 2D"
+   556	# (vrai diagramme moléculaire RDKit, via plip_2d_diagram.py)
+   557	# ============================================================================
+   558	
+   559	def generate_2d_for_molecule(molecule: str, target: str = DEFAULT_TARGET) -> dict:
+   560	    xml_file = _plip_report_xml(target, molecule)
+   561	    complex_file = _plip_complex_pdb(target, molecule)
+   562	
+   563	    if not xml_file.exists() or not complex_file.exists():
+   564	        raise FileNotFoundError(
+   565	            f"Résultats PLIP introuvables pour {molecule} ({target}). "
+   566	            f"Lance d'abord le calcul PLIP pour cette molécule."
+   567	        )
+   568	
+   569	    output_png = _diagrams_dir(target) / molecule / f"{molecule}_interaction_2d.png"
+   570	    output_png.parent.mkdir(parents=True, exist_ok=True)
+   571	
+   572	    render_2d_diagram(xml_file, complex_file, output_png, molecule)
+   573	
+   574	    return {"output": str(output_png)}
+   575	
+   576	
+   577	# ============================================================================
+   578	# EXPORT — bouton "Exporter tout"
+   579	# ============================================================================
+   580	
+   581	def export_visualization_results(batch_payload: dict, destination_dir: Path) -> Path:
+   582	    """Exporte TOUTES les cibles présentes dans batch_payload (MexB, MexR,
+   583	    ou tout autre couple), pas une seule : avant, l'appelant ne passait
+   584	    qu'une cible et le dossier d'une autre cible dockée dans la même
+   585	    campagne n'était jamais copié."""
+   586	    destination_dir = Path(destination_dir)
+   587	    destination_dir.mkdir(parents=True, exist_ok=True)
+   588	
+   589	    results = batch_payload.get("results", {})
+   590	
+   591	    targets = sorted({
+   592	        data.get("target", DEFAULT_TARGET) for data in results.values()
+   593	    }) or [DEFAULT_TARGET]
+   594	
+   595	    # Une seule cible : structure plate, inchangée pour les campagnes
+   596	    # mono-récepteur existantes. Plusieurs cibles : un sous-dossier par
+   597	    # cible pour ne jamais mélanger leurs diagrammes/complexes.
+   598	    single_target = len(targets) == 1
+   599	
+   600	    for target in targets:
+   601	        target_dest = destination_dir if single_target else destination_dir / target
+   602	
+   603	        diagrams_src = _diagrams_dir(target)
+   604	        if diagrams_src.exists():
+   605	            shutil.copytree(diagrams_src, target_dest / "diagrammes_2d", dirs_exist_ok=True)
+   606	
+   607	        plip_src = _plip_workdir(target)
+   608	        if plip_src.exists():
+   609	            shutil.copytree(plip_src, target_dest / "plip_xml_complex", dirs_exist_ok=True)
+   610	
+   611	    summary_csv = destination_dir / "residus_interactions.csv"
+   612	    with summary_csv.open("w", encoding="utf-8", newline="") as handle:
+   613	        writer = csv.DictWriter(
+   614	            handle,
+   615	            fieldnames=["target", "molecule", "residue", "residue_id", "chain", "distance", "interaction_types"],
+   616	        )
+   617	        writer.writeheader()
+   618	        for key, data in results.items():
+   619	            molecule = data.get("molecule", key)
+   620	            target = data.get("target", DEFAULT_TARGET)
+   621	            for row in data["interactions"]["summary"]:
+   622	                writer.writerow({"target": target, "molecule": molecule, **row})
+   623	
+   624	    return destination_dir
+   625	
+   626	
+   627	# ============================================================================
+   628	# NETTOYAGE — appelé à la fermeture du logiciel
+   629	# Ne touche jamais aux résultats bruts de docking (individual/*.pdbqt,
+   630	# docking_results.csv) : uniquement les fichiers dérivés de la visualisation.
+   631	# ============================================================================
+   632	
+   633	def cleanup_visualization_outputs(targets=None) -> None:
+   634	    # Toutes les cibles, pas seulement MexB/MexR : sinon les sorties
+   635	    # des récepteurs ajoutés après coup ne sont jamais nettoyées.
+   636	    targets = targets or known_target_labels()
+   637	
+   638	    for target in targets:
+   639	        for folder in (_plip_workdir(target), _diagrams_dir(target), _selected_poses_dir(target)):
+   640	            if folder.exists():
+   641	                shutil.rmtree(folder, ignore_errors=True)
+
+======================================================================
+7) Toutes les references croisees entre fichiers GUI et modules visu
+   (qui appelle qui, sur l'ensemble de src/)
+======================================================================
+--- Qui importe src/visualization/interaction_3d.py ailleurs dans le projet ---
+./src/patch_interaction3d.py
+./src/translations.py
+./src/gui/main_window.py
+./tests/test_viewer_drag_repaint.py
+
+--- Qui importe src/visualization/interaction_visualizer.py ailleurs dans le projet ---
+
+--- Qui importe src/visualization/pose_manager.py ailleurs dans le projet ---
+
+
+======================================================================
+FIN DU DIAGNOSTIC
+======================================================================

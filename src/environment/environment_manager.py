@@ -56,13 +56,6 @@ class EnvironmentManager:
                 commands=["pymol"],
                 required=False,
             ),
-
-            Dependency(
-                name="ChimeraX",
-                key="chimerax",
-                commands=["chimerax"],
-                required=False,
-            ),
         ]
 
         self.saved_config = self.load_config()
@@ -407,61 +400,6 @@ class EnvironmentManager:
         )
 
     # ============================================================
-    # CHIMERAX
-    # ============================================================
-
-    def detect_chimerax(self, dependency):
-
-        path = (
-            self.get_saved_path("chimerax")
-            or self.find_executable(
-                ["chimerax"]
-            )
-        )
-
-        if not path:
-
-            dependency.status = "NOT_FOUND"
-            return
-
-        dependency.path = path
-
-        output = self.run_command(
-            [
-                path,
-                "--version"
-            ],
-            timeout=15
-        )
-
-        if output:
-
-            version = None
-
-            for line in output.splitlines():
-
-                if (
-                    "ChimeraX version"
-                    in line
-                ):
-
-                    version = line.strip()
-                    break
-
-            dependency.version = (
-                version
-                or output.splitlines()[0]
-            )
-
-            dependency.status = "READY"
-
-        else:
-
-            dependency.status = (
-                "FOUND_BUT_NOT_TESTED"
-            )
-
-    # ============================================================
     # SCAN
     # ============================================================
 
@@ -480,12 +418,6 @@ class EnvironmentManager:
         elif dependency.key == "pymol":
 
             self.detect_pymol(
-                dependency
-            )
-
-        elif dependency.key == "chimerax":
-
-            self.detect_chimerax(
                 dependency
             )
 

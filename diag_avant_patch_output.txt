@@ -1,0 +1,151 @@
+======================================================================
+1) Message d'erreur fpocket -- localisation exacte (avec contexte)
+======================================================================
+7136-            )
+7137-
+7138-        except FileNotFoundError:
+7139-            QMessageBox.critical(
+7140-                self,
+7141:                "fpocket introuvable",
+7142:                "La commande 'fpocket' n'a pas été trouvée dans le PATH. "
+7143:                "Installez fpocket (ex. 'sudo apt install fpocket') puis réessayez.",
+7144-            )
+7145-            self._fpocket_status_label.setText("")
+7146-
+7147-        except Exception as exc:
+7148-            QMessageBox.critical(
+7149-                self,
+7150-                "Erreur fpocket",
+7151-                f"La détection des poches a échoué :\n{exc}",
+
+======================================================================
+2) Reste-t-il d'autres endroits ou fpocket est mentionne dans main_window.py ?
+======================================================================
+5437:        _fpocket_toolbar = QHBoxLayout()
+5438:        _fpocket_toolbar.setContentsMargins(0, 0, 0, 0)
+5440:        self._fpocket_button = QPushButton("Détecter les poches (fpocket)")
+5441:        self._fpocket_button.clicked.connect(self._run_fpocket_detection)
+5442:        _fpocket_toolbar.addWidget(self._fpocket_button)
+5444:        self._fpocket_status_label = make_label("", "SectionDescription")
+5445:        self._fpocket_status_label.setWordWrap(True)
+5446:        _fpocket_toolbar.addWidget(self._fpocket_status_label, 1)
+5448:        viewer_layout.addLayout(_fpocket_toolbar)
+7080:    def _run_fpocket_detection(self):
+7082:        Lance fpocket sur le récepteur actuellement affiché dans le
+7108:        self._fpocket_button.setEnabled(False)
+7109:        self._fpocket_status_label.setText("Détection des poches en cours (fpocket)…")
+7119:            workdir = _Path(tempfile.mkdtemp(prefix="vinastudio_fpocket_"))
+7123:                self._fpocket_status_label.setText("Aucune poche détectée.")
+7133:            self._fpocket_status_label.setText(
+7141:                "fpocket introuvable",
+7142:                "La commande 'fpocket' n'a pas été trouvée dans le PATH. "
+7143:                "Installez fpocket (ex. 'sudo apt install fpocket') puis réessayez.",
+7145:            self._fpocket_status_label.setText("")
+7150:                "Erreur fpocket",
+7153:            self._fpocket_status_label.setText("")
+7156:            self._fpocket_button.setEnabled(True)
+
+======================================================================
+3) Contexte exact des references a 'interaction_3d' hors main_window.py
+   (pour verifier si ce sont de vrais imports ou de simples mentions)
+======================================================================
+--- src/translations.py ---
+582-        "zh": "3D 相互作用", "ja": "3D相互作用",
+583-    },
+584:    "viz_interaction_3d_title": {
+585-        "fr": "Complexe 3D et résidus interactifs", "en": "3D complex and interacting residues",
+586-        "de": "3D-Komplex und interagierende Reste", "zh": "3D 复合物与相互作用残基", "ja": "3D複合体と相互作用残基",
+
+--- src/patch_interaction3d.py (debut du fichier, but du patch) ---
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Patch minimal : Interaction 3D (onglet Visualisation) qui ne se rafraichit
+qu'au mouvement de la souris.
+
+Cause visee : le panneau qui contient le QWebEngineView de l'onglet
+« Interaction 3D » recoit l'ombre portee (QGraphicsDropShadowEffect) que le
+logiciel ajoute a tous les ContentPanel. Chromium ne se repeint alors que
+sur evenement de souris. Le viewer du Docking a deja la protection
+(skip_glass_elevation) ; celui-ci l'avait oubliee.
+
+Ce que fait le patch : UNE seule ligne ajoutee dans interaction_3d_page() :
+
+    panel.setProperty("skip_glass_elevation", True)
+
+Rien d'autre. Aucun timer, aucun JavaScript, aucun thread ajoute.
+
+Utilisation (depuis le dossier du projet) :
+
+    python3 patch_interaction3d.py                 # applique le patch
+    python3 patch_interaction3d.py --check         # dit seulement s'il est applique
+    python3 patch_interaction3d.py --revert        # retire le patch
+    python3 patch_interaction3d.py chemin/vers/main_window.py   # chemin explicite
+
+Securites :
+  - sauvegarde du fichier d'origine (main_window.py.bak_interaction3d),
+    creee une seule fois ;
+  - refuse de toucher au fichier si le point d'insertion n'est pas
+    trouve de facon certaine (ne devine jamais) ;
+
+--- tests/test_viewer_drag_repaint.py (imports uniquement) ---
+1:import unittest
+3:from PySide6.QtWidgets import QApplication, QWidget
+5:from src.gui.main_window import VisualizationPage, _ViewerDragRepaintPoller
+
+======================================================================
+4) Blocs ChimeraX exacts (numeros de ligne) dans les deux registres
+======================================================================
+--- src/tools/tool_manager.py ---
+65:            "chimerax": {
+66:                "name": "ChimeraX",
+68:                "executables": ["chimerax", "ChimeraX"],
+343:    def check_chimerax(self):
+344:        definition = self.definitions["chimerax"]
+352:            "/usr/lib/ucsf-chimerax/bin/ChimeraX",
+353:            "/usr/bin/chimerax",
+354:            "/usr/local/bin/chimerax",
+365:                key="chimerax",
+368:                message="ChimeraX introuvable."
+378:                key="chimerax",
+386:            key="chimerax",
+402:            "chimerax": self.check_chimerax(),
+
+--- src/environment/environment_manager.py ---
+61:                name="ChimeraX",
+62:                key="chimerax",
+63:                commands=["chimerax"],
+413:    def detect_chimerax(self, dependency):
+416:            self.get_saved_path("chimerax")
+418:                ["chimerax"]
+444:                    "ChimeraX version"
+486:        elif dependency.key == "chimerax":
+488:            self.detect_chimerax(
+
+======================================================================
+5) La cle 'chimerax' est-elle lue ailleurs dans le code (settings, UI) ?
+   (au cas ou une page Parametres afficherait cette entree)
+======================================================================
+./src/diagnose_docking_ui.py:53:    "pdb", "pdbqt", "vina", "fpocket", "csv", "gui", "sdf", "chimerax",
+
+======================================================================
+6) Ligne exacte du commentaire dans structural_validator.py
+======================================================================
+16-Les interactions sont qualifiées de candidates :
+17-elles doivent être confirmées par inspection structurale
+18:avec ChimeraX ou Discovery Studio.
+19-"""
+20-
+
+======================================================================
+7) Ligne exacte dans diagnose_docking_ui.py
+======================================================================
+51-DOMAIN_WHITELIST = {
+52-    "mexb", "mexr", "mexy", "mexz", "acrb", "acrr", "adeabc", "cmeb",
+53:    "pdb", "pdbqt", "vina", "fpocket", "csv", "gui", "sdf", "chimerax",
+54-    "rdkit", "biopython", "opengl", "pyside6", "qwebengineview",
+55-    "dmso", "cid", "3dmol",
+
+======================================================================
+FIN
+======================================================================
