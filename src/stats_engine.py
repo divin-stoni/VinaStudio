@@ -64,7 +64,7 @@ def detect_analysis_mode(df, group_col="groupe"):
 
     groupes = groupes[
         groupes.str.lower().isin(
-            ["", "nan", "none", "null"]
+            ["", "nan", "none", "null", "sans_groupe", "sans famille", "global"]
         ) == False
     ]
 
@@ -272,7 +272,7 @@ def bootstrap_ci_by_group(df, x_col="dg_mexb", y_col="dg_mexr",
         work.loc[work[group_col].str.strip() == "", group_col] = "SANS_GROUPE"
 
     rows = []
-    groups = list(work[group_col].dropna().unique())
+    groups = [] if mode == "GLOBAL" else list(work[group_col].dropna().unique())  # patch-familles
 
     for g in groups + ["GLOBAL"]:
         sub = work if g == "GLOBAL" else work[work[group_col] == g]
@@ -330,7 +330,7 @@ def leave_one_out(df, x_col="dg_mexb", y_col="dg_mexr",
         work.loc[work[group_col].str.strip() == "", group_col] = "SANS_GROUPE"
 
     results = []
-    groups = list(work[group_col].dropna().unique())
+    groups = [] if mode == "GLOBAL" else list(work[group_col].dropna().unique())  # patch-familles
 
     for g in groups + ["GLOBAL"]:
         sub = work if g == "GLOBAL" else work[work[group_col] == g]

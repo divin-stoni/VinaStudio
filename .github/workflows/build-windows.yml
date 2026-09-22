@@ -100,6 +100,7 @@ jobs:
             --name VinaStudio \
             --paths src \
             --add-data "reference_data;reference_data" \
+            --add-data "src/i18n;i18n" \
             --add-data "docking/receptor;docking/receptor" \
             --add-data "src/assets/fonts;assets/fonts" \
             --add-data "image_theme;image_theme" \
@@ -113,6 +114,16 @@ jobs:
             --collect-all plip \
             --collect-all openbabel \
             run_gui.py
+
+      - name: Copy credit_du_logiciel next to the exe (required by _credits_root())
+        shell: pwsh
+        run: |
+          Copy-Item -Path "credit_du_logiciel" -Destination "dist\credit_du_logiciel" -Recurse -Force
+          if (-not (Test-Path "dist\credit_du_logiciel")) {
+            Write-Error "credit_du_logiciel absent apres copie -- abandon."
+            exit 1
+          }
+          Write-Host "OK : credit_du_logiciel copie dans dist\credit_du_logiciel"
 
       - name: Build installer with Inno Setup
         shell: pwsh
@@ -129,4 +140,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: VinaStudio-Windows
-          path: dist/VinaStudio.exe
+          path: |
+            dist/VinaStudio.exe
+            dist/credit_du_logiciel/**

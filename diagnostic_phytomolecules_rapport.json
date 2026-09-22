@@ -1,0 +1,261 @@
+{
+  "project_root": "/home/stoni/MexAB_MexR_Analyzer_BETA",
+  "findings": {
+    "style_system": {
+      "why": "Système central de style (couleurs, formes, bordures) à réutiliser pour le nouvel onglet.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 33,
+          "snippet": "SEARCHES = {\n    \"style_system\": {\n        \"patterns\": [r\"\\bCOLORS\\s*=\", r\"\\bAPP_STYLE\\b\", r\"setStyleSheet\", r\"QSS\", r\"\\bTHEME\\b\"],\n        \"why\": \"Système central de style (couleurs, formes, bordures) à réutiliser pour le nouvel onglet.\",\n    },"
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 583,
+          "snippet": "        updated = _rewrite_inline(original, mapping, ratio)\n        if updated != current:\n            widget.setStyleSheet(updated)\n        widget.setProperty(\"_ss_last\", updated)\n    except Exception as exc:"
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 612,
+          "snippet": "        return\n    _apply_app_palette(app)\n    app.setStyleSheet(_build_app_style() + _runtime_preferences_style())\n    mapping = _inline_color_map()\n    ratio = int(GLASS_PREFERENCES[\"font_size\"]) / 13.0"
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 1701,
+          "snippet": "\n    # 2. Moteur : palette, feuilles de style, popups floutés, libellés\n    step(\"Moteur d'apparence (palette, QSS, flou des popups, libellés)\", lambda s: replace_between(\n        s,\n        'def _refresh_preference_palette():\\n    \"\"\"Refresh shared accent colors before APP_STYLE is formatted.\"\"\"',"
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 1703,
+          "snippet": "    step(\"Moteur d'apparence (palette, QSS, flou des popups, libellés)\", lambda s: replace_between(\n        s,\n        'def _refresh_preference_palette():\\n    \"\"\"Refresh shared accent colors before APP_STYLE is formatted.\"\"\"',\n        'COLORS = {\\n    \"window\": \"#0f1721\",',\n        BLOCK_ENGINE + \"\\n\","
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 1704,
+          "snippet": "        s,\n        'def _refresh_preference_palette():\\n    \"\"\"Refresh shared accent colors before APP_STYLE is formatted.\"\"\"',\n        'COLORS = {\\n    \"window\": \"#0f1721\",',\n        BLOCK_ENGINE + \"\\n\",\n        \"moteur\"))"
+        }
+      ]
+    },
+    "credits_tab": {
+      "why": "Pattern de déclaration/enregistrement d'un onglet, à copier pour Phytomolécules.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 37,
+          "snippet": "    },\n    \"credits_tab\": {\n        \"patterns\": [r\"class\\s+\\w*Credit\\w*\", r\"credits_page\"],\n        \"why\": \"Pattern de déclaration/enregistrement d'un onglet, à copier pour Phytomolécules.\",\n    },"
+        },
+        {
+          "file": "src/gui/credits_page.py",
+          "line": 449,
+          "snippet": "# ============================================================================\n\nclass CreditsPage(QWidget):\n    \"\"\"\n    Page \"Crédits\" : un onglet horizontal par dossier d'événement, et"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 51,
+          "snippet": "from src.analysis.analysis_controller import analyze_docking_csv\nfrom src.gui import visualization_bridge as viz_bridge\nfrom src.gui.credits_page import CreditsPage\n\n"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 10307,
+          "snippet": "\n        try:\n            if hasattr(self, \"credits_page\"):\n                self.credits_page.shutdown()\n        except Exception as exc:"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 10308,
+          "snippet": "        try:\n            if hasattr(self, \"credits_page\"):\n                self.credits_page.shutdown()\n        except Exception as exc:\n            gui_debug(f\"Erreur nettoyage threads Crédits : {exc}\")"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 10716,
+          "snippet": "        )\n\n        self.credits_page = CreditsPage()\n\n        self.workspace.addWidget("
+        }
+      ]
+    },
+    "tab_navigation": {
+      "why": "Mécanisme de nav horizontale (patch13) où insérer le nouvel onglet.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 41,
+          "snippet": "    },\n    \"tab_navigation\": {\n        \"patterns\": [r\"TopTab\", r\"switch_primary\", r\"create_toolbar\", r\"primary_navigation\"],\n        \"why\": \"Mécanisme de nav horizontale (patch13) où insérer le nouvel onglet.\",\n    },"
+        },
+        {
+          "file": "src/patch_theme_blur.py",
+          "line": 304,
+          "snippet": "    hover = _theme_color(\"tab_text_hover_color\").name()\n    active = _theme_color(\"tab_text_active_color\").name()\n    names = (\"TopTab\", \"SecondaryTab\", \"PrimaryNavigation\")\n    sel = lambda suffix: \", \".join(f\"QToolButton#{n}{suffix}\" for n in names)\n    return f\"\"\""
+        },
+        {
+          "file": "src/gui/theme_manager.py",
+          "line": 178,
+          "snippet": "    background-color: {self._rgba(state['button_color'], min(100, state['button_alpha'] + 16))};\n}}\nQToolButton#TopTab, QToolButton#PrimaryNavigation, QToolButton#SecondaryTab {{\n    color: {state['text_color']};\n    background: {tab};"
+        },
+        {
+          "file": "src/gui/theme_manager.py",
+          "line": 184,
+          "snippet": "    border-radius: {radius}px;\n}}\nQToolButton#TopTab:checked, QToolButton#PrimaryNavigation:checked, QToolButton#SecondaryTab:checked {{\n    background: {global_tint};\n    background-color: {global_tint};"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 1021,
+          "snippet": "    hover = _theme_color(\"tab_text_hover_color\").name()\n    active = _theme_color(\"tab_text_active_color\").name()\n    names = (\"TopTab\", \"SecondaryTab\", \"PrimaryNavigation\")\n    sel = lambda suffix: \", \".join(f\"QToolButton#{n}{suffix}\" for n in names)\n    return f\"\"\""
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 2150,
+          "snippet": "}}\n\nQToolButton#TopTab {{\n    border: 1px solid rgba(255, 255, 255, 155);\n    border-radius: 12px;"
+        }
+      ]
+    },
+    "sdf_extraction": {
+      "why": "Script existant d'extraction de SDF groupés, à réutiliser sans le recréer.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 45,
+          "snippet": "    },\n    \"sdf_extraction\": {\n        \"patterns\": [r\"\\.sdf\\b\", r\"SDMolSupplier\", r\"def\\s+\\w*extract\\w*sdf\", r\"def\\s+\\w*split\\w*sdf\"],\n        \"why\": \"Script existant d'extraction de SDF groupés, à réutiliser sans le recréer.\",\n    },"
+        },
+        {
+          "file": "src/docking/sdf_preparer.py",
+          "line": 126,
+          "snippet": "        if path.is_file():\n\n            if path.suffix.lower() != \".sdf\":\n                raise ValueError(\n                    \"Le fichier sélectionné n'est pas un SDF :\\n\""
+        },
+        {
+          "file": "src/docking/sdf_preparer.py",
+          "line": 142,
+          "snippet": "                for p in path.iterdir()\n                if p.is_file()\n                and p.suffix.lower() == \".sdf\"\n            )\n"
+        },
+        {
+          "file": "src/docking/sdf_preparer.py",
+          "line": 165,
+          "snippet": "\n\ndef _split_sdf(\n    sdf_path: Path,\n    work_dir: Path,"
+        },
+        {
+          "file": "src/docking/sdf_preparer.py",
+          "line": 205,
+          "snippet": "        output = (\n            work_dir\n            / f\"{prefix}_{index:06d}.sdf\"\n        )\n"
+        },
+        {
+          "file": "src/gui/main_window.py",
+          "line": 4114,
+          "snippet": "                path.resolve()\n                for path in folder.iterdir()\n                if path.is_file() and path.suffix.lower() == \".sdf\"\n            ) if folder.is_dir() else []\n            if not files:"
+        }
+      ]
+    },
+    "translations": {
+      "why": "Système de traduction (et son garde-fou anti-clé-brute du patch12).",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 49,
+          "snippet": "    },\n    \"translations\": {\n        \"patterns\": [r\"class\\s+\\w*Translat\", r\"def\\s+t\\(\", r\"lang_mgr\", r\"_t_resolve\"],\n        \"why\": \"Système de traduction (et son garde-fou anti-clé-brute du patch12).\",\n    },"
+        },
+        {
+          "file": "src/dist/VinaStudio/_internal/i18n/language_manager.py",
+          "line": 47,
+          "snippet": "    Usage typique dans main_window.py :\n\n        self.lang_mgr = LanguageManager()          # auto-detection\n        self.lang_mgr.languageChanged.connect(self.retranslate_ui)\n        ..."
+        },
+        {
+          "file": "src/dist/VinaStudio/_internal/i18n/language_manager.py",
+          "line": 48,
+          "snippet": "\n        self.lang_mgr = LanguageManager()          # auto-detection\n        self.lang_mgr.languageChanged.connect(self.retranslate_ui)\n        ...\n        def retranslate_ui(self, code=None):"
+        },
+        {
+          "file": "src/dist/VinaStudio/_internal/i18n/language_manager.py",
+          "line": 51,
+          "snippet": "        ...\n        def retranslate_ui(self, code=None):\n            self.setWindowTitle(self.lang_mgr.t(\"window_title\"))\n            self.btn_run.setText(self.lang_mgr.t(\"btn_run\"))\n            # etc. pour chaque widget"
+        },
+        {
+          "file": "src/dist/VinaStudio/_internal/i18n/language_manager.py",
+          "line": 52,
+          "snippet": "        def retranslate_ui(self, code=None):\n            self.setWindowTitle(self.lang_mgr.t(\"window_title\"))\n            self.btn_run.setText(self.lang_mgr.t(\"btn_run\"))\n            # etc. pour chaque widget\n"
+        },
+        {
+          "file": "src/dist/VinaStudio/_internal/i18n/language_manager.py",
+          "line": 56,
+          "snippet": "\n        # bouton de langue dans la barre d'outils :\n        self.btn_lang.clicked.connect(self.lang_mgr.cycle_language)\n    \"\"\"\n"
+        }
+      ]
+    },
+    "network_calls": {
+      "why": "Module réseau déjà existant à réutiliser pour les appels GBIF/LOTUS/PubChem.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 53,
+          "snippet": "    },\n    \"network_calls\": {\n        \"patterns\": [r\"requests\\.get\", r\"requests\\.post\", r\"urlopen\", r\"pubchem\", r\"PubChem\"],\n        \"why\": \"Module réseau déjà existant à réutiliser pour les appels GBIF/LOTUS/PubChem.\",\n    },"
+        },
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 54,
+          "snippet": "    \"network_calls\": {\n        \"patterns\": [r\"requests\\.get\", r\"requests\\.post\", r\"urlopen\", r\"pubchem\", r\"PubChem\"],\n        \"why\": \"Module réseau déjà existant à réutiliser pour les appels GBIF/LOTUS/PubChem.\",\n    },\n    \"ligand_folder_ref\": {"
+        },
+        {
+          "file": "src/fetch_mw_logp.py",
+          "line": 3,
+          "snippet": "\"\"\"\nfetch_mw_logp.py\nScript optionnel : enrichit un CSV (colonne 'cid' = PubChem CID) avec le\npoids moléculaire (MW) et le LogP (XLogP3), via l'API PubChem PUG REST.\nNécessite une connexion internet. Usage :"
+        },
+        {
+          "file": "src/fetch_mw_logp.py",
+          "line": 4,
+          "snippet": "fetch_mw_logp.py\nScript optionnel : enrichit un CSV (colonne 'cid' = PubChem CID) avec le\npoids moléculaire (MW) et le LogP (XLogP3), via l'API PubChem PUG REST.\nNécessite une connexion internet. Usage :\n"
+        },
+        {
+          "file": "src/fetch_mw_logp.py",
+          "line": 16,
+          "snippet": "import pandas as pd\n\nCACHE_FILE = \"pubchem_mw_logp_cache.json\"\nBASE_URL = \"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/property/MolecularWeight,XLogP/JSON\"\n"
+        },
+        {
+          "file": "src/fetch_mw_logp.py",
+          "line": 17,
+          "snippet": "\nCACHE_FILE = \"pubchem_mw_logp_cache.json\"\nBASE_URL = \"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/property/MolecularWeight,XLogP/JSON\"\n\n"
+        }
+      ]
+    },
+    "ligand_folder_ref": {
+      "why": "Emplacement exact du dossier ligand où déposer les SDF téléchargés.",
+      "matches": [
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 56,
+          "snippet": "        \"why\": \"Module réseau déjà existant à réutiliser pour les appels GBIF/LOTUS/PubChem.\",\n    },\n    \"ligand_folder_ref\": {\n        \"patterns\": [r\"docking/ligands\", r\"ligand_folder\", r\"LIGAND_DIR\"],\n        \"why\": \"Emplacement exact du dossier ligand où déposer les SDF téléchargés.\","
+        },
+        {
+          "file": "diagnostic_phytomolecules.py",
+          "line": 57,
+          "snippet": "    },\n    \"ligand_folder_ref\": {\n        \"patterns\": [r\"docking/ligands\", r\"ligand_folder\", r\"LIGAND_DIR\"],\n        \"why\": \"Emplacement exact du dossier ligand où déposer les SDF téléchargés.\",\n    },"
+        },
+        {
+          "file": "src/diagnose_generic_docking_2.py",
+          "line": 20,
+          "snippet": "     sur le disque en ce moment (détecte un profil dont le fichier a\n     disparu — cause silencieuse d'échec de validate()).\n  5. Vérifie l'existence et le contenu de docking/ligands/prepared/\n     (dossier fixe utilisé par VinaConfig.ligands_dir, indépendant de\n     la cible) — une deuxième cause possible de \"Configuration"
+        },
+        {
+          "file": "src/diagnose_generic_docking_2.py",
+          "line": 169,
+          "snippet": "    # 5. Dossier ligands fixe\n    # ------------------------------------------------------------\n    section(\"5. docking/ligands/prepared/ (dossier fixe utilisé par \"\n            \"VinaConfig.ligands_dir, indépendant de la cible)\")\n"
+        },
+        {
+          "file": "src/docking/vina_engine.py",
+          "line": 95,
+          "snippet": "\n    ligands_dir: Path = (\n        PROJECT_ROOT / \"docking/ligands/prepared\"\n    )\n"
+        },
+        {
+          "file": "src/docking/ligand_manager.py",
+          "line": 58,
+          "snippet": "    Exemple :\n\n        manager = LigandManager(\"docking/ligands/prepared\")\n        manager.scan()\n"
+        }
+      ]
+    }
+  },
+  "translations_source_present": true,
+  "compiled_only_modules": [],
+  "total_scanned_files": 151,
+  "module_status": {
+    "translations": "source (.py) présente",
+    "session_runtime": "source (.py) présente",
+    "session_manager": "source (.py) présente",
+    "docking_parser": "source (.py) présente",
+    "column_matcher": "source (.py) présente",
+    "stats_engine": "source (.py) présente"
+  }
+}

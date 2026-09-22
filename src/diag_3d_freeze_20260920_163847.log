@@ -1,0 +1,65 @@
+=============== LANCEMENT : va sur la 3D, fais tourner / zoome / change de cible ===============
+Si ca gele : attends ~20 s, puis Ctrl+C dans ce terminal.
+>>> code de sortie : 124 (139 = segfault, 124 = timeout, 130 = Ctrl+C, 0 = fermeture normale)
+
+=============== DERNIERES POSITIONS DES THREADS (mouchard) ===============
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>
+Timeout (0:00:10)!
+Thread 0x0000713e5b3bc200 [python3] (most recent call first):
+  File "/home/stoni/MexAB_MexR_Analyzer_BETA/src/gui/main_window.py", line 10027 in _open_preferences
+  File "main.py", line 104 in main
+  File "main.py", line 108 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 98 in _run_module_code
+  File "<frozen runpy>", line 287 in run_path
+  File "/tmp/run_with_watchdog.py", line 6 in <module>

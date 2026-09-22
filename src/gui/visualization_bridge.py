@@ -178,6 +178,16 @@ class Hit:
     target: str
 
 
+def hit_result_key(target: str, molecule: str) -> str:
+    """Clé unique pour hit_results : deux cibles différentes (MexB, MexR,
+    ou tout autre couple pompe/dérépresseur) peuvent doquer un ligand du
+    même nom — sans le suffixe cible, la seconde cible traitée écrasait
+    purement et simplement les résultats de la première dans le
+    dictionnaire (c'était toujours la dernière de known_target_labels()
+    qui survivait, en général le dérépresseur)."""
+    return f"{molecule} — {target}"
+
+
 _VINA_SCORE_RE = re.compile(
     r"VINA RESULT:\s*(-?\d+(?:\.\d+)?)",
     re.IGNORECASE,
@@ -505,7 +515,7 @@ class BatchWorker(QObject):
         total = len(self.hits)
 
         for index, hit in enumerate(self.hits, start=1):
-            self.progress.emit(hit.molecule, index, total)
+            self.progress.emit(f"{hit.molecule} ({hit.target})", index, total)
 
             try:
                 pose_file = _selected_poses_dir(hit.target) / f"{hit.molecule}_pose_best.pdbqt"
@@ -526,11 +536,13 @@ class BatchWorker(QObject):
                     hit.molecule,
                 )
 
-                results[hit.molecule] = {
+                key = hit_result_key(hit.target, hit.molecule)
+                results[key] = {
                     "interactions": interactions,
                     "diagram": str(output_png),
                     "complex": str(_plip_complex_pdb(hit.target, hit.molecule)),
                     "target": hit.target,
+                    "molecule": hit.molecule,
                 }
 
             except Exception as exc:
@@ -566,28 +578,48 @@ def generate_2d_for_molecule(molecule: str, target: str = DEFAULT_TARGET) -> dic
 # EXPORT — bouton "Exporter tout"
 # ============================================================================
 
-def export_visualization_results(target: str, batch_payload: dict, destination_dir: Path) -> Path:
+def export_visualization_results(batch_payload: dict, destination_dir: Path) -> Path:
+    """Exporte TOUTES les cibles présentes dans batch_payload (MexB, MexR,
+    ou tout autre couple), pas une seule : avant, l'appelant ne passait
+    qu'une cible et le dossier d'une autre cible dockée dans la même
+    campagne n'était jamais copié."""
     destination_dir = Path(destination_dir)
     destination_dir.mkdir(parents=True, exist_ok=True)
 
-    diagrams_src = _diagrams_dir(target)
-    if diagrams_src.exists():
-        shutil.copytree(diagrams_src, destination_dir / "diagrammes_2d", dirs_exist_ok=True)
+    results = batch_payload.get("results", {})
 
-    plip_src = _plip_workdir(target)
-    if plip_src.exists():
-        shutil.copytree(plip_src, destination_dir / "plip_xml_complex", dirs_exist_ok=True)
+    targets = sorted({
+        data.get("target", DEFAULT_TARGET) for data in results.values()
+    }) or [DEFAULT_TARGET]
+
+    # Une seule cible : structure plate, inchangée pour les campagnes
+    # mono-récepteur existantes. Plusieurs cibles : un sous-dossier par
+    # cible pour ne jamais mélanger leurs diagrammes/complexes.
+    single_target = len(targets) == 1
+
+    for target in targets:
+        target_dest = destination_dir if single_target else destination_dir / target
+
+        diagrams_src = _diagrams_dir(target)
+        if diagrams_src.exists():
+            shutil.copytree(diagrams_src, target_dest / "diagrammes_2d", dirs_exist_ok=True)
+
+        plip_src = _plip_workdir(target)
+        if plip_src.exists():
+            shutil.copytree(plip_src, target_dest / "plip_xml_complex", dirs_exist_ok=True)
 
     summary_csv = destination_dir / "residus_interactions.csv"
     with summary_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["molecule", "residue", "residue_id", "chain", "distance", "interaction_types"],
+            fieldnames=["target", "molecule", "residue", "residue_id", "chain", "distance", "interaction_types"],
         )
         writer.writeheader()
-        for molecule, data in batch_payload.get("results", {}).items():
+        for key, data in results.items():
+            molecule = data.get("molecule", key)
+            target = data.get("target", DEFAULT_TARGET)
             for row in data["interactions"]["summary"]:
-                writer.writerow({"molecule": molecule, **row})
+                writer.writerow({"target": target, "molecule": molecule, **row})
 
     return destination_dir
 

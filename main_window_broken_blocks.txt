@@ -1,0 +1,1600 @@
+===== BLOC lignes 33-48 =====
+33: from PySide6.QtWidgets import QDialog, QCheckBox, QDialogButtonBox, QLabel as _QLabelChainDialog
+34: 
+35: class _ChainSelectionDialog(QDialog):
+36:     __firstlineno__ = 70
+37:     __doc__ = "\nBoîte de dialogue affichée lors de l'import d'un fichier PDB brut :\nliste toutes les chaînes détectées avec leur nombre de résidus, et\nlaisse l'utilisateur cocher celle(s) à garder (monomère = 1 case\ncochée, dimère = 2, etc.). Aucune sélection biologique n'est faite\nà sa place.\n"
+38:     
+39:     def __init__(self, chain_residues, parent):
+40:         '''Sélection des chaînes à conserver'''
+41:         # unsupported opcode LOAD_SUPER_ATTR
+42:         self(parent)
+43:         self.setWindowTitle('Sélection des chaînes à conserver')
+44:         layout = QVBoxLayout(self)
+45:         layout.addWidget(_QLabelChainDialog("Ce fichier PDB contient plusieurs chaînes. Coche celle(s) à garder pour le docking.\nL'eau, les hétéroatomes et les ligands co-cristallisés seront supprimés automatiquement, quelle que soit la sélection."))
+46:         self._checkboxes = { }
+47:         for chain_id in sorted(chain_residues):
+48:             n_res = chain_residues[chain_id]
+
+
+===== BLOC lignes 49-88 =====
+49:             checkbox = QCheckBox(f'''Chaîne {chain_id} — {n_res} résidu(s)''')
+50:             layout.addWidget(checkbox)
+51:             self._checkboxes[chain_id] = checkbox
+52:         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+53:         buttons.accepted.connect(self.accept)
+54:         buttons.rejected.connect(self.reject)
+55:         layout.addWidget(buttons)
+56:         return None
+57:     # WARNING: Decompyle incomplete
+58: 
+59:     
+60:     def selected_chains(self):
+61:         for None in :
+62:             chain_id = None
+63:             checkbox = ()
+64:             if not checkbox.isChecked():
+65:                 continue
+66:         return checkbox, chain_id
+67:         
+68:     # WARNING: Decompyle incomplete
+69: 
+70:     __static_attributes__ = ('_checkboxes',)
+71:     __classcell__ = __class__
+72:     return __class__
+73: 
+74: 
+75: class _MoleculeFamilyDialog(QDialog):
+76:     __firstlineno__ = 114
+77:     __doc__ = 'Sélecteur compact de sept familles maximum, une famille par dossier.'
+78:     MAX_FAMILIES = 7
+79:     
+80:     def __init__(self, parent, title):
+81:         # unsupported opcode LOAD_SUPER_ATTR
+82:         self(parent)
+83:         self.setWindowTitle(title)
+84:         self.setModal(True)
+85:         self.setMinimumWidth(700)
+86:         self._rows = []
+87:         layout = QVBoxLayout(self)
+88:         layout.addWidget(QLabel('Active une ou plusieurs familles, donne-leur un nom, puis choisis le dossier qui contient leurs molécules.'))
+
+
+===== BLOC lignes 103-155 =====
+103:             grid.addWidget(choose, index, 3)
+104:             self._rows.append((checkbox, name, folder))
+105:         layout.addLayout(grid)
+106:         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+107:         buttons.accepted.connect(self._accept_if_valid)
+108:         buttons.rejected.connect(self.reject)
+109:         layout.addWidget(buttons)
+110:         return None
+111:     # WARNING: Decompyle incomplete
+112: 
+113:     _choose_folder = (lambda field: folder = QFileDialog.getExistingDirectory(field.window(), 'Sélectionner le dossier de la famille', '')if folder:
+114: field.setText(str(Path(folder).resolve()))None)()
+115:     
+116:     def _accept_if_valid(self):
+117:         for None in :
+118:             row = None
+119:             if not row[0].isChecked():
+120:                 continue
+121:         if not selected:
+122:             QMessageBox.warning(self, 'Familles', 'Sélectionne au moins une famille.')
+123:             return None
+124:         for None in :
+125:             row = None
+126:             if row[2].text().strip():
+127:                 continue
+128:         if missing:
+129:             QMessageBox.warning(self, 'Dossiers manquants', 'Choisis un dossier pour chaque famille active.')
+130:             return None
+131:         , [], missing, row.accept()
+132:         return None
+133:         
+134:         
+135:     # WARNING: Decompyle incomplete
+136: 
+137:     
+138:     def families(self):
+139:         for None in :
+140:             checkbox = (index,)
+141:             name = ()
+142:             if not checkbox.isChecked():
+143:                 continue
+144:             if not name.text().strip():
+145:                 name.text().strip()
+146:         return folder, name, checkbox, index
+147:         
+148:     # WARNING: Decompyle incomplete
+149: 
+150:     __static_attributes__ = ('_rows',)
+151:     __classcell__ = __class__
+152:     return __class__
+153: 
+154: 
+155: class _ReceptorChoiceCardDialog(QDialog):
+
+
+===== BLOC lignes 156-171 =====
+156:     __firstlineno__ = 189
+157:     __doc__ = "\nBoîte de dialogue compacte pour un choix à 2-3 options, sous forme\nde cartes cliquables plutôt qu'une liste déroulante native — même\nesprit visuel que les cartes Mode 1 / Mode 2 déjà présentes\nailleurs dans l'interface. Largeur fixe et raisonnable ; la hauteur\nsuit uniquement le nombre d'options, jamais un long menu étiré.\n"
+158:     
+159:     def __init__(self, title, description, options, parent):
+160:         """
+161: options : liste de tuples (clé, titre_carte, description_carte).
+162: La clé de l'option cliquée est récupérée via .chosen_key().
+163: """
+164:         # unsupported opcode LOAD_SUPER_ATTR
+165:         self(parent)
+166:         self.setWindowTitle(title)
+167:         self.setModal(True)
+168:         self.setFixedWidth(440)
+169:         self._chosen_key = None
+170:         layout = QVBoxLayout(self)
+171:         layout.setContentsMargins(22, 20, 22, 18)
+
+
+===== BLOC lignes 175-200 =====
+175:         title_label.setWordWrap(True)
+176:         layout.addWidget(title_label)
+177:         if description:
+178:             desc_label = QLabel(description)
+179:             desc_label.setObjectName('SectionDescription')
+180:             desc_label.setWordWrap(True)
+181:             layout.addWidget(desc_label)
+182:         layout.addSpacing(4)
+183:         for None in options:
+184:             key = None
+185:             card_title = ()
+186:         layout.addSpacing(2)
+187:         cancel_row.addStretch()
+188:         QPushButton('Annuler') = QHBoxLayout()
+189:         cancel_button.clicked.connect(self.reject)
+190:         cancel_row.addWidget(cancel_button)
+191:         layout.addLayout(cancel_row)
+192:         return None
+193:     # WARNING: Decompyle incomplete
+194: 
+195:     
+196:     def _build_card(self, key, card_title, card_description):
+197:         '''ChoiceCard'''
+198:         card = QFrame()
+199:         card.setObjectName('ChoiceCard')
+200:         card.setCursor(Qt.PointingHandCursor)
+
+
+===== BLOC lignes 219-234 =====
+219: 
+220:         card.mousePressEvent = _on_click
+221:         return card
+222: 
+223:     
+224:     def chosen_key(self):
+225:         return self._chosen_key
+226: 
+227:     ask = (lambda parent, title, description, options: dialog = _ReceptorChoiceCardDialog(title, description, options, parent = parent)if dialog.exec() != QDialog.Accepted:
+228: NoneNone.chosen_key())()
+229:     __static_attributes__ = ('_chosen_key',)
+230:     __classcell__ = __class__
+231:     return __class__
+232: 
+233: 
+234: class _ReceptorPickerDialog(QDialog):
+
+
+===== BLOC lignes 236-251 =====
+236:     __doc__ = "\nSélecteur de récepteur groupé par bactérie (espèce), avec un cadre\npar espèce et un filtre texte en haut — remplace la liste\ndéroulante plate qui mélangeait pompes, dérépresseurs et couples\nsans aucun repère visuel. À l'intérieur de chaque cadre, l'ordre\nest toujours : la pompe d'efflux, son dérépresseur, puis le\ncouple (filtre à double sélectivité).\n"
+237:     
+238:     def __init__(self, groups, current_index, parent):
+239:         '''
+240: groups : liste ordonnée de tuples (species_label, entries), où
+241: entries est une liste de tuples
+242: (combo_index, kind_label, title, subtitle, is_current).
+243: '''
+244:         # unsupported opcode LOAD_SUPER_ATTR
+245:         self(parent)
+246:         self.setWindowTitle('Choisir un récepteur')
+247:         self.setModal(True)
+248:         self.setMinimumWidth(480)
+249:         self.setMinimumHeight(520)
+250:         self._chosen_index = None
+251:         outer = QVBoxLayout(self)
+
+
+===== BLOC lignes 261-291 =====
+261:         scroll = QScrollArea()
+262:         scroll.setWidgetResizable(True)
+263:         scroll.setFrameShape(QFrame.NoFrame)
+264:         content = QWidget()
+265:         content_layout = QVBoxLayout(content)
+266:         content_layout.setContentsMargins(2, 2, 2, 2)
+267:         content_layout.setSpacing(14)
+268:         self._species_frames = []
+269:         for None in groups:
+270:             species_label = None
+271:             entries = ()
+272:             frame = self._build_species_frame(species_label, entries)
+273:             cards = ()
+274:             self._species_frames.append((species_label, frame, cards))
+275:         content_layout.addStretch(1)
+276:         scroll.setWidget(content)
+277:         outer.addWidget(scroll, 1)
+278:         cancel_row.addStretch()
+279:         QPushButton('Annuler') = QHBoxLayout()
+280:         cancel_button.clicked.connect(self.reject)
+281:         cancel_row.addWidget(cancel_button)
+282:         outer.addLayout(cancel_row)
+283:         return None
+284:     # WARNING: Decompyle incomplete
+285: 
+286:     
+287:     def _build_species_frame(self, species_label, entries):
+288:         '''SpeciesFrame'''
+289:         frame = QFrame()
+290:         frame.setObjectName('SpeciesFrame')
+291:         frame.setStyleSheet(f'''\n            QFrame#SpeciesFrame {{\n                background: {COLORS['glass']};\n                border-width: 1px;\n                border-style: solid;\n                border-top-color: {COLORS['bevel_light']};\n                border-left-color: {COLORS['bevel_light']};\n                border-right-color: {COLORS['bevel_dark']};\n                border-bottom-color: {COLORS['bevel_dark']};\n                border-radius: 18px;\n            }}\n            ''')
+
+
+===== BLOC lignes 293-315 =====
+293:         frame_layout = QVBoxLayout(frame)
+294:         frame_layout.setContentsMargins(16, 14, 16, 14)
+295:         frame_layout.setSpacing(8)
+296:         header = QLabel(species_label)
+297:         header.setStyleSheet(f'''font-size: 13px; font-weight: 700; color: {COLORS['accent_dark']}; border: none; background: transparent;''')
+298:         header.setWordWrap(True)
+299:         frame_layout.addWidget(header)
+300:         cards = []
+301:         for None in entries:
+302:             combo_index = None
+303:             kind_label = ()
+304:             title = None
+305:             subtitle = entries
+306:             cards.append((card, searchable))
+307:         return (frame, cards)
+308:     # WARNING: Decompyle incomplete
+309: 
+310:     
+311:     def _build_entry_card(self, combo_index, kind_label, title, subtitle, is_current):
+312:         '''ReceptorEntryCard'''
+313:         card = QFrame()
+314:         card.setObjectName('ReceptorEntryCard')
+315:         card.setCursor(Qt.PointingHandCursor)
+
+
+===== BLOC lignes 345-380 =====
+345:             self.accept()
+346: 
+347:         card.mousePressEvent = _on_click
+348:         return card
+349: 
+350:     
+351:     def _apply_filter(self, text):
+352:         needle = text.strip().lower()
+353:         for None in self._species_frames:
+354:             _species_label = None
+355:             frame = ()
+356:             for None in cards:
+357:                 card = None
+358:                 searchable = ()
+359:                 if not not needle:
+360:                     not needle
+361:                 if not any_visible:
+362:                     any_visible
+363:                 match = needle in searchable
+364:         frame.setVisible(any_visible)
+365:         continue
+366:         return None
+367:     # WARNING: Decompyle incomplete
+368: 
+369:     
+370:     def chosen_index(self):
+371:         return self._chosen_index
+372: 
+373:     ask = (lambda parent, groups, current_index: dialog = _ReceptorPickerDialog(groups, current_index, parent = parent)if dialog.exec() != QDialog.Accepted:
+374: NoneNone.chosen_index())()
+375:     __static_attributes__ = ('_chosen_index', '_search_box', '_species_frames')
+376:     __classcell__ = __class__
+377:     return __class__
+378: 
+379: from src.plotting import fig_scatter_corr, fig_histogram_si, fig_histogram_si_by_group, fig_forest_correlations, fig_percentile_scatter, fig_loo_influence
+380: from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+
+
+===== BLOC lignes 437-465 =====
+437: """
+438:     for frame in root.findChildren(QFrame):
+439:         if not frame.objectName() in object_names:
+440:             continue
+441:         if frame.property('skip_glass_elevation'):
+442:             continue
+443:         apply_glass_elevation(frame, blur = blur, y_offset = y_offset, alpha = alpha)
+444:     return None
+445: # WARNING: Decompyle incomplete
+446: 
+447: 
+448: class _RoundedClipFilter(QObject):
+449:     __firstlineno__ = 1297
+450:     
+451:     def __init__(self, widget, radius):
+452:         # unsupported opcode LOAD_SUPER_ATTR
+453:         self(widget)
+454:         self.radius = radius
+455:         widget.installEventFilter(self)
+456:         self._apply(widget)
+457:         return None
+458:     # WARNING: Decompyle incomplete
+459: 
+460:     
+461:     def eventFilter(self, obj, event):
+462:         if event.type() in (QEvent.Resize, QEvent.Show):
+463:             self._apply(obj)
+464:         return False
+465: 
+
+
+===== BLOC lignes 476-491 =====
+476:     return __class__
+477: 
+478: 
+479: class _ViewerDragRepaintPoller(QObject):
+480:     __firstlineno__ = 1320
+481:     __doc__ = '\nForce un repaint régulier tant qu\'un bouton souris est maintenu sur le\nvisualiseur. C\'est le mécanisme qui évite le symptôme "rotation prise mais\nécran figé tant qu\'un autre évènement externe ne redessine pas" dans les\nQWebEngineView WebGL sous environnement virtuel ou WSL.\n'
+482:     
+483:     def __init__(self, viewer_widget, interval_ms):
+484:         # unsupported opcode LOAD_SUPER_ATTR
+485:         self(viewer_widget)
+486:         self.viewer = viewer_widget
+487:         self._wheel_refresh_pending = False
+488:         self.viewer.installEventFilter(self)
+489:         if hasattr(self.viewer, 'wheelOccurred'):
+490:             self.viewer.wheelOccurred.connect(self._schedule_wheel_refresh)
+491:         if hasattr(self.viewer, 'viewerShown'):
+
+
+===== BLOC lignes 492-520 =====
+492:             self.viewer.viewerShown.connect(self._schedule_resize_refresh)
+493:         if hasattr(self.viewer, 'viewerResized'):
+494:             self.viewer.viewerResized.connect(self._schedule_resize_refresh)
+495:         self.timer = QTimer(self)
+496:         self.timer.setInterval(interval_ms)
+497:         self.timer.timeout.connect(self._tick)
+498:         self.timer.stop()
+499:         return None
+500:     # WARNING: Decompyle incomplete
+501: 
+502:     
+503:     def eventFilter(self, obj, event):
+504:         if obj is self.viewer:
+505:             if event.type() == QEvent.Wheel:
+506:                 self._schedule_wheel_refresh()
+507:             elif event.type() == QEvent.MouseButtonPress:
+508:                 self.timer.start()
+509:             elif event.type() == QEvent.MouseButtonRelease:
+510:                 self.timer.stop()
+511:         # unsupported opcode LOAD_SUPER_ATTR
+512:         return self(obj, event)
+513:     # WARNING: Decompyle incomplete
+514: 
+515:     
+516:     def _schedule_wheel_refresh(self):
+517:         if self._wheel_refresh_pending:
+518:             return None
+519:         self._wheel_refresh_pending = None
+520:         QTimer.singleShot(0, self._flush_wheel_refresh)
+
+
+===== BLOC lignes 564-585 =====
+564: 
+565: class _ViewerWebEngine(QWebEngineView):
+566:     __firstlineno__ = 1407
+567:     wheelOccurred = Signal()
+568:     viewerShown = Signal()
+569:     viewerResized = Signal()
+570:     
+571:     def __init__(self, *, direct_wheel_zoom, *args, **kwargs):
+572:         # unsupported opcode LOAD_SUPER_ATTR
+573:         # unsupported DICT_UPDATE/DICT_MERGE
+574:         args(*{ })
+575:         self._direct_wheel_zoom = False
+576:         self.set_direct_wheel_zoom(direct_wheel_zoom)
+577:         return None
+578:     # WARNING: Decompyle incomplete
+579: 
+580:     direct_wheel_zoom = (lambda self: self._direct_wheel_zoom)()
+581:     direct_wheel_zoom = (lambda self, enabled: self.set_direct_wheel_zoom(enabled))()
+582:     
+583:     def set_direct_wheel_zoom(self, enabled):
+584:         enabled = bool(enabled)
+585:         if enabled == self._direct_wheel_zoom:
+
+
+===== BLOC lignes 593-636 =====
+593:         self._direct_wheel_zoom = enabled
+594: 
+595:     
+596:     def eventFilter(self, obj, event):
+597:         if self.direct_wheel_zoom and event.type() == QEvent.Wheel:
+598:             if obj is self or self.isAncestorOf(obj):
+599:                 self._apply_direct_wheel_zoom(event)
+600:                 return True
+601:             # unsupported opcode LOAD_SUPER_ATTR
+602:             return self(obj, event)
+603:     # WARNING: Decompyle incomplete
+604: 
+605:     
+606:     def _apply_direct_wheel_zoom(self, event):
+607:         delta = event.angleDelta().y()
+608:         if delta:
+609:             factor = 1 + min(abs(delta), 240) / 1200
+610:             if delta < 0:
+611:                 factor = 1 / factor
+612:             self.page().runJavaScript(f'''if (typeof applyWheelZoom === \'function\') {{ applyWheelZoom({factor}); }}''')
+613:         event.accept()
+614: 
+615:     
+616:     def showEvent(self, event):
+617:         # unsupported opcode LOAD_SUPER_ATTR
+618:         self(event)
+619:         self.viewerShown.emit()
+620:         return None
+621:     # WARNING: Decompyle incomplete
+622: 
+623:     
+624:     def resizeEvent(self, event):
+625:         # unsupported opcode LOAD_SUPER_ATTR
+626:         self(event)
+627:         self.viewerResized.emit()
+628:         return None
+629:     # WARNING: Decompyle incomplete
+630: 
+631:     __static_attributes__ = ('_direct_wheel_zoom',)
+632:     __classcell__ = __class__
+633:     return __class__
+634: 
+635: 
+636: def apply_rounded_clip(widget, radius):
+
+
+===== BLOC lignes 681-739 =====
+681:     return (QColor(pastel), QColor(255, 255, 255, manager.state['reflection_alpha']), manager.state['radius'])
+682: 
+683: 
+684: class LiquidGlassButton(QPushButton):
+685:     __firstlineno__ = 1528
+686:     __doc__ = 'Bouton natif avec une surbrillance spéculaire légère au survol.'
+687:     
+688:     def __init__(self, text, parent):
+689:         # unsupported opcode LOAD_SUPER_ATTR
+690:         self(text, parent)
+691:         self._glass_flux = 0
+692:         self._glass_flux_timer = QTimer(self)
+693:         self._glass_flux_timer.setInterval(24)
+694:         self._glass_flux_timer.timeout.connect(self._advance_glass_flux)
+695:         self.setMouseTracking(True)
+696:         return None
+697:     # WARNING: Decompyle incomplete
+698: 
+699:     
+700:     def _get_glass_flux(self):
+701:         return self._glass_flux
+702: 
+703:     
+704:     def _set_glass_flux(self, value):
+705:         self._glass_flux = float(value)
+706:         self.update()
+707: 
+708:     glassFlux = Property(float, _get_glass_flux, _set_glass_flux)
+709:     
+710:     def enterEvent(self, event):
+711:         self._glass_flux_timer.start()
+712:         # unsupported opcode LOAD_SUPER_ATTR
+713:         self(event)
+714:         return None
+715:     # WARNING: Decompyle incomplete
+716: 
+717:     
+718:     def leaveEvent(self, event):
+719:         self._glass_flux_timer.stop()
+720:         self._set_glass_flux(0)
+721:         # unsupported opcode LOAD_SUPER_ATTR
+722:         self(event)
+723:         return None
+724:     # WARNING: Decompyle incomplete
+725: 
+726:     
+727:     def _advance_glass_flux(self):
+728:         self._set_glass_flux((self._glass_flux + 0.018) % 1.18)
+729: 
+730:     
+731:     def paintEvent(self, event):
+732:         # unsupported opcode LOAD_SUPER_ATTR
+733:         self(event)
+734:         if self.underMouse() and self.width() < 3 or self.height() < 3:
+735:             return None
+736:         painter = __class__(self)
+737:         painter.setRenderHint(QPainter.Antialiasing)
+738:         margin = 2
+739:         rect = self.rect().adjusted(margin, margin, -margin, -margin)
+
+
+===== BLOC lignes 747-817 =====
+747:         gradient.setColorAt(0.45, QColor(highlight.red(), highlight.green(), highlight.blue(), 42))
+748:         gradient.setColorAt(0.58, reflection)
+749:         gradient.setColorAt(1, QColor(255, 255, 255, 0))
+750:         painter.fillPath(path, gradient)
+751:         painter.setPen(QColor(reflection.red(), reflection.green(), reflection.blue(), 125))
+752:         painter.drawPath(path)
+753:         painter.end()
+754:         return None
+755:     # WARNING: Decompyle incomplete
+756: 
+757:     __static_attributes__ = ('_glass_flux', '_glass_flux_timer')
+758:     __classcell__ = __class__
+759:     return __class__
+760: 
+761: 
+762: class LiquidGlassToolButton(QToolButton):
+763:     __firstlineno__ = 1586
+764:     __doc__ = 'Version du matériau liquide pour les onglets et outils Qt.'
+765:     
+766:     def __init__(self, parent):
+767:         # unsupported opcode LOAD_SUPER_ATTR
+768:         self(parent)
+769:         self._glass_flux = 0
+770:         self._glass_flux_timer = QTimer(self)
+771:         self._glass_flux_timer.setInterval(24)
+772:         self._glass_flux_timer.timeout.connect(self._advance_glass_flux)
+773:         self.setMouseTracking(True)
+774:         return None
+775:     # WARNING: Decompyle incomplete
+776: 
+777:     
+778:     def _get_glass_flux(self):
+779:         return self._glass_flux
+780: 
+781:     
+782:     def _set_glass_flux(self, value):
+783:         self._glass_flux = float(value)
+784:         self.update()
+785: 
+786:     glassFlux = Property(float, _get_glass_flux, _set_glass_flux)
+787:     
+788:     def enterEvent(self, event):
+789:         self._glass_flux_timer.start()
+790:         # unsupported opcode LOAD_SUPER_ATTR
+791:         self(event)
+792:         return None
+793:     # WARNING: Decompyle incomplete
+794: 
+795:     
+796:     def leaveEvent(self, event):
+797:         self._glass_flux_timer.stop()
+798:         self._set_glass_flux(0)
+799:         # unsupported opcode LOAD_SUPER_ATTR
+800:         self(event)
+801:         return None
+802:     # WARNING: Decompyle incomplete
+803: 
+804:     
+805:     def _advance_glass_flux(self):
+806:         self._set_glass_flux((self._glass_flux + 0.018) % 1.18)
+807: 
+808:     
+809:     def paintEvent(self, event):
+810:         # unsupported opcode LOAD_SUPER_ATTR
+811:         self(event)
+812:         if self.underMouse() and self.width() < 3 or self.height() < 3:
+813:             return None
+814:         painter = __class__(self)
+815:         painter.setRenderHint(QPainter.Antialiasing)
+816:         rect = self.rect().adjusted(2, 2, -2, -2)
+817:         path = QPainterPath()
+
+
+===== BLOC lignes 824-839 =====
+824:         gradient.setColorAt(0.5, QColor(highlight.red(), highlight.green(), highlight.blue(), 42))
+825:         gradient.setColorAt(0.62, reflection)
+826:         gradient.setColorAt(1, QColor(255, 255, 255, 0))
+827:         painter.fillPath(path, gradient)
+828:         painter.setPen(QColor(reflection.red(), reflection.green(), reflection.blue(), 120))
+829:         painter.drawPath(path)
+830:         painter.end()
+831:         return None
+832:     # WARNING: Decompyle incomplete
+833: 
+834:     __static_attributes__ = ('_glass_flux', '_glass_flux_timer')
+835:     __classcell__ = __class__
+836:     return __class__
+837: 
+838: 
+839: def create_button(text, primary):
+
+
+===== BLOC lignes 846-876 =====
+846: 
+847: from src.visualization.visualization_manager import VisualizationManager
+848: 
+849: class PrimaryNavigation(QFrame):
+850:     __firstlineno__ = 1659
+851:     
+852:     def __init__(self, callback):
+853:         '''Navigation'''
+854:         # unsupported opcode LOAD_SUPER_ATTR
+855:         self()
+856:         self.setObjectName('Navigation')
+857:         layout = QVBoxLayout(self)
+858:         layout.setContentsMargins(0, 0, 0, 0)
+859:         layout.setSpacing(0)
+860:         header = QFrame()
+861:         header.setObjectName('NavigationHeader')
+862:         header_layout = QVBoxLayout(header)
+863:         header_layout.setContentsMargins(15, 18, 15, 16)
+864:         self.title_label = make_label('ESPACE DE TRAVAIL')
+865:         self.title_label.setStyleSheet(f'''font-weight: 700; color: {COLORS['text_muted']};''')
+866:         header_layout.addWidget(self.title_label)
+867:         layout.addWidget(header)
+868:         self.buttons = []
+869:         for None in enumerate([
+870:             'Docking',
+871:             'Analyse',
+872:             'Visualisation']):
+873:             index = None
+874:             text = ()
+875:             button.setText(text)
+876:             button.setCheckable(True)
+
+
+===== BLOC lignes 885-926 =====
+885:         info_layout = QVBoxLayout(info)
+886:         info_layout.setContentsMargins(15, 15, 15, 15)
+887:         version = make_label('VINA Studio\nDocking moléculaire & Analyse')
+888:         version.setStyleSheet(f'''font-size: 10px; color: {COLORS['text_muted']};''')
+889:         info_layout.addWidget(version)
+890:         layout.addWidget(info)
+891:         self.buttons[0].setChecked(True)
+892:         return None
+893:     # WARNING: Decompyle incomplete
+894: 
+895:     __static_attributes__ = ('buttons', 'title_label')
+896:     __classcell__ = __class__
+897:     return __class__
+898: 
+899: 
+900: class SecondaryNavigation(QFrame):
+901:     __firstlineno__ = 1734
+902:     
+903:     def __init__(self, title, tabs, callback):
+904:         '''SecondaryNavigation'''
+905:         # unsupported opcode LOAD_SUPER_ATTR
+906:         self()
+907:         self.setObjectName('SecondaryNavigation')
+908:         layout = QVBoxLayout(self)
+909:         layout.setContentsMargins(0, 0, 0, 0)
+910:         layout.setSpacing(0)
+911:         header = QFrame()
+912:         header_layout = QVBoxLayout(header)
+913:         header_layout.setContentsMargins(15, 18, 15, 14)
+914:         self.title_label = make_label(title.upper())
+915:         self.title_label.setStyleSheet(f'''font-size: 11px; font-weight: 700; color: {COLORS['text_muted']};''')
+916:         header_layout.addWidget(self.title_label)
+917:         layout.addWidget(header)
+918:         self.buttons = []
+919:         for None in enumerate(tabs):
+920:             index = None
+921:             text = ()
+922:             button.setText(text)
+923:             button.setCheckable(True)
+924:             button.setAutoExclusive(True)
+925:             button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+926:             button.setMinimumHeight(42)
+
+
+===== BLOC lignes 928-955 =====
+928:             apply_glass_elevation(button, blur = 14, y_offset = 3, alpha = 30)
+929:             self.buttons.append(button)
+930:             layout.addWidget(button)
+931:         layout.addStretch()
+932:         if self.buttons:
+933:             self.buttons[0].setChecked(True)
+934:             return None
+935:         return __class__
+936:     # WARNING: Decompyle incomplete
+937: 
+938:     __static_attributes__ = ('buttons', 'title_label')
+939:     __classcell__ = __class__
+940:     return __class__
+941: 
+942: 
+943: class DockingPage(QWidget):
+944:     __firstlineno__ = 1795
+945:     
+946:     def __init__(self, lang_mgr):
+947:         '''VISUALISATION CONNECTEE:'''
+948:         # unsupported opcode LOAD_SUPER_ATTR
+949:         self()
+950:         self.lang_mgr = lang_mgr
+951:         self._i18n = []
+952:         self.visualization_manager = VisualizationManager()
+953:         self.visualization_data = self.visualization_manager.scan()
+954:         print('VISUALISATION CONNECTEE:', self.visualization_data)
+955:         self.project_root = Path(__file__).resolve().parents[2]
+
+
+===== BLOC lignes 980-997 =====
+980:         root.addWidget(self.stack, 1)
+981:         self.sdf_page = self.create_sdf_page()
+982:         self.pdbqt_page = self.create_pdbqt_page()
+983:         self.docking_page = self.create_docking_page()
+984:         self.stack.addWidget(self.sdf_page)
+985:         self.stack.addWidget(self.pdbqt_page)
+986:         self.stack.addWidget(self.docking_page)
+987:         return None
+988:     # WARNING: Decompyle incomplete
+989: 
+990:     _t_resolve = (lambda translated, key, fallback: if translated or translated == key:
+991: fallback)()
+992:     
+993:     def _t_label(self, key, fallback, object_name):
+994:         text = self._t_resolve(self.lang_mgr.t(key) if self.lang_mgr else fallback, key, fallback)
+995:         label = make_label(text, object_name)
+996:         self._i18n.append((label, key, fallback))
+997:         return label
+
+
+===== BLOC lignes 1009-1031 =====
+1009:         family_columns = getattr(self, '_pdbqt_family_columns', [])
+1010:         if self.lang_mgr:
+1011:             return None[self.lang_mgr.t('pdbqt_col_status')]
+1012:         return None['Statut']
+1013: 
+1014:     
+1015:     def retranslate(self):
+1016:         '''pdbqt_table'''
+1017:         for None in self._i18n:
+1018:             widget = None
+1019:             key = ()
+1020:         if hasattr(self, 'pdbqt_table'):
+1021:             self.pdbqt_table.setHorizontalHeaderLabels(self._pdbqt_table_headers())
+1022:             return None
+1023:         return None
+1024:     # WARNING: Decompyle incomplete
+1025: 
+1026:     
+1027:     def switch_tab(self, index):
+1028:         self.stack.setCurrentIndex(index)
+1029:         if index == 1:
+1030:             self.refresh_pdbqt_table()
+1031:             return None
+
+
+===== BLOC lignes 1127-1248 =====
+1127: 
+1128:     
+1129:     def select_sdf_families(self):
+1130:         dialog = _MoleculeFamilyDialog(self)
+1131:         if dialog.exec() != QDialog.Accepted:
+1132:             return None
+1133:         families = None
+1134:         all_files = []
+1135:         for None in dialog.families():
+1136:             family_name = None
+1137:             folder = ()
+1138:             if not files:
+1139:                 QMessageBox.warning(self, 'Famille vide', f'''Le dossier de « {family_name} » ne contient aucun fichier SDF.''')
+1140:                 (lambda .0: # unsupported opcode RETURN_GENERATORfor path in .0:
+1141: if not path.is_file():
+1142: continueif not path.suffix.lower() == '.sdf':
+1143: continue# unsupported opcode YIELD_VALUEpath.resolve()None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1144: )(folder.iterdir()()) if folder.is_dir() else []
+1145:                 return None
+1146:             sorted = None
+1147:         self.sdf_families = families
+1148:         self.sdf_files = list(dict.fromkeys(all_files))
+1149:         self.refresh_sdf_selection()
+1150:         self.sdf_log.setText(f'''{len(families)} famille(s), {len(self.sdf_files)} fichier(s) SDF ajouté(s).''')
+1151:         return None
+1152:     # WARNING: Decompyle incomplete
+1153: 
+1154:     
+1155:     def select_sdf_files(self):
+1156:         '''Sélectionner des fichiers SDF'''
+1157:         files = QFileDialog.getOpenFileNames(self, 'Sélectionner des fichiers SDF', '', 'Structure Data File (*.sdf)')
+1158:         _ = ()
+1159:         if not files:
+1160:             return None
+1161:         for None in files:
+1162:             path = Path(file_path).resolve()
+1163:             if not path not in self.sdf_files:
+1164:                 continue
+1165:             self.sdf_files.append(path)
+1166:             added += 1
+1167:         self.sdf_families.setdefault('Sans famille', [])
+1168:         for file_path in files:
+1169:             path = Path(file_path).resolve()
+1170:             if not path not in self.sdf_families['Sans famille']:
+1171:                 continue
+1172:             self.sdf_families['Sans famille'].append(path)
+1173:         self.refresh_sdf_selection()
+1174:         self.sdf_log.setText(f'''{added} fichier(s) SDF ajouté(s).''')
+1175:         return None
+1176:     # WARNING: Decompyle incomplete
+1177: 
+1178:     
+1179:     def select_sdf_folder(self):
+1180:         '''Sélectionner un dossier contenant les SDF'''
+1181:         folder = QFileDialog.getExistingDirectory(self, 'Sélectionner un dossier contenant les SDF', '')
+1182:         if not folder:
+1183:             return None
+1184:         path = None(folder).resolve()
+1185:         sdf_files = (lambda .0: # unsupported opcode RETURN_GENERATORfor p in .0:
+1186: if not p.is_file():
+1187: continueif not p.suffix.lower() == '.sdf':
+1188: continue# unsupported opcode YIELD_VALUEp.resolve()None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1189: )(path.iterdir()())
+1190:         if not sdf_files:
+1191:             QMessageBox.warning(self, 'Aucun SDF', 'Le dossier sélectionné ne contient aucun fichier .sdf.')
+1192:             return None
+1193:         added = sorted
+1194:         for sdf_file in sdf_files:
+1195:             if not sdf_file not in self.sdf_files:
+1196:                 continue
+1197:             self.sdf_files.append(sdf_file)
+1198:             added += 1
+1199:         self.sdf_families.setdefault(path.name, [])
+1200:         (lambda .0: # unsupported opcode RETURN_GENERATORfor None in .0:
+1201: item = Noneif not item not in self.sdf_families[path.name]:
+1202: continue# unsupported opcode YIELD_VALUENone# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1203: )(sdf_files())
+1204:         self.refresh_sdf_selection()
+1205:         self.sdf_log.setText(f'''Dossier ajouté : {added} fichier(s) SDF trouvé(s).''')
+1206:         return None
+1207:     # WARNING: Decompyle incomplete
+1208: 
+1209:     
+1210:     def clear_sdf_selection(self):
+1211:         '''Sélection SDF vidée.'''
+1212:         self.sdf_files.clear()
+1213:         self.sdf_families.clear()
+1214:         self.refresh_sdf_selection()
+1215:         self.sdf_log.setText('Sélection SDF vidée.')
+1216: 
+1217:     
+1218:     def refresh_sdf_selection(self):
+1219:         for None in :
+1220:             name = None
+1221:             paths = ()
+1222:             if not paths:
+1223:                 continue
+1224:         for None in :
+1225:             name = None
+1226:             _ = ()
+1227:         self.sdf_list.setColumnCount(1 + len(families))
+1228:         self.sdf_list.setHorizontalHeaderLabels([
+1229:             'Type'] + self._sdf_family_columns)
+1230:         max((lambda .0: # unsupported opcode RETURN_GENERATORfor None in .0:
+1231: _ = Nonepaths = ()# unsupported opcode YIELD_VALUENone# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1232: )(families(), default = 0))
+1233:         self.sdf_list.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+1234:         for None in range(1, 1 + len(families)):
+1235:             pass
+1236:         for None in range(self.sdf_list.rowCount()):
+1237:             pass
+1238:         for None in enumerate(families, 1):
+1239:             _ = (column,)
+1240:             paths = ()
+1241:             for None in enumerate(paths):
+1242:                 row = None
+1243:                 path = ()
+1244:                 item.setToolTip(str(path))
+1245:                 self.sdf_list.setItem(row, column, item)
+1246:         continue
+1247:         len(self.sdf_files) = self.sdf_list.setRowCount
+1248:         if count == 0:
+
+
+===== BLOC lignes 1249-1264 =====
+1249:             self.sdf_path.clear()
+1250:             self.sdf_status.setText('Aucun fichier SDF sélectionné')
+1251:             return None
+1252:         None.sdf_path.setText(f'''{count} fichier(s) SDF sélectionné(s)''')
+1253:         self.sdf_status.setText(f'''{count} fichier(s) SDF prêt(s) pour la préparation.''')
+1254:         return None
+1255:         
+1256:         
+1257:     # WARNING: Decompyle incomplete
+1258: 
+1259:     
+1260:     def prepare_ligands(self):
+1261:         '''Bibliothèque absente'''
+1262:         if not self.sdf_files:
+1263:             QMessageBox.warning(self, 'Bibliothèque absente', 'Sélectionnez au moins un fichier SDF ou un dossier contenant des fichiers SDF.')
+1264:             return None
+
+
+===== BLOC lignes 1269-1300 =====
+1269:         None.prepare_button.setEnabled(False)
+1270:         self.sdf_status.setText('Préparation en cours…')
+1271:         self.sdf_log.setText(f'''Préparation de {len(self.sdf_files)} source(s) SDF avec Open Babel…''')
+1272:         QApplication.processEvents()
+1273:         prepare_sdf_files = prepare_sdf_files
+1274:         import src.docking.sdf_preparer
+1275:         generated = []
+1276:         generated_family_map = { }
+1277:         for None in :
+1278:             family = None
+1279:             paths = ()
+1280:             if not paths:
+1281:                 continue
+1282:         
+1283:         try:
+1284:             if not family_inputs:
+1285:                 pass
+1286:             for None in family_inputs:
+1287:                 family = None
+1288:                 inputs = ()
+1289:                 for None in :
+1290:                     # unsupported MAP_ADD target
+1291:             family_generated, path, , { }(path,)
+1292:             continue
+1293:             for None in :
+1294:                 pass
+1295:             self.pdbqt_families.update(generated_family_map)
+1296:             self.sdf_status.setText(f'''{len(generated)} molécule(s) préparée(s)''')
+1297:             self.sdf_log.setText('Préparation terminée avec succès.')
+1298:             self.refresh_pdbqt_table()
+1299:             self.stack.setCurrentIndex(1)
+1300:             self.secondary.buttons[1].setChecked(True)
+
+
+===== BLOC lignes 1315-1330 =====
+1315:                 
+1316:                 try:
+1317:                     pass
+1318:                 except:
+1319:                     self.prepare_button.setEnabled(True)
+1320: 
+1321: 
+1322: 
+1323:     # WARNING: Decompyle incomplete
+1324: 
+1325:     
+1326:     def create_pdbqt_page(self):
+1327:         page = QWidget()
+1328:         layout = QVBoxLayout(page)
+1329:         layout.setContentsMargins(30, 28, 30, 28)
+1330:         layout.setSpacing(16)
+
+
+===== BLOC lignes 1381-1454 =====
+1381:     
+1382:     def refresh_pdbqt_table(self):
+1383:         '''docking'''
+1384:         prepared_dir = self.project_root / 'docking' / 'ligands' / 'prepared'
+1385:         if not prepared_dir.exists():
+1386:             prepared_dir.mkdir(parents = True, exist_ok = True)
+1387:         files = sorted(prepared_dir.glob('*.pdbqt'), key = (lambda p: p.name.lower()))
+1388:         self.prepared_ligands = files
+1389:         for None in :
+1390:             path = None
+1391:             family = ()
+1392:             for None in :
+1393:                 file = None
+1394:                 # unsupported opcode SET_ADD
+1395:         if not files, file, , {} in file,:
+1396:             continue
+1397:         # unsupported MAP_ADD target
+1398:         continue
+1399:         for None in self.pdbqt_families.values():
+1400:             if not family not in family_names:
+1401:                 continue
+1402:         if family_names and files:
+1403:             pass
+1404:         family_names = [
+1405:             'Sans famille']
+1406:         self.pdbqt_table.setColumnCount(2 + len(family_names))
+1407:         self.pdbqt_table.setHorizontalHeaderLabels(self._pdbqt_table_headers())
+1408:         self.pdbqt_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+1409:         for column in range(1, 1 + len(family_names)):
+1410:             self.pdbqt_table.horizontalHeader().setSectionResizeMode(column, QHeaderView.Stretch)
+1411:         self.pdbqt_table.horizontalHeader().setSectionResizeMode(1 + len(family_names), QHeaderView.ResizeToContents)
+1412:         for None in available, path:
+1413:             # unsupported opcode SET_ADD
+1414:         for None in :
+1415:             if not path.resolve() in available:
+1416:                 continue
+1417:         for None in :
+1418:             family = None
+1419:             # unsupported MAP_ADD target
+1420:         for self.pdbqt_families.get(ligand.resolve(), 'Sans famille') in files:
+1421:             grouped.setdefault(family, []).append(ligand)
+1422:         max((lambda .0: # unsupported opcode RETURN_GENERATORfor items in .0:
+1423: # unsupported opcode YIELD_VALUElen(items)None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1424: )(grouped.values()(), default = 0))
+1425:         for row in range(self.pdbqt_table.rowCount()):
+1426:             self.pdbqt_table.setItem(row, 0, QTableWidgetItem(str(row + 1)))
+1427:             status = QTableWidgetItem('Prêt')
+1428:             status.setTextAlignment(Qt.AlignCenter)
+1429:             self.pdbqt_table.setItem(row, 1 + len(family_names), status)
+1430:         for None in enumerate(family_names, 1):
+1431:             column = None
+1432:             family = ()
+1433:             for None in enumerate(grouped[family]):
+1434:                 row = None
+1435:                 ligand = ()
+1436:                 item.setToolTip(str(ligand))
+1437:                 self.pdbqt_table.setItem(row, column, item)
+1438:         continue
+1439:         self.pdbqt_count.setText(f'''{len(files)} ligand(s)''')
+1440:         self.update_pdbqt_selection_status()
+1441:         return None
+1442:         
+1443:         
+1444:         
+1445:         
+1446:         
+1447:     # WARNING: Decompyle incomplete
+1448: 
+1449:     
+1450:     def select_all_pdbqt(self):
+1451:         '''Sélectionne tous les ligands affichés.'''
+1452:         if self.pdbqt_table.rowCount() == 0:
+1453:             self.pdbqt_selection_status.setText('Aucun ligand PDBQT disponible.')
+1454:             return None
+
+
+===== BLOC lignes 1504-1519 =====
+1504:         self.current_ligand.setText(f'''{len(selected)} ligand(s) prêt(s) pour le docking.''')
+1505:         self.execution_status.setText('Configuration prête')
+1506:         self.docking_log.setRowCount(0)
+1507:         self.add_docking_log('SÉLECTION', f'''{len(selected)} ligand(s) sélectionné(s) pour la campagne.''')
+1508:         self.stack.setCurrentIndex(2)
+1509:         self.secondary.buttons[2].setChecked(True)
+1510:         self.status_message(f'''{len(selected)} ligand(s) sélectionné(s) pour le docking.''')
+1511:         return None
+1512:     # WARNING: Decompyle incomplete
+1513: 
+1514:     
+1515:     def on_pdbqt_selection_changed(self, selected, deselected):
+1516:         """Actualise l'indicateur lorsque la sélection change."""
+1517:         self.update_pdbqt_selection_status()
+1518: 
+1519:     
+
+
+===== BLOC lignes 1532-1583 =====
+1532:             if not source.resolve() != target.resolve():
+1533:                 continue
+1534:             shutil.copy2(source, target)
+1535:             self.pdbqt_families[target.resolve()] = 'Sans famille'
+1536:             copied += 1
+1537:         self.refresh_pdbqt_table()
+1538:         self.status_message(f'''{copied} ligand(s) ajouté(s).''')
+1539:         return None
+1540:     # WARNING: Decompyle incomplete
+1541: 
+1542:     
+1543:     def add_pdbqt_families(self):
+1544:         '''Choisir les familles de ligands PDBQT'''
+1545:         dialog = _MoleculeFamilyDialog(self, 'Choisir les familles de ligands PDBQT')
+1546:         if dialog.exec() != QDialog.Accepted:
+1547:             return None
+1548:         destination = None.project_root / 'docking' / 'ligands' / 'prepared'
+1549:         destination.mkdir(parents = True, exist_ok = True)
+1550:         copied = 0
+1551:         for None in dialog.families():
+1552:             family_name = None
+1553:             folder = ()
+1554:             if not files:
+1555:                 QMessageBox.warning(self, 'Famille vide', f'''Le dossier de « {family_name} » ne contient aucun fichier PDBQT.''')
+1556:                 (lambda .0: # unsupported opcode RETURN_GENERATORfor path in .0:
+1557: if not path.is_file():
+1558: continueif not path.suffix.lower() == '.pdbqt':
+1559: continue# unsupported opcode YIELD_VALUEpath.resolve()None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1560: )(folder.iterdir()()) if folder.is_dir() else []
+1561:                 return None
+1562:             for None in (lambda .0: # unsupported opcode RETURN_GENERATORfor path in .0:
+1563: if not path.is_file():
+1564: continueif not path.suffix.lower() == '.pdbqt':
+1565: continue# unsupported opcode YIELD_VALUEpath.resolve()None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+1566: )(folder.iterdir()()) if folder.is_dir() else []:
+1567:                 target = destination / source.name
+1568:                 if source != target.resolve():
+1569:                     shutil.copy2(source, target)
+1570:                     copied += 1
+1571:                 self.pdbqt_families[target.resolve()] = family_name
+1572:         continue
+1573:         self.refresh_pdbqt_table()
+1574:         self.status_message(f'''{len(dialog.families())} famille(s), {copied} ligand(s) PDBQT ajouté(s).''')
+1575:         return None
+1576:     # WARNING: Decompyle incomplete
+1577: 
+1578:     
+1579:     def create_docking_page(self):
+1580:         page = QWidget()
+1581:         layout = QVBoxLayout(page)
+1582:         layout.setContentsMargins(30, 28, 30, 28)
+1583:         layout.setSpacing(18)
+
+
+===== BLOC lignes 1607-1624 =====
+1607:         grid.setColumnStretch(4, 1)
+1608:         grid.addWidget(self._t_label('dock_target_panel_title', 'Cible biologique', 'PanelTitle'), 0, 0, 1, 4)
+1609:         grid.addWidget(self._t_label('dock_receptor_label', 'Récepteur'), 1, 0)
+1610:         self.target_combo = QComboBox()
+1611:         self.target_combo.addItem('MexB', 'MexB')
+1612:         self.target_combo.addItem('MexR', 'MexR')
+1613:         self.target_combo.addItem('MexB + MexR', 'MexB + MexR')
+1614:         _declared_pairs = list_pairs()
+1615:         for None in :
+1616:             for None in pair:
+1617:                 # unsupported opcode SET_ADD
+1618:         continue
+1619:         _paired_profile_ids = _declared_pairs, pair, profile_id
+1620:         pair = None
+1621:         profile_id = None
+1622:         for _pid in list_profile_ids():
+1623:             if _pid in ('mexb_paeruginosa', 'mexr_paeruginosa'):
+1624:                 continue
+
+
+===== BLOC lignes 1760-1775 =====
+1760:         mexr_grid.setColumnStretch(4, 1)
+1761:         mexr_names = [
+1762:             ('Centre X', 'center_x', 'grid_center_x'),
+1763:             ('Centre Y', 'center_y', 'grid_center_y'),
+1764:             ('Centre Z', 'center_z', 'grid_center_z'),
+1765:             ('Taille X', 'size_x', 'grid_size_x'),
+1766:             ('Taille Y', 'size_y', 'grid_size_y'),
+1767:             ('Taille Z', 'size_z', 'grid_size_z')]
+1768:         for None in enumerate(mexr_names):
+1769:             QDoubleSpinBox() = (index % 2) * 2
+1770:             mexr_field.setMaximumWidth(130)
+1771:             self.mexr_grid_scales[key] = mexr_scale
+1772:             mexr_slider = QSlider(Qt.Horizontal)
+1773:             mexr_slider.setMinimumWidth(110)
+1774:             mexr_slider.setMaximumWidth(160)
+1775:             mexr_slider.setMinimum(int(round(mexr_field.minimum() * mexr_scale)))
+
+
+===== BLOC lignes 1959-1974 =====
+1959:             (mexb_override_row, mexb_activate_btn, mexb_default_btn), QHBoxLayout(), enumerate(mexr_names), (mexb_override_row, mexb_activate_btn, mexb_default_btn)
+1960:             continue
+1961:         except Exception:
+1962:             (mexb_override_row, mexb_activate_btn, mexb_default_btn), QHBoxLayout(), enumerate(mexr_names), (mexb_override_row, mexb_activate_btn, mexb_default_btn)
+1963:             continue
+1964:         except Exception:
+1965:             (mexb_override_row, mexb_activate_btn, mexb_default_btn), QHBoxLayout(), enumerate(mexr_names), (mexb_override_row, mexb_activate_btn, mexb_default_btn)
+1966:             continue
+1967:     # WARNING: Decompyle incomplete
+1968: 
+1969:     
+1970:     def _on_target_combo_index_changed(self, index):
+1971:         '''
+1972: Adaptateur pour currentIndexChanged : récupère la clé technique
+1973: (itemData) plutôt que le texte affiché (qui est maintenant un
+1974: nom lisible, pas la clé interne utilisée partout ailleurs).
+
+
+===== BLOC lignes 2035-2060 =====
+2035:             if species_label not in buckets:
+2036:                 buckets[species_label] = []
+2037:                 order.append(species_label)
+2038:             buckets[species_label].append((sort_rank, i, kind_label, clean_title, subtitle))
+2039:         current_index = self.target_combo.currentIndex()
+2040:         groups = []
+2041:         for species_label in order:
+2042:             entries_raw = sorted(buckets[species_label], key = (lambda e: (e[0], e[1])))
+2043:             for None in :
+2044:                 pass
+2045:         None = 
+2046:         subtitle = , []
+2047:         groups.append((species_label, entries))
+2048:         continue
+2049:         return groups
+2050:         except Exception:
+2051:             continue
+2052:         
+2053:     # WARNING: Decompyle incomplete
+2054: 
+2055:     
+2056:     def _open_receptor_picker(self):
+2057:         groups = self._build_receptor_groups_from_combo()
+2058:         chosen = _ReceptorPickerDialog.ask(self, groups, self.target_combo.currentIndex())
+2059:         if chosen is None:
+2060:             self.target_combo.setCurrentIndex(chosen)
+
+
+===== BLOC lignes 2113-2128 =====
+2113:                                                     self.mexr_panel.setVisible(is_dual)
+2114:                                                     if not is_mexb_only:
+2115:                                                         
+2116:                                                         try:
+2117:                                                             is_mexb_only
+2118:                                                             _mexb_gridbox_visible = is_dual
+2119:                                                             for _mexb_widget in self._mexb_gridbox_widgets:
+2120:                                                                 _mexb_widget.setVisible(_mexb_gridbox_visible)
+2121:                                                             for None in self.generic_panels.items():
+2122:                                                                 panel_key = None
+2123:                                                                 panel_data = ()
+2124:                                                                 if is_generic_pair:
+2125:                                                                     pass
+2126:                                                                 elif is_generic:
+2127:                                                                     
+2128:                                                                     try:
+
+
+===== BLOC lignes 2207-2222 =====
+2207: 
+2208: 
+2209: 
+2210: 
+2211: 
+2212: 
+2213: 
+2214: 
+2215:     # WARNING: Decompyle incomplete
+2216: 
+2217:     
+2218:     def _sync_grid_profile(self, profile, fields_dict):
+2219:         '''
+2220: Reconstruit profile.grid_box à partir des valeurs actuelles des
+2221: spinboxes de fields_dict. Utilisé séparément pour MexB et MexR —
+2222: deux profils, deux jeux de widgets, jamais recyclés entre eux.
+
+
+===== BLOC lignes 2272-2297 =====
+2272:                 field.blockSignals(False)
+2273:             if not slider:
+2274:                 continue
+2275:             scale = scales_dict.get(key, 1)
+2276:             slider.blockSignals(True)
+2277:             slider.setValue(int(round(float(value) * scale)))
+2278:             slider.blockSignals(False)
+2279:         return None
+2280:     # WARNING: Decompyle incomplete
+2281: 
+2282:     
+2283:     def _set_fields_enabled(self, fields_dict, sliders_dict, enabled):
+2284:         '''Active/désactive un jeu de spinbox+slider (verrouillage dual).'''
+2285:         for field in fields_dict.values():
+2286:             field.setEnabled(enabled)
+2287:         for slider in sliders_dict.values():
+2288:             slider.setEnabled(enabled)
+2289:         return None
+2290:     # WARNING: Decompyle incomplete
+2291: 
+2292:     
+2293:     def _build_grid_override_row(self, get_profile, is_current, fields, sliders, scales):
+2294:         '''
+2295: Ligne de deux boutons pour le panneau de grid box d\'un récepteur
+2296: déjà intégré au logiciel :
+2297: - "Activer cette configuration" enregistre la position/taille
+
+
+===== BLOC lignes 2386-2401 =====
+2386:         dialog = None(chain_residues, parent = self)
+2387:         if dialog.exec() != QDialog.Accepted:
+2388:             return None
+2389:         selected_chains = None.selected_chains()
+2390:         if not selected_chains:
+2391:             QMessageBox.warning(self, 'Aucune chaîne sélectionnée', 'Sélectionne au moins une chaîne pour continuer.')
+2392:             return None
+2393:         kept_lines = None
+2394:         for None in fh:
+2395:             if line.startswith('ATOM'):
+2396:                 if not line[slice(21, 22, None)].strip():
+2397:                     line[slice(21, 22, None)].strip()
+2398:                 '_' = None
+2399:                 if chain_id in selected_chains:
+2400:                     kept_lines.append(line)
+2401:                     continue
+
+
+===== BLOC lignes 2424-2439 =====
+2424:         return (None, None)
+2425:         with None:
+2426:             if not unsupported_condition:
+2427:                 pass
+2428:         continue
+2429:         except FileNotFoundError:
+2430:             QMessageBox.critical(self, 'Open Babel introuvable', "La commande 'obabel' n'a pas été trouvée. Installe Open Babel pour pouvoir importer des fichiers PDB.")
+2431:             return None
+2432:     # WARNING: Decompyle incomplete
+2433: 
+2434:     
+2435:     def _export_session_dialog(self):
+2436:         """
+2437: Exporte intégralement le workspace de session courant
+2438: vers un dossier choisi par l'utilisateur. Le choix du
+2439: dossier dans la boîte de dialogue EST le consentement
+
+
+===== BLOC lignes 2492-2525 =====
+2492:             proceed = QMessageBox.question(self, 'Avertissements', 'Le récepteur est valide mais présente des avertissements :\n\n' + '\n'.join(info.warnings) + "\n\nContinuer l'import malgré tout ?")
+2493:             if proceed != QMessageBox.Yes:
+2494:                 return None
+2495:         pdbqt_path.stem = None if unsupported_condition is None else self._session_manager.import_file(Path(viewer_path_str)) if viewer_path_str else None
+2496:         if not ok or display_name.strip():
+2497:             return None
+2498:         if not ok:
+2499:             pass
+2500:         if not (lambda .0: # unsupported opcode RETURN_GENERATORfor ch in .0:
+2501: # unsupported opcode YIELD_VALUEch if ch.isalnum() else '_'None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+2502: )(display_name.lower()()).strip('_'):
+2503:             (lambda .0: # unsupported opcode RETURN_GENERATORfor ch in .0:
+2504: # unsupported opcode YIELD_VALUEch if ch.isalnum() else '_'None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+2505: )(display_name.lower()()).strip('_')
+2506:         'recepteur_importe' = ''.join
+2507:         existing_ids = set(list_profile_ids())
+2508:         profile_id = base_slug
+2509:         suffix = 2
+2510:         if profile_id in existing_ids and profile_id in self.generic_panels or profile_id in also_taken:
+2511:             profile_id = f'''{base_slug}_{suffix}'''
+2512:             suffix += 1
+2513:             continue
+2514:         atoms = manager.parse_atoms()
+2515:         if not species.strip():
+2516:             species.strip()
+2517:         return ReceptorProfile(profile_id = profile_id, display_name = display_name, profile_type = 'user_defined', pdbqt_path = pdbqt_path, grid_box = GridBox(center = (cx, cy, cz), size = (25, 25, 25)), species = None, role = None, pdb_path_for_viewer = viewer_path, validated = False, notes = "Récepteur importé par l'utilisateur (Mode 2). Grid box par défaut = centroïde géométrique de tout le récepteur — AUCUNE signification biologique. À AJUSTER impérativement via les sliders avant tout docking réel.")
+2518:     # WARNING: Decompyle incomplete
+2519: 
+2520:     
+2521:     def _register_imported_profile(self, profile, silent):
+2522:         """
+2523: Branchement à chaud d'UN profil importé dans l'interface :
+2524: entrée de menu (sauf en mode silencieux, utilisé pour les deux
+2525: moitiés d'un couple — c'est l'appelant qui ajoute l'entrée de
+
+
+===== BLOC lignes 2732-2747 =====
+2732:             field_container_layout.addWidget(field)
+2733:             field_container_layout.addWidget(slider)
+2734:             panel_grid.addWidget(field_container, row, col + 1)
+2735:         panel_layout.addLayout(panel_grid)
+2736:         (generic_override_row,)
+2737:         panel_layout.addLayout(generic_override_row)
+2738:         panel.setVisible(False)
+2739:         return panel
+2740:     # WARNING: Decompyle incomplete
+2741: 
+2742:     
+2743:     def _load_generic_panel(self, target_key):
+2744:         """Charge (paresseusement) le profil d'un récepteur générique."""
+2745:         panel_data = self.generic_panels[target_key]
+2746:         panel_data['profile'] = resolve_target_profile(target_key)
+2747:         self._load_profile_into_fields(panel_data['profile'], panel_data['fields'], panel_data['sliders'], panel_data['scales'])
+
+
+===== BLOC lignes 2855-2870 =====
+2855:             self._pocket_combo.addItem(QIcon(pixmap), f'''Poche {pocket['pocket_id']} — druggabilité {score_text}''', pocket['pocket_id'])
+2856:         if pockets:
+2857:             self._pocket_combo.setCurrentIndex(0)
+2858:         self._pocket_combo.blockSignals(False)
+2859:         self._pocket_overview_active = False
+2860:         self._set_pocket_panel_visible(bool(pockets))
+2861:         self._update_pocket_mode_buttons()
+2862:         return None
+2863:     # WARNING: Decompyle incomplete
+2864: 
+2865:     
+2866:     def _on_pocket_combo_changed(self, index):
+2867:         if index < 0:
+2868:             return None
+2869:         pocket_id = None._pocket_combo.itemData(index)
+2870:         if pocket_id is not None:
+
+
+===== BLOC lignes 2980-2995 =====
+2980:                 continue
+2981:             
+2982:             try:
+2983:                 pass
+2984:             except:
+2985:                 self._fpocket_button.setEnabled(True)
+2986: 
+2987: 
+2988:     # WARNING: Decompyle incomplete
+2989: 
+2990:     
+2991:     def release_docking_viewer(self):
+2992:         '''Unload the Docking WebEngine page while Vina is running.'''
+2993:         if getattr(self, '_docking_viewer_suspended', False):
+2994:             return None
+2995:         self._docking_viewer_suspended = None
+
+
+===== BLOC lignes 3030-3050 =====
+3030:     
+3031:     def launch_docking(self):
+3032:         if self.thread is None:
+3033:             QMessageBox.information(self, 'Docking en cours', 'Une campagne de docking est déjà en cours.')
+3034:             return None
+3035:         if not None.selected_ligands:
+3036:             QMessageBox.warning(self, 'Aucun ligand sélectionné', "Sélectionnez d'abord les ligands PDBQT dans l'étape « Charger les PDBQT », puis cliquez sur « Utiliser la sélection ».")
+3037:             return None
+3038:         for None in missing, path:
+3039:             if path.exists():
+3040:                 continue
+3041:         if missing:
+3042:             QMessageBox.warning(self, 'Ligand introuvable', "Un ou plusieurs fichiers sélectionnés n'existent plus.")
+3043:             for None in :
+3044:                 if not path.exists():
+3045:                     continue
+3046:             return None
+3047:         getattr(self, 'pair_targets', { }).get(target) = missing, path.target_combo.currentData()
+3048:         if target == 'MexB + MexR':
+3049:             config_target = 'MexB'
+3050:         elif pair_members is None:
+
+
+===== BLOC lignes 3088-3128 =====
+3088:                 sub_config.exhaustiveness = config.exhaustiveness
+3089:                 sub_config.num_modes = config.num_modes
+3090:                 engines[sub_target] = VinaEngine(sub_config)
+3091:         elif target in self.generic_panels:
+3092:             engines[target] = VinaEngine(config)
+3093:         else:
+3094:             raise ValueError(f'''Cible inconnue : {target}''')
+3095:         validation_errors = []
+3096:         for None in engines.items():
+3097:             engine_name = None
+3098:             engine = ()
+3099:             if valid:
+3100:                 continue
+3101:             for None in :
+3102:                 pass
+3103:         , [], (error,)
+3104:         continue
+3105:         if validation_errors:
+3106:             'Configuration invalide'(None, '\n'.join, (lambda .0: # unsupported opcode RETURN_GENERATORfor error in .0:
+3107: # unsupported opcode YIELD_VALUEf'''• {error}'''None# unsupported CALL_INTRINSIC_1 3# WARNING: Decompyle incomplete
+3108: )(validation_errors()))
+3109:             return None
+3110:         for None in engines.items():
+3111:             engine_name = None
+3112:             engine = ()
+3113:             if vina_ok:
+3114:                 continue
+3115:         if vina_errors:
+3116:             QMessageBox.critical(self, 'AutoDock Vina indisponible', '\n'.join(vina_errors))
+3117:             return None
+3118:         if engines.items()(self, 'visualization_page'):
+3119:             self.visualization_page.suspend_interaction_viewer()
+3120:         self.release_docking_viewer()
+3121:         for None in ligands, path:
+3122:             pass
+3123:         self.docking_log.setRowCount(0)
+3124:         self.progress.setValue(0)
+3125:         self.execution_status.setText('Préparation du calcul…')
+3126:         self.execution_status.setStyleSheet(f'''color: {COLORS['accent_dark']}; font-weight: 650;''')
+3127:         self.launch_button.setEnabled(False)
+3128:         self.cancel_button.setEnabled(True)
+
+
+===== BLOC lignes 3157-3172 =====
+3157:         return None
+3158:         
+3159:         
+3160:         except ValueError:
+3161:             QMessageBox.warning(self, 'Paramètres invalides', f'''Vérifiez les paramètres numériques.\n\n{exc}''')
+3162:             return None
+3163:         
+3164:         
+3165:     # WARNING: Decompyle incomplete
+3166: 
+3167:     
+3168:     def cancel_docking(self):
+3169:         if self.worker is not None:
+3170:             return None
+3171:         None.worker.cancel()
+3172:         self.execution_status.setText('Annulation demandée…')
+
+
+===== BLOC lignes 3179-3206 =====
+3179:         if not hasattr(self, 'docking_progress_state'):
+3180:             self.docking_progress_state = { }
+3181:         percent = int((current / total) * 100) if total else 0
+3182:         self.docking_progress_state[engine] = {
+3183:             'ligand': ligand_name,
+3184:             'percent': percent,
+3185:             'total': total,
+3186:             'current': current }
+3187:         for None in values, item:
+3188:             pass
+3189:         int(sum(values) / len(values)) if values else 0 = values, item
+3190:         self.progress.setValue(global_percent)
+3191:         states = []
+3192:         for None in self.docking_progress_state.items():
+3193:             name = None
+3194:             data = ()
+3195:         self.current_ligand.setText(f'''Ligand {ligand_name}\n''' + ' | '.join(states))
+3196:         self.execution_status.setText(f'''Docking en cours — {global_percent}%''')
+3197:         return None
+3198:         
+3199:     # WARNING: Decompyle incomplete
+3200: 
+3201:     
+3202:     def on_docking_log(self, message):
+3203:         '''VINA'''
+3204:         self.add_docking_log('VINA', message)
+3205: 
+3206:     
+
+
+===== BLOC lignes 3244-3259 =====
+3244:         if global_csv is not None:
+3245:             self.add_docking_log('ANALYSE', 'Indice de selectivite non calcule (necessite MexB ET MexR). Les affinites brutes restent disponibles dans le tableau des resultats.')
+3246:         else:
+3247:             run_statistics_pipeline(str(global_csv)) = None
+3248:             print('===== RESULTAT PIPELINE =====')
+3249:             print('TYPE :', type(self.analysis_page.statistics_result))
+3250:             if isinstance(self.analysis_page.statistics_result, dict):
+3251:                 print('CLES :', self.analysis_page.statistics_result.keys())
+3252:                 for None in self.analysis_page.statistics_result.items():
+3253:                     k = None
+3254:                     v = ()
+3255:             print('============================')
+3256:             if hasattr(self.analysis_page, 'results_table'):
+3257:                 self.analysis_page.populate_statistics_results()
+3258:             self.status_message('Analyse scientifique automatique terminée.')
+3259:             self.analysis_page.statistics_status.setText('Analyse scientifique disponible.')
+
+
+===== BLOC lignes 3276-3291 =====
+3276:             global_csv = None
+3277:             continue
+3278:         except Exception as e:
+3279:             self.add_docking_log('ERREUR STATISTIQUES', str(e))
+3280:             continue
+3281:         except Exception as exc:
+3282:             self.add_docking_log('ERREUR VISUALISATION', str(exc))
+3283:             continue
+3284:     # WARNING: Decompyle incomplete
+3285: 
+3286:     
+3287:     def on_docking_cancelled(self, message):
+3288:         self.progress.setValue(0)
+3289:         self.execution_status.setText('Campagne annulée')
+3290:         self.execution_status.setStyleSheet(f'''color: {COLORS['warning']}; font-weight: 650;''')
+3291:         self.current_ligand.setText('Le docking a été interrompu.')
+
+
+===== BLOC lignes 3342-3357 =====
+3342:         if None(self, 'results_tabs'):
+3343:             self.build_dynamic_statistics_tabs()
+3344:             gui_debug('RESULTATS DYNAMIQUES RECONSTRUITS')
+3345:             return None
+3346:         None('results_tabs absent')
+3347: 
+3348:     
+3349:     def __init__(self, lang_mgr):
+3350:         # unsupported opcode LOAD_SUPER_ATTR
+3351:         self()
+3352:         self.lang_mgr = lang_mgr
+3353:         self._i18n = []
+3354:         self.statistics_csv = None
+3355:         self.statistics_result = None
+3356:         root = QHBoxLayout(self)
+3357:         root.setContentsMargins(0, 0, 0, 0)
+
+
+===== BLOC lignes 3365-3380 =====
+3365:         root.addWidget(self.stack, 1)
+3366:         gui_debug("Création d'un nouvel onglet")
+3367:         self.stack.addWidget(self.results_page())
+3368:         gui_debug("Création d'un nouvel onglet")
+3369:         self.stack.addWidget(self.analysis_type_page())
+3370:         gui_debug("Création d'un nouvel onglet")
+3371:         self.stack.addWidget(self.analysis_results_page())
+3372:         return None
+3373:     # WARNING: Decompyle incomplete
+3374: 
+3375:     
+3376:     def switch_tab(self, index):
+3377:         self.stack.setCurrentIndex(index)
+3378: 
+3379:     
+3380:     def _t_label(self, key, fallback, object_name):
+
+

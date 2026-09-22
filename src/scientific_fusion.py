@@ -77,6 +77,25 @@ def _find_affinity_columns(df, pair_roles=None):
     )
 
 
+def _receptor_label(name):
+    """Nom court affichable d'un recepteur (MexB, AcrB, ...)."""
+    raw = str(name or "").strip()
+    slug = _target_slug(raw)
+    for prefix in ("best_affinity_", "deltag_", "dg_"):
+        if slug.startswith(prefix):
+            slug = slug[len(prefix):]
+            break
+    try:
+        from src.docking.receptor_profile import (
+            resolve_target_profile,
+            short_label,
+        )
+        return str(short_label(resolve_target_profile(slug)))
+    except Exception:
+        pass
+    return {"mexb": "MexB", "mexr": "MexR"}.get(slug, slug or raw)
+
+
 def detect_groups(df, group_col="groupe"):
     """
     Détection des vrais groupes.
@@ -230,6 +249,30 @@ def create_scientific_scores(
         index=False
     )
 
+
+    # patch-libelles : noms des recepteurs pour les graphiques et l'interface
+    try:
+        import json as _json
+
+        meta = {
+            "pump": {
+                "id": str(pump_name),
+                "label": _receptor_label(pump_name),
+                "column": pump_output_col,
+            },
+            "repressor": {
+                "id": str(repressor_name),
+                "label": _receptor_label(repressor_name),
+                "column": repressor_output_col,
+            },
+            "source_csv": str(input_csv),
+        }
+        (output_dir / "scores_fusionnes_meta.json").write_text(
+            _json.dumps(meta, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
 
     return grouped_csv, global_csv
 

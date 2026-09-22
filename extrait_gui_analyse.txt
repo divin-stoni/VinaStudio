@@ -1,0 +1,768 @@
+EXTRAIT GUI - src/gui/main_window.py (10680 lignes)
+
+==============================================================================
+1. FONCTIONS COMPLETES
+==============================================================================
+
+##############################################################################
+# AnalysisPage.populate_statistics_results  (lignes 7973-8010)
+##############################################################################
+    def populate_statistics_results(self):
+
+        gui_debug(
+            "REMPLISSAGE RESULTATS ANALYTIQUES"
+        )
+
+
+        if not self.statistics_result:
+
+            gui_debug(
+                "Aucun résultat statistique"
+            )
+
+            return
+
+
+        # ------------------------------------------------
+        # Nouveau système :
+        # les résultats sont construits dynamiquement
+        # depuis statistics_result
+        # ------------------------------------------------
+
+        if hasattr(
+            self,
+            "results_tabs"
+        ):
+
+            self.build_dynamic_statistics_tabs()
+
+            gui_debug(
+                "RESULTATS DYNAMIQUES RECONSTRUITS"
+            )
+
+        else:
+
+            gui_debug(
+                "results_tabs absent"
+            )
+
+##############################################################################
+# AnalysisPage._docking_results_headers  (lignes 8078-8088)
+##############################################################################
+    def _docking_results_headers(self):
+        if self.lang_mgr:
+            return [
+                self.lang_mgr.t("analysis_col_rank"),
+                self.lang_mgr.t("analysis_col_molecule"),
+                self.lang_mgr.t("analysis_col_group"),
+                self.lang_mgr.t("analysis_col_mexb"),
+                self.lang_mgr.t("analysis_col_mexr"),
+                self.lang_mgr.t("analysis_col_status"),
+            ]
+        return ["Rang", "Molécule", "Groupe", "MexB (kcal/mol)", "MexR (kcal/mol)", "Statut"]
+
+##############################################################################
+# AnalysisPage._campaign_csv_path  (lignes 8137-8154)
+##############################################################################
+    def _campaign_csv_path(self, label):
+        """Chemin du CSV correspondant à une entrée du menu Campagne."""
+
+        label = str(label or "").strip()
+
+        if not label:
+            return None
+
+        if label.startswith("Dernier couple"):
+            combined = (
+                Path(__file__).resolve().parents[2]
+                / "docking_results_combined.csv"
+            )
+            return str(combined) if combined.is_file() else None
+
+        candidate = self._batch_root() / label / "docking_results.csv"
+
+        return str(candidate) if candidate.is_file() else None
+
+##############################################################################
+# AnalysisPage.run_docking_analysis  (lignes 8183-8254)
+##############################################################################
+    def run_docking_analysis(self):
+
+        csv_path = getattr(
+            self,
+            "docking_results_csv",
+            None
+        )
+
+        # Repli : aucune campagne lancee dans cette session — on utilise
+        # celle selectionnee dans le menu « Campagne », si ses resultats
+        # existent sur le disque.
+        if not csv_path:
+            csv_path = self._campaign_csv_path(
+                self.analysis_campaign_combo.currentText()
+                if getattr(self, "analysis_campaign_combo", None)
+                else ""
+            )
+
+        if not csv_path:
+
+            QMessageBox.warning(
+                self,
+                "Analyse",
+                "Aucun résultat de docking disponible."
+            )
+
+            return
+
+
+        try:
+
+            gui_debug(
+                "LANCEMENT ANALYSE CSV : "
+                + str(csv_path)
+            )
+
+
+            from src.scientific_fusion import create_scientific_scores
+
+            grouped_csv, _ = create_scientific_scores(csv_path)
+            gui_debug("CSV SCIENTIFIQUE DYNAMIQUE : " + str(grouped_csv))
+
+            self.statistics_result = run_statistics_pipeline(grouped_csv)
+
+
+            gui_debug(
+                "MODE ANALYSE : "
+                + str(
+                    self.statistics_result.get(
+                        "mode"
+                    )
+                )
+            )
+
+
+            self.populate_statistics_results()
+
+            self.stack.setCurrentIndex(
+                2
+            )
+
+
+            self.build_dynamic_statistics_tabs()
+
+
+        except Exception as e:
+
+            QMessageBox.critical(
+                self,
+                "Erreur analyse",
+                str(e)
+            )
+
+##############################################################################
+# AnalysisPage.refresh_docking_results  (lignes 8442-8583)
+##############################################################################
+    def refresh_docking_results(self):
+
+        if not hasattr(
+            self,
+            "docking_results_table"
+        ):
+            return
+
+
+        table = self.docking_results_table
+
+        table.setRowCount(0)
+
+
+        csv_path = getattr(
+            self,
+            "docking_results_csv",
+            None
+        )
+
+
+        if not csv_path:
+            return
+
+
+        import csv
+
+
+        path = Path(csv_path)
+
+
+        if not path.exists():
+            return
+
+
+        with path.open(
+            "r",
+            encoding="utf-8"
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            fieldnames = reader.fieldnames or []
+
+            # Le CSV combine (campagne "MexB + MexR") a des colonnes
+            # suffixees _mexb / _mexr. Le CSV d'une seule cible
+            # (docking_results.csv) n'a que "best_affinity" /
+            # "status", sans suffixe : avant ce correctif, ces
+            # colonnes n'existaient jamais sous les noms attendus
+            # ci-dessous et le tableau restait vide pour les
+            # campagnes a une seule cible, meme quand le docking
+            # avait parfaitement reussi.
+            combined_schema = "best_affinity_mexb" in fieldnames
+
+            single_target = None
+
+            if not combined_schema:
+                # Le nom du dossier EST la cible : c'est ainsi que
+                # batch_vina_engine/<cible>/docking_results.csv est
+                # écrit. L'ancienne règle (« MexR si MexR apparaît dans
+                # le chemin, sinon MexB ») étiquetait tout récepteur
+                # importé comme « MexB ».
+                single_target = path.parent.name or "MexB"
+
+            for index, data in enumerate(
+                reader,
+                start=1
+            ):
+
+                row = table.rowCount()
+
+                table.insertRow(row)
+
+                if combined_schema:
+
+                    affinity_mexb = data.get(
+                        "best_affinity_mexb", ""
+                    )
+
+                    affinity_mexr = data.get(
+                        "best_affinity_mexr", ""
+                    )
+
+                    status = (
+                        data.get("status_mexb", "")
+                        or data.get("status_mexr", "")
+                    )
+
+                else:
+
+                    affinity = data.get(
+                        "best_affinity", ""
+                    )
+
+                    status = data.get(
+                        "status", ""
+                    )
+
+                    affinity_mexb = (
+                        affinity
+                        if single_target == "MexB"
+                        else ""
+                    )
+
+                    affinity_mexr = (
+                        affinity
+                        if single_target == "MexR"
+                        else ""
+                    )
+
+                values = [
+
+                    index,
+
+                    data.get(
+                        "molecule",
+                        ""
+                    ),
+
+                    data.get(
+                        "groupe",
+                        ""
+                    ),
+
+                    affinity_mexb,
+
+                    affinity_mexr,
+
+                    status,
+
+                ]
+
+
+                for col,value in enumerate(values):
+
+                    table.setItem(
+                        row,
+                        col,
+                        QTableWidgetItem(
+                            str(value)
+                        )
+                    )
+
+##############################################################################
+# AnalysisPage.build_dynamic_statistics_tabs  (lignes 8781-9128)
+##############################################################################
+    def build_dynamic_statistics_tabs(self):
+
+        if not hasattr(self, "results_tabs"):
+            return
+
+
+        self.results_tabs.clear()
+
+
+        result = getattr(
+            self,
+            "statistics_result",
+            None
+        )
+
+        if not result:
+            return
+
+
+        classification = result.get(
+            "classification"
+        )
+
+
+        def add_table(name):
+
+            page = QWidget()
+            layout = QVBoxLayout(page)
+
+            table = QTableWidget()
+            table.verticalHeader().setVisible(False)
+            configure_glass_table(table)
+
+            if classification is not None:
+
+                cols = list(
+                    classification.columns
+                )
+
+                table.setColumnCount(
+                    len(cols)
+                )
+
+                table.setHorizontalHeaderLabels(
+                    cols
+                )
+
+                for _, row in classification.iterrows():
+
+                    idx = table.rowCount()
+
+                    table.insertRow(idx)
+
+                    for c, col in enumerate(cols):
+
+                        table.setItem(
+                            idx,
+                            c,
+                            QTableWidgetItem(
+                                str(row.get(col, ""))
+                            )
+                        )
+
+
+            layout.addWidget(table)
+
+            self.results_tabs.addTab(
+                page,
+                name
+            )
+
+            self.results_tabs.tabBar().setTabTextColor(
+                self.results_tabs.count()-1,
+                QColor(COLORS["accent_dark"])
+            )
+
+
+        def add_figure(name, fig):
+
+            page = QWidget()
+
+            layout = QVBoxLayout(page)
+
+            canvas = FigureCanvas(fig)
+
+            layout.addWidget(
+                canvas
+            )
+
+            self.results_tabs.addTab(
+                page,
+                name
+            )
+
+            self.results_tabs.tabBar().setTabTextColor(
+                self.results_tabs.count()-1,
+                QColor(COLORS["accent_dark"])
+            )
+
+
+        # --------------------------
+        # TOUJOURS DISPONIBLE
+        # --------------------------
+
+
+
+
+        add_table(
+            "Top candidats"
+        )
+
+
+
+        # --------------------------
+        # DOUBLE SELECTIVITE
+        # --------------------------
+
+        dual = result.get(
+            "dual_filter"
+        )
+
+
+        if isinstance(dual, dict):
+
+            def add_dual_table(title, dataframe):
+
+                page = QWidget()
+
+                layout = QVBoxLayout(page)
+
+                table = QTableWidget()
+                table.verticalHeader().setVisible(False)
+                configure_glass_table(table)
+
+                if dataframe is not None:
+
+                    cols = list(
+                        dataframe.columns
+                    )
+
+                    table.setColumnCount(
+                        len(cols)
+                    )
+
+                    table.setHorizontalHeaderLabels(
+                        cols
+                    )
+
+
+                    for _, row in dataframe.iterrows():
+
+                        idx = table.rowCount()
+
+                        table.insertRow(
+                            idx
+                        )
+
+                        for c, col in enumerate(cols):
+
+                            table.setItem(
+                                idx,
+                                c,
+                                QTableWidgetItem(
+                                    str(row.get(col, ""))
+                                )
+                            )
+
+
+                layout.addWidget(
+                    table
+                )
+
+
+                self.results_tabs.addTab(
+                    page,
+                    title
+                )
+
+
+                self.results_tabs.tabBar().setTabTextColor(
+                    self.results_tabs.count()-1,
+                    QColor(COLORS["accent_dark"])
+                )
+
+
+            dual_page = QWidget()
+
+            dual_layout = QVBoxLayout(
+                dual_page
+            )
+
+
+            dual_layout.addWidget(
+                make_panel_title(
+                    "Filtre à double sélectivité"
+                )
+            )
+
+
+            dual_layout.addWidget(
+                make_label(
+                    "Critères :\n"
+                    "- SI percentile > 50\n"
+                    "- ΔG MexR meilleur que le seuil piocyanine (-8.289 kcal/mol)"
+                )
+            )
+
+
+            candidates = dual.get(
+                "candidates"
+            )
+
+            excluded = dual.get(
+                "excluded_absolute"
+            )
+
+
+            dual_layout.addWidget(
+                make_label(
+                    "Candidats retenus : "
+                    + str(len(candidates))
+                )
+            )
+
+
+            add_dual_table(
+                "Filtre double sélectivité",
+                candidates
+            )
+
+
+            add_dual_table(
+                "Exclus seuil piocyanine",
+                excluded
+            )
+
+
+        # --------------------------
+        # FIGURES
+        # --------------------------
+
+        try:
+
+            add_figure(
+                "Histogramme SI",
+                fig_histogram_si(
+                    classification
+                )
+            )
+
+        except Exception as e:
+            print(
+                "Histogramme SI ignoré :",
+                e
+            )
+
+
+        try:
+
+            corr = result.get(
+                "correlations"
+            )
+
+            boot = result.get(
+                "bootstrap"
+            )
+
+
+            add_figure(
+                "Corrélations",
+                fig_forest_correlations(
+                    corr,
+                    boot
+                )
+            )
+
+
+        except Exception as e:
+            print(
+                "Corrélation ignorée :",
+                e
+            )
+
+
+        # --------------------------
+        # MODE GROUPES
+        # --------------------------
+
+        if result.get("mode") == "GROUPES":
+
+            try:
+
+                add_figure(
+                    "Histogrammes groupes",
+                    fig_histogram_si_by_group(
+                        classification
+                    )
+                )
+
+            except Exception as e:
+... [tronque : 348 lignes en tout]
+
+==============================================================================
+2. AUTRES FONCTIONS QUI PARLENT DE FAMILLES / LIGANDS
+==============================================================================
+
+_MoleculeFamilyDialog.__init__  (lignes 151-190, 5 ligne(s) concernee(s))
+    l.151 : def __init__(self, parent=None, title="Choisir les familles de molécules"):
+    l.160 : "Active une ou plusieurs familles, donne-leur un nom, puis "
+    l.166 : grid.addWidget(QLabel("Famille"), 0, 1)
+    l.169 : for index in range(1, self.MAX_FAMILIES + 1):
+    l.171 : name = QLineEdit(f"Famille {index}")
+
+_MoleculeFamilyDialog._choose_folder  (lignes 193-198, 1 ligne(s) concernee(s))
+    l.195 : field.window(), "Sélectionner le dossier de la famille", ""
+
+_MoleculeFamilyDialog._accept_if_valid  (lignes 200-212, 2 ligne(s) concernee(s))
+    l.203 : QMessageBox.warning(self, "Familles", "Sélectionne au moins une famille.")
+    l.209 : "Choisis un dossier pour chaque famille active."
+
+_MoleculeFamilyDialog.families  (lignes 214-219, 2 ligne(s) concernee(s))
+    l.214 : def families(self):
+    l.216 : (name.text().strip() or f"Famille {index}", Path(folder.text()))
+
+None._runtime_preferences_style  (lignes 1153-1279, 2 ligne(s) concernee(s))
+    l.1167 : family = str(P["font_family"]).replace('"', "").replace("\\", "")
+    l.1215 : font-family: "{family}", "Noto Sans", "Segoe UI", sans-serif;
+
+None._build_app_style  (lignes 2012-2739, 1 ligne(s) concernee(s))
+    l.2020 : font-family: "{GLASS_PREFERENCES["font_family"]}", "Noto Sans", "Segoe UI", sans-serif;
+
+GlassPreferencesDialog._build_control  (lignes 3276-3366, 1 ligne(s) concernee(s))
+    l.3355 : lambda f, k=key: self._set_value(k, f.family(), refresh=False)
+
+DockingPage.__init__  (lignes 3668-3748, 4 ligne(s) concernee(s))
+    l.3694 : self.sdf_families = {}
+    l.3696 : self.pdbqt_families = {}
+    l.3697 : self._pdbqt_family_columns = []
+    l.3701 : self.selected_ligands = []
+
+DockingPage._pdbqt_table_headers  (lignes 3783-3791, 3 ligne(s) concernee(s))
+    l.3784 : family_columns = getattr(self, "_pdbqt_family_columns", [])
+    l.3788 : *family_columns,
+    l.3791 : return ["#", *family_columns, "Statut"]
+
+DockingPage.create_sdf_page  (lignes 3818-4097, 6 ligne(s) concernee(s))
+    l.3880 : choose_families = self._t_button(
+    l.3881 : "sdf_btn_choose_families",
+    l.3882 : "Choisir les familles de molécules",
+    l.3884 : choose_families.clicked.connect(self.select_sdf_families)
+    l.3897 : buttons.addWidget(choose_families)
+    l.3919 : self._sdf_family_columns = []
+
+DockingPage.select_sdf_families  (lignes 4103-4130, 9 ligne(s) concernee(s))
+    l.4103 : def select_sdf_families(self):
+    l.4104 : dialog = _MoleculeFamilyDialog(self)
+    l.4108 : families = {}
+    l.4110 : for family_name, folder in dialog.families():
+    l.4118 : self, "Famille vide",
+    l.4119 : f"Le dossier de « {family_name} » ne contient aucun fichier SDF."
+    ... +3 autres
+
+DockingPage.select_sdf_files  (lignes 4132-4170, 3 ligne(s) concernee(s))
+    l.4160 : self.sdf_families.setdefault("Sans famille", [])
+    l.4163 : if path not in self.sdf_families["Sans famille"]:
+    l.4164 : self.sdf_families["Sans famille"].append(path)
+
+DockingPage.select_sdf_folder  (lignes 4172-4226, 3 ligne(s) concernee(s))
+    l.4217 : self.sdf_families.setdefault(path.name, [])
+    l.4218 : self.sdf_families[path.name].extend(
+    l.4219 : item for item in sdf_files if item not in self.sdf_families[path.name]
+
+DockingPage.clear_sdf_selection  (lignes 4228-4237, 1 ligne(s) concernee(s))
+    l.4231 : self.sdf_families.clear()
+
+DockingPage.refresh_sdf_selection  (lignes 4239-4291, 8 ligne(s) concernee(s))
+    l.4240 : families = [
+    l.4242 : for name, paths in self.sdf_families.items()
+    l.4245 : self._sdf_family_columns = [name for name, _ in families]
+    l.4246 : self.sdf_list.setColumnCount(1 + len(families))
+    l.4248 : ["Type"] + self._sdf_family_columns
+    l.4251 : max((len(paths) for _, paths in families), default=0)
+    ... +2 autres
+
+DockingPage.prepare_ligands  (lignes 4293-4406, 13 ligne(s) concernee(s))
+    l.4338 : generated_family_map = {}
+    l.4339 : family_inputs = [
+    l.4340 : (family, paths)
+    l.4341 : for family, paths in self.sdf_families.items()
+    l.4344 : if not family_inputs:
+    l.4345 : family_inputs = [("Sans famille", self.sdf_files)]
+    ... +7 autres
+
+DockingPage.create_pdbqt_page  (lignes 4412-4543, 5 ligne(s) concernee(s))
+    l.4446 : add_families = self._t_button(
+    l.4447 : "pdbqt_btn_choose_families",
+    l.4448 : "Choisir les familles",
+    l.4450 : add_families.clicked.connect(self.add_pdbqt_families)
+    l.4475 : toolbar_layout.addWidget(add_families)
+
+DockingPage.refresh_pdbqt_table  (lignes 4545-4629, 21 ligne(s) concernee(s))
+    l.4566 : self.pdbqt_families = {
+    l.4567 : path: family
+    l.4568 : for path, family in self.pdbqt_families.items()
+    l.4571 : family_names = []
+    l.4572 : for family in self.pdbqt_families.values():
+    l.4573 : if family not in family_names:
+    ... +15 autres
+
+DockingPage.clear_pdbqt_selection  (lignes 4644-4653, 1 ligne(s) concernee(s))
+    l.4649 : self.selected_ligands = []
+
+DockingPage.use_selected_pdbqt  (lignes 4671-4741, 2 ligne(s) concernee(s))
+    l.4690 : for column in range(1, 1 + len(self._pdbqt_family_columns)):
+    l.4709 : self.selected_ligands = selected
+
+DockingPage.add_pdbqt_files  (lignes 4752-4800, 1 ligne(s) concernee(s))
+    l.4792 : self.pdbqt_families[target.resolve()] = "Sans famille"
+
+DockingPage.add_pdbqt_families  (lignes 4802-4836, 8 ligne(s) concernee(s))
+    l.4802 : def add_pdbqt_families(self):
+    l.4803 : dialog = _MoleculeFamilyDialog(
+    l.4804 : self, "Choisir les familles de ligands PDBQT"
+    l.4813 : for family_name, folder in dialog.families():
+    l.4821 : self, "Famille vide",
+    l.4822 : f"Le dossier de « {family_name} » ne contient aucun fichier PDBQT."
+    ... +2 autres
+
+DockingPage._build_receptor_groups_from_combo  (lignes 5730-5807, 1 ligne(s) concernee(s))
+    l.5732 : Regroupe les entrées actuelles de target_combo par espèce
+
+DockingPage.launch_docking  (lignes 7161-7539, 1 ligne(s) concernee(s))
+    l.7199 : self.selected_ligands = [
+
+DockingPage.on_docking_finished  (lignes 7631-7857, 1 ligne(s) concernee(s))
+    l.7735 : grouped, global_csv = create_scientific_scores(
+
+AnalysisPage.results_page  (lignes 8257-8438, 1 ligne(s) concernee(s))
+    l.8406 : data.get("groupe", ""),
+
+None.main  (lignes 10616-10676, 1 ligne(s) concernee(s))
+    l.10667 : str(GLASS_PREFERENCES.get("font_family") or "Noto Sans"),
+
+==============================================================================
+3. REMPLISSAGE DU MENU DES CIBLES
+==============================================================================
+l.4930 : self.target_combo.addItem("MexB", "MexB")
+l.4931 : self.target_combo.addItem("MexR", "MexR")
+l.4932 : self.target_combo.addItem("MexB + MexR", "MexB + MexR")
+l.4940 : _declared_pairs = list_pairs()
+l.4972 : self.target_combo.addItem(
+l.4988 : self.pair_targets = {}
+l.5007 : self.pair_targets[_pair_key] = (_pump_id, _repressor_id)
+l.5017 : self.target_combo.addItem(
+l.5857 : pair_members = getattr(self, "pair_targets", {}).get(target)
+l.6682 : self.pair_targets[pair_key] = (pump.profile_id, repressor.profile_id)
+l.6685 : self.target_combo.addItem(
+l.7213 : pair_members = getattr(self, "pair_targets", {}).get(target)

@@ -1,0 +1,818 @@
+=============== 1. CONSTANTES DE THEME (COLORS, GLASS_PREFERENCES, defaults, APP_STYLE) ===============
+
+----- _PREFERENCES (lignes 644-644) -----
+_PREFERENCES = QSettings("VINA Studio", "VINA Studio")
+
+----- GLASS_PREFERENCES (lignes 645-660) -----
+GLASS_PREFERENCES = {
+    "tint": _PREFERENCES.value("glass/tint", "#6bd18d"),
+    "panel_tint": _PREFERENCES.value("glass/panel_tint", "#6bd18d"),
+    "button_tint": _PREFERENCES.value("glass/button_tint", "#6bd18d"),
+    "text_color": _PREFERENCES.value("glass/text_color", "#edf5ff"),
+    "scrollbar_tint": _PREFERENCES.value("glass/scrollbar_tint", "#6bd18d"),
+    "accent_green": _PREFERENCES.value("glass/accent_green", "#3d915e"),
+    "opacity": int(_PREFERENCES.value("glass/opacity", 58)),
+    "panel_opacity": int(_PREFERENCES.value("glass/panel_opacity", 58)),
+    "button_opacity": int(_PREFERENCES.value("glass/button_opacity", 66)),
+    "scrollbar_opacity": int(_PREFERENCES.value("glass/scrollbar_opacity", 70)),
+    "reflection": int(_PREFERENCES.value("glass/reflection", 72)),
+    "radius": int(_PREFERENCES.value("glass/radius", 16)),
+    "refraction": float(_PREFERENCES.value("glass/refraction", 1.33)),
+    "theme_index": int(_PREFERENCES.value("theme/index", 0)),
+}
+
+----- _THEME_SCHEMA (lignes 688-750) -----
+_THEME_SCHEMA = [
+    _spec("tint", "Couleur d'accent générale", "color", "#6bd18d", _G_MAT),
+    _spec("panel_tint", "Couleur des panneaux", "color", "#6bd18d", _G_MAT),
+    _spec("scrollbar_tint", "Couleur du défilement", "color", "#6bd18d", _G_MAT),
+    _spec("accent_green", "Cases, curseurs, barre d'état", "color", "#3d915e", _G_MAT),
+    _spec("panel_opacity", "Transparence des panneaux", "int", 58, _G_MAT, 10, 95),
+    _spec("opacity", "Transparence générale du verre", "int", 58, _G_MAT, 10, 95),
+    _spec("scrollbar_opacity", "Transparence du défilement", "int", 70, _G_MAT, 10, 95),
+    _spec("reflection", "Réflexion de lumière", "int", 72, _G_MAT, 10, 100),
+    _spec("radius", "Rayon des bords (panneaux)", "int", 16, _G_MAT, 6, 36),
+    _spec("refraction", "Indice de réfraction", "float", 1.33, _G_MAT, 1.0, 2.5),
+    _spec("bg_veil_color", "Voile sur l'image de fond", "color", "#070f18", _G_MAT),
+    _spec("bg_veil_opacity", "Opacité du voile de fond", "int", 70, _G_MAT, 0, 100),
+    _spec("font_family", "Police de l'interface", "font", "Noto Sans", _G_TXT),
+    _spec("font_size", "Taille du texte (px)", "int", 13, _G_TXT, 9, 24),
+    _spec("title_size", "Taille des titres (px)", "int", 17, _G_TXT, 12, 36),
+    _spec("text_color", "Texte principal", "color", "#edf5ff", _G_TXT),
+    _spec("text_secondary_color", "Texte secondaire (descriptions)", "color", "#bfd3e6", _G_TXT),
+    _spec("text_muted_color", "Texte discret (étiquettes)", "color", "#8ea8bc", _G_TXT),
+    _spec("title_color", "Titres", "color", "", _G_TXT, auto=True),
+    _spec("accent_text", "Texte accentué (cible active, statuts)", "color", "", _G_TXT, auto=True),
+    _spec("success_color", "Message : succès", "color", "#5fd3a1", _G_TXT),
+    _spec("warning_color", "Message : avertissement", "color", "#f4c66b", _G_TXT),
+    _spec("danger_color", "Message : erreur", "color", "#ff8a8a", _G_TXT),
+    _spec("status_text_color", "Texte de la barre d'état", "color", "#dfffea", _G_TXT),
+    _spec("tab_tint", "Couleur des onglets", "color", "#6bd18d", _G_TAB),
+    _spec("tab_hover_tint", "Couleur au survol", "color", "", _G_TAB, auto=True),
+    _spec("tab_active_tint", "Couleur de l'onglet actif", "color", "#51c981", _G_TAB),
+    _spec("tab_opacity", "Transparence des onglets", "int", 66, _G_TAB, 10, 100),
+    _spec("tab_hover_opacity", "Intensité au survol", "int", 28, _G_TAB, 0, 100),
+    _spec("tab_active_opacity", "Intensité de l'onglet actif", "int", 23, _G_TAB, 0, 100),
+    _spec("tab_text_color", "Texte des onglets", "color", "", _G_TAB, auto=True),
+    _spec("tab_text_hover_color", "Texte au survol", "color", "", _G_TAB, auto=True),
+    _spec("tab_text_active_color", "Texte de l'onglet actif", "color", "", _G_TAB, auto=True),
+    _spec("tab_border_color", "Liseré des onglets", "color", "#ffffff", _G_TAB),
+    _spec("tab_border_opacity", "Opacité du liseré", "int", 71, _G_TAB, 0, 100),
+    _spec("tab_radius", "Rayon des onglets", "int", 12, _G_TAB, 2, 26),
+    _spec("tab_shimmer", "Reflet animé au survol", "bool", True, _G_TAB),
+    _spec("button_tint", "Couleur des boutons", "color", "#6bd18d", _G_BTN),
+    _spec("button_hover_tint", "Couleur au survol", "color", "", _G_BTN, auto=True),
+    _spec("button_pressed_tint", "Couleur au clic", "color", "#51c981", _G_BTN),
+    _spec("button_opacity", "Transparence des boutons", "int", 66, _G_BTN, 10, 100),
+    _spec("button_hover_opacity", "Intensité au survol", "int", 28, _G_BTN, 0, 100),
+    _spec("button_pressed_opacity", "Intensité au clic", "int", 23, _G_BTN, 0, 100),
+    _spec("button_text_color", "Texte des boutons", "color", "", _G_BTN, auto=True),
+    _spec("button_text_hover_color", "Texte au survol", "color", "", _G_BTN, auto=True),
+    _spec("button_border_color", "Liseré des boutons", "color", "#ffffff", _G_BTN),
+    _spec("button_border_opacity", "Opacité du liseré", "int", 74, _G_BTN, 0, 100),
+    _spec("button_radius", "Rayon des boutons", "int", 12, _G_BTN, 2, 26),
+    _spec("button_shimmer", "Reflet animé au survol", "bool", True, _G_BTN),
+    _spec("popup_blur", "Flou de l'arrière-plan (0 = aucun)", "int", 22, _G_POP, 0, 60),
+    _spec("popup_tint", "Teinte du verre", "color", "#0f1c2a", _G_POP),
+    _spec("popup_opacity", "Opacité de la teinte", "int", 55, _G_POP, 0, 100),
+    _spec("popup_reflection", "Reflet supérieur", "int", 30, _G_POP, 0, 100),
+    _spec("popup_radius", "Rayon des coins", "int", 14, _G_POP, 0, 28),
+    _spec("popup_border_color", "Couleur du liseré", "color", "#dcffe7", _G_POP),
+    _spec("popup_border_opacity", "Opacité du liseré", "int", 40, _G_POP, 0, 100),
+    _spec("popup_text_color", "Texte des menus", "color", "", _G_POP, auto=True),
+    _spec("popup_hover_tint", "Couleur de l'élément survolé", "color", "", _G_POP, auto=True),
+    _spec("popup_hover_opacity", "Intensité de l'élément survolé", "int", 45, _G_POP, 0, 100),
+    _spec("popup_hover_text_color", "Texte de l'élément survolé", "color", "", _G_POP, auto=True),
+    _spec("popup_tooltips", "Appliquer aussi aux info-bulles", "bool", True, _G_POP),
+]
+
+----- _THEME_DEFAULTS (lignes 752-752) -----
+_THEME_DEFAULTS = {spec["key"]: spec["default"] for spec in _THEME_SCHEMA}
+
+----- _PALETTE_STATE (lignes 807-807) -----
+_PALETTE_STATE = {"last": None}
+
+----- _THEME_AUTO (lignes 835-848) -----
+_THEME_AUTO = {
+    "title_color": lambda: _theme_color("text_color"),
+    "accent_text": lambda: _theme_color("tint").lighter(175),
+    "tab_hover_tint": lambda: _theme_color("tab_tint").lighter(130),
+    "tab_text_color": lambda: _theme_color("text_color"),
+    "tab_text_hover_color": lambda: _theme_color("text_color"),
+    "tab_text_active_color": lambda: _theme_color("tab_tint"),
+    "button_hover_tint": lambda: _theme_color("button_tint").lighter(130),
+    "button_text_color": lambda: _theme_color("text_color"),
+    "button_text_hover_color": lambda: _theme_color("text_color"),
+    "popup_text_color": lambda: _theme_color("text_color"),
+    "popup_hover_tint": lambda: _theme_color("button_tint"),
+    "popup_hover_text_color": lambda: _theme_color("text_color"),
+}
+
+----- _GLASS_DEFERRED_ACTIVE (lignes 1488-1488) -----
+_GLASS_DEFERRED_ACTIVE = False
+
+----- COLORS (lignes 1816-1879) -----
+COLORS = {
+    "window": "#0f1721",
+    "window_gradient": (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "stop:0 #111d2a, stop:0.42 #172a38, stop:1 #0d1721)"
+    ),
+
+    "glass": "rgba(17, 28, 38, 160)",
+    "glass_soft": "rgba(19, 32, 44, 170)",
+    "glass_strong": "rgba(23, 35, 48, 182)",
+    "glass_sheen": (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "stop:0 rgba(29, 43, 59, 210), "
+        "stop:0.5 rgba(22, 34, 47, 185), "
+        "stop:1 rgba(15, 24, 34, 175))"
+    ),
+    "bevel_light": "rgba(255, 255, 255, 220)",
+    "bevel_dark": "rgba(76, 111, 139, 180)",
+    "glass_edge": "rgba(235, 248, 255, 210)",
+
+    "surface": "#101d2b",
+    "surface_alt": "#152739",
+    "panel": "#0f1c2a",
+
+    "border": "rgba(131, 154, 177, 90)",
+    "border_dark": "rgba(96, 118, 140, 120)",
+
+    "text": "#edf5ff",
+    "text_secondary": "#bfd3e6",
+    "text_muted": "#8ea8bc",
+
+    "accent": "#6bd18d",
+    "accent_dark": "#dcffe8",
+    "accent_ink": "#d9ffe5",
+    "accent_light": "rgba(107, 209, 141, 52)",
+    "accent_glass": (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "stop:0 rgba(232, 255, 240, 190), "
+        "stop:0.4 rgba(118, 222, 151, 175), "
+        "stop:1 rgba(42, 139, 79, 185))"
+    ),
+    "accent_glass_hover": (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "stop:0 rgba(250, 255, 251, 220), "
+        "stop:0.4 rgba(151, 239, 178, 195), "
+        "stop:1 rgba(61, 170, 96, 200))"
+    ),
+    "accent_glass_pressed": (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "stop:0 rgba(151, 235, 176, 220), "
+        "stop:1 rgba(33, 115, 64, 220))"
+    ),
+
+    "success": "#5fd3a1",
+    "success_light": "rgba(95, 211, 161, 30)",
+
+    "warning": "#f4c66b",
+    "warning_light": "rgba(244, 198, 107, 25)",
+
+    "danger": "#ff8a8a",
+    "danger_light": "rgba(255, 138, 138, 35)",
+
+    "viewer": "#0b1219",
+}
+
+----- APP_STYLE (lignes 2618-2618) -----
+APP_STYLE = _build_app_style()
+
+----- _GLASS_KINDS (lignes 2736-2743) -----
+_GLASS_KINDS = {
+    "button": ("button_tint", "button_opacity", 66),
+    "button_hover": ("button_hover_tint", "button_opacity", 66),
+    "panel": ("panel_tint", "panel_opacity", 58),
+    "tab": ("tab_tint", "tab_opacity", 66),
+    "tab_hover": ("tab_hover_tint", "tab_opacity", 66),
+    "tab_active": ("tab_active_tint", "tab_opacity", 66),
+}
+
+
+=============== 2. FONCTIONS QUI CONSTRUISENT / APPLIQUENT LE THEME ===============
+
+----- def _refresh_preference_palette (lignes 880-929) -----
+def _refresh_preference_palette():
+    """Synchronise les jetons partagés (COLORS) avec les préférences."""
+    tint = QColor(str(GLASS_PREFERENCES["tint"]))
+    if not tint.isValid():
+        tint = QColor("#6bd18d")
+        GLASS_PREFERENCES["tint"] = tint.name()
+    COLORS["accent"] = tint.name()
+
+    custom = str(GLASS_PREFERENCES.get("accent_text", "") or "").strip()
+    if custom and QColor(custom).isValid():
+        COLORS["accent_dark"] = QColor(custom).name()
+        COLORS["accent_ink"] = QColor(custom).name()
+    else:
+        COLORS["accent_dark"] = tint.lighter(175).name()
+        COLORS["accent_ink"] = tint.lighter(185).name()
+    COLORS["accent_light"] = (
+        f"rgba({tint.red()}, {tint.green()}, {tint.blue()}, 52)"
+    )
+    COLORS["accent_glass"] = (
+        "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        f"stop:0 rgba(245, 255, 248, 190), "
+        f"stop:0.4 rgba({tint.red()}, {tint.green()}, {tint.blue()}, 175), "
+        f"stop:1 rgba({max(0, tint.red() // 2)}, "
+        f"{max(0, tint.green() // 2)}, {max(0, tint.blue() // 2)}, 190))"
+    )
+    COLORS["accent_glass_hover"] = COLORS["accent_glass"]
+    COLORS["accent_glass_pressed"] = COLORS["accent_glass"]
+
+    green = QColor(str(GLASS_PREFERENCES["accent_green"]))
+    if GLASS_PREFERENCES["accent_green"] == "#3d915e":
+        green = QColor(str(GLASS_PREFERENCES["scrollbar_tint"]))
+    if not green.isValid():
+        green = QColor("#3d915e")
+
+    COLORS["accent_green"] = (
+        f"rgba({green.red()}, {green.green()}, {green.blue()}, 170)"
+    )
+    def _up(v, d):
+        return max(0, min(255, v + d))
+    COLORS["grad_stop0"] = f"rgba({_up(green.red(), 40)}, {_up(green.green(), 40)}, {_up(green.blue(), 40)}, 220)"
+    COLORS["grad_stop1"] = f"rgba({green.red()}, {green.green()}, {green.blue()}, 180)"
+    COLORS["grad_stop2"] = f"rgba({_up(green.red(), -30)}, {_up(green.green(), -30)}, {_up(green.blue(), -30)}, 150)"
+
+    COLORS["text"] = _theme_color("text_color").name()
+    COLORS["text_secondary"] = _theme_color("text_secondary_color").name()
+    COLORS["text_muted"] = _theme_color("text_muted_color").name()
+    COLORS["success"] = _theme_color("success_color").name()
+    COLORS["warning"] = _theme_color("warning_color").name()
+    COLORS["danger"] = _theme_color("danger_color").name()
+    _remember_tokens()
+
+----- def _runtime_preferences_style (lignes 1069-1163) -----
+def _runtime_preferences_style():
+    """Feuille de style dérivée des préférences (appliquée APRÈS le style de base)."""
+    P = GLASS_PREFERENCES
+    panel = _theme_color("panel_tint")
+    button = _theme_color("button_tint")
+    text = _theme_color("text_color")
+    title = _theme_color("title_color")
+    scroll = _theme_color("scrollbar_tint")
+    panel_a = int(P["panel_opacity"])
+    button_a = int(P["button_opacity"])
+
+    size = int(P["font_size"])
+    ratio = size / 13.0
+    title_px = int(P["title_size"])
+    family = str(P["font_family"]).replace('"', "").replace("\\", "")
+
+    btn_border = _rgba(_theme_color("button_border_color"), _pct_alpha(P["button_border_opacity"]))
+    btn_hover = _rgba(
+        _theme_color("button_hover_tint"),
+        min(255, button_a + _pct_alpha(P["button_hover_opacity"])),
+    )
+    btn_pressed = _rgba(
+        _theme_color("button_pressed_tint"),
+        min(255, button_a + _pct_alpha(P["button_pressed_opacity"])),
+    )
+    btn_text = _theme_color("button_text_color").name()
+    btn_text_hover = _theme_color("button_text_hover_color").name()
+
+    return f"""
+    QWidget {{
+        font-family: "{family}", "Noto Sans", "Segoe UI", sans-serif;
+        font-size: {size}px;
+        color: {text.name()};
+    }}
+    QLabel#ApplicationName {{ font-size: {title_px + 2}px; color: {title.name()}; }}
+    QLabel#SectionTitle {{ font-size: {title_px}px; color: {title.name()}; }}
+    QLabel#PanelTitle {{ font-size: {size}px; color: {title.name()}; }}
+    QLabel#ApplicationSubtitle {{
+        font-size: {max(7, round(11 * ratio))}px; color: {COLORS['text_secondary']};
+    }}
+    QLabel#SectionDescription {{
+        font-size: {max(7, round(12 * ratio))}px; color: {COLORS['text_secondary']};
+    }}
+    QStatusBar {{ color: {_theme_color("status_text_color").name()}; }}
+
+    QFrame#ContentPanel, QFrame#ToolbarPanel, QFrame#TopHeader {{
+        background: {_rgba(panel, panel_a)};
+        border-color: rgba(235, 255, 242, 150);
+    }}
+    QPushButton, QToolButton {{
+        color: {btn_text};
+        background: {_rgba(button, button_a)};
+        border: 1px solid {btn_border};
+    }}
+    QPushButton:hover, QToolButton:hover {{
+        color: {btn_text_hover};
+        background: {btn_hover};
+    }}
+    QPushButton:pressed, QToolButton:pressed {{
+        background: {btn_pressed};
+    }}
+    QPushButton[liquid_glass="true"], QToolButton[liquid_glass="true"],
+    QPushButton[liquid_glass="true"]:hover, QToolButton[liquid_glass="true"]:hover,
+    QPushButton[liquid_glass="true"]:pressed, QToolButton[liquid_glass="true"]:pressed {{
+        background: transparent;
+        border: none;
+    }}
+    QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
+        color: {text.name()};
+        background: {_rgba(panel, panel_a)};
+        border-color: rgba(230, 255, 238, 175);
+    }}
+    QTableWidget {{
+        color: {text.name()};
+        background: {_rgba(panel, panel_a)};
+        border-color: rgba(230, 255, 238, 145);
+    }}
+    QDialog {{
+        color: {text.name()};
+        background: {_rgba(panel, panel_a + 120)};
+        border: 1px solid rgba(230, 255, 238, 175);
+    }}
+    QHeaderView::section {{
+        color: {text.name()};
+        background: {_rgba(button, button_a)};
+    }}
+    QScrollBar::handle:vertical, QScrollBar::handle:horizontal {{
+        background: {_rgba(scroll, P['scrollbar_opacity'])};
+        border: 1px solid rgba(230, 255, 238, 165);
+    }}
+    QProgressBar {{
+        color: {text.name()};
+        background: {_rgba(panel, panel_a)};
+    }}
+    """ + _tab_text_qss() + _tab_bar_qss() + _popup_qss()
+
+----- def _runtime_results_tab_style (lignes 1166-1168) -----
+def _runtime_results_tab_style():
+    """Conservé pour compatibilité : le style des onglets est désormais global."""
+    return _tab_bar_qss()
+
+----- def _inline_color_map (lignes 1177-1188) -----
+def _inline_color_map():
+    owners = {}
+    for key, values in _TOKEN_SEEN.items():
+        for value in values:
+            owners.setdefault(value, set()).add(key)
+    mapping = {}
+    for key, values in _TOKEN_SEEN.items():
+        current = str(COLORS[key]).lower()
+        for value in values:
+            if value != current and len(owners[value]) == 1:
+                mapping[value] = current
+    return mapping
+
+----- def _rewrite_inline (lignes 1191-1199) -----
+def _rewrite_inline(css, mapping, ratio):
+    if mapping:
+        pattern = _re.compile("|".join(_re.escape(k) for k in mapping), _re.IGNORECASE)
+        css = pattern.sub(lambda m: mapping[m.group(0).lower()], css)
+    return _re.sub(
+        r"font-size:\s*(\d+)px",
+        lambda m: f"font-size: {max(7, int(round(int(m.group(1)) * ratio)))}px",
+        css,
+    )
+
+----- def _restyle_widget (lignes 1202-1219) -----
+def _restyle_widget(widget, mapping=None, ratio=None):
+    try:
+        current = widget.styleSheet()
+        if not current or isinstance(widget, QTabWidget):
+            return
+        if mapping is None:
+            mapping = _inline_color_map()
+        if ratio is None:
+            ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
+        if current != widget.property("_ss_last"):
+            widget.setProperty("_ss_orig", current)   # nouvelle version posée par le code
+        original = widget.property("_ss_orig") or current
+        updated = _rewrite_inline(original, mapping, ratio)
+        if updated != current:
+            widget.setStyleSheet(updated)
+        widget.setProperty("_ss_last", updated)
+    except Exception as exc:
+        _debug_once("restyle", exc)
+
+----- def _apply_app_palette (lignes 1222-1235) -----
+def _apply_app_palette(app):
+    state = (COLORS["text"], COLORS["text_muted"])
+    if _PALETTE_STATE["last"] == state:
+        return
+    _PALETTE_STATE["last"] = state
+    palette = app.palette()
+    text = QColor(COLORS["text"])
+    muted = QColor(COLORS["text_muted"])
+    for role in (QPalette.WindowText, QPalette.Text, QPalette.ButtonText):
+        palette.setColor(role, text)
+        palette.setColor(QPalette.Disabled, role, muted)
+    palette.setColor(QPalette.ToolTipText, text)
+    palette.setColor(QPalette.PlaceholderText, muted)
+    app.setPalette(palette)
+
+----- def apply_runtime_preferences (lignes 1238-1250) -----
+def apply_runtime_preferences():
+    """Reconstruit la feuille de style vivante : tous les widgets suivent."""
+    _refresh_preference_palette()
+    app = QApplication.instance()
+    if app is None:
+        return
+    _apply_app_palette(app)
+    app.setStyleSheet(_build_app_style() + _runtime_preferences_style())
+    mapping = _inline_color_map()
+    ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
+    for widget in app.allWidgets():
+        _restyle_widget(widget, mapping, ratio)
+    apply_text_overrides()
+
+----- def _build_app_style (lignes 1888-2615) -----
+def _build_app_style():
+    """Feuille de style de base, reconstruite à chaque changement de réglage."""
+    return f"""
+QMainWindow {{
+    background: {COLORS["window_gradient"]};
+}}
+
+QWidget {{
+    font-family: "{GLASS_PREFERENCES["font_family"]}", "Noto Sans", "Segoe UI", sans-serif;
+    font-size: {int(GLASS_PREFERENCES["font_size"])}px;
+    color: {COLORS["text"]};
+}}
+
+QToolTip {{
+    background: {COLORS["glass"]};
+    color: {COLORS["text"]};
+    border: 1px solid rgba(220, 255, 231, 175);
+    border-radius: 8px;
+    padding: 6px 10px;
+}}
+
+QMenuBar {{
+    background: {COLORS["panel"]};
+    border-bottom: 1px solid {COLORS["border"]};
+    padding: 3px 8px;
+}}
+
+QMenuBar::item {{
+    padding: 7px 12px;
+    margin: 2px;
+    border-radius: 8px;
+    background: transparent;
+}}
+
+QMenuBar::item:selected {{
+    background: {COLORS["accent_light"]};
+    color: {COLORS["accent_dark"]};
+}}
+
+QMenu {{
+    background: {COLORS["panel"]};
+    color: {COLORS["text"]};
+    border: 1px solid rgba(220, 255, 231, 175);
+    border-radius: 14px;
+    padding: 8px;
+}}
+
+QMenu::item {{
+    padding: 8px 28px 8px 14px;
+    border-radius: 9px;
+    margin: 1px 2px;
+}}
+
+QMenu::item:selected {{
+    background: {COLORS["accent_light"]};
+    color: {COLORS["accent_dark"]};
+}}
+
+QDialog {{
+    background: {COLORS["panel"]};
+    color: {COLORS["text"]};
+    border: 1px solid {COLORS["border"]};
+}}
+
+QDialog QLineEdit,
+QDialog QComboBox,
+QDialog QSpinBox,
+QDialog QDoubleSpinBox {{
+    background: {COLORS["panel"]};
+    color: {COLORS["text"]};
+    border: 1px solid {COLORS["border"]};
+}}
+
+QDialog QLabel {{
+    color: {COLORS["text"]};
+}}
+
+QMenu::separator {{
+    height: 1px;
+    background: {COLORS["border"]};
+    margin: 6px 8px;
+}}
+
+QToolBar {{
+    background: rgba(31, 104, 76, 92);
+    border: none;
+    border-bottom: 1px solid {COLORS["border"]};
+    spacing: 8px;
+    padding: 7px 12px;
+}}
+
+QFrame[green_glass="true"],
+QToolBar[green_glass="true"] {{
+    background: transparent;
+    border: none;
+}}
+
+QToolButton {{
+    border: 1px solid rgba(255, 255, 255, 175);
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(247, 255, 250, 220),
+        stop:0.16 rgba(216, 247, 227, 180),
+        stop:0.58 rgba(133, 211, 160, 150),
+        stop:1 rgba(53, 137, 91, 165)
+    );
+    color: #103a28;
+    padding: 7px 13px;
+    border-radius: 11px;
+}}
+    QPushButton[liquid_glass="true"],
+    QToolButton[liquid_glass="true"] {{
+        background: transparent;
+        border: none;
+        padding: 8px 16px;
+    }}
+
+QToolButton:hover {{
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(255, 255, 255, 245),
+        stop:0.2 rgba(229, 255, 239, 220),
+        stop:0.62 rgba(165, 236, 190, 195),
+        stop:1 rgba(72, 166, 108, 185)
+    );
+    border-color: rgba(255, 255, 255, 235);
+}}
+
+QToolButton:pressed {{
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(142, 218, 166, 190),
+        stop:1 rgba(42, 125, 78, 200)
+    );
+    border-top-color: rgba(83, 133, 164, 200);
+    border-left-color: rgba(100, 155, 190, 180);
+}}
+
+QToolButton#TopTab {{
+    border: 1px solid rgba(255, 255, 255, 155);
+    border-radius: 12px;
+    margin: 1px 2px;
+    padding: 9px 19px;
+    font-weight: 600;
+    color: #17344c;
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(247, 253, 255, 205),
+        stop:0.45 rgba(201, 230, 243, 165),
+        stop:1 rgba(89, 143, 174, 145)
+    );
+}}
+
+QToolButton#TopTab:hover {{
+    background: rgba(246, 253, 255, 235);
+    color: #0b263d;
+    border-color: rgba(255, 255, 255, 235);
+}}
+
+QToolButton#TopTab:checked {{
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(255, 255, 255, 238),
+        stop:0.18 rgba(190, 232, 252, 220),
+        stop:0.62 rgba(97, 177, 220, 205),
+        stop:1 rgba(36, 106, 153, 195)
+    );
+    color: {COLORS["accent_ink"]};
+    border: 1px solid rgba(255, 255, 255, 245);
+    font-weight: 650;
+}}
+
+QFrame#TopHeader {{
+    background: transparent;
+    border: none;
+}}
+
+QLabel#ApplicationName {{
+    font-size: 19px;
+    font-weight: 650;
+    color: {COLORS["text"]};
+}}
+
+QLabel#ApplicationSubtitle {{
+    font-size: 11px;
+    color: {COLORS["text_secondary"]};
+}}
+
+QLabel#SectionTitle {{
+    font-size: 17px;
+    font-weight: 620;
+    color: {COLORS["text"]};
+}}
+
+QLabel#SectionDescription {{
+    font-size: 12px;
+    color: {COLORS["text_secondary"]};
+}}
+
+QLabel#PanelTitle {{
+    font-size: 13px;
+    font-weight: 650;
+    color: {COLORS["text"]};
+}}
+
+QFrame#Navigation {{
+    background: {COLORS["glass_soft"]};
+    border-right: 1px solid {COLORS["border"]};
+}}
+
+QFrame#NavigationHeader {{
+    background: transparent;
+    border-bottom: 1px solid {COLORS["border"]};
+}}
+
+QToolButton#PrimaryNavigation {{
+    text-align: left;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    margin: 2px 8px;
+... [508 lignes omises]
+
+
+=============== 3. INVENTAIRE DES COULEURS SOMBRES ECRITES EN DUR (hex + rgba) ===============
+27 couleurs sombres distinctes.
+
+#0f1c2a            x  2  lignes [739, 1838]
+                   selecteurs proches : ['?', 'COLORS =']
+#0b1219            x  2  lignes [1878, 9853]
+                   selecteurs proches : ['?']
+#123a27            x  2  lignes [2292, 2313]
+                   selecteurs proches : ['QComboBox', 'background:']
+#070f18            x  1  lignes [699]
+                   selecteurs proches : ['return']
+#0f1721            x  1  lignes [1817]
+                   selecteurs proches : ['COLORS =']
+#111d2a            x  1  lignes [1820]
+                   selecteurs proches : ['COLORS =']
+#172a38            x  1  lignes [1820]
+                   selecteurs proches : ['COLORS =']
+#0d1721            x  1  lignes [1820]
+                   selecteurs proches : ['COLORS =']
+rgb(17,28,38)      x  1  lignes [1823]
+                   selecteurs proches : ['COLORS =']
+rgb(19,32,44)      x  1  lignes [1824]
+                   selecteurs proches : ['COLORS =']
+rgb(23,35,48)      x  1  lignes [1825]
+                   selecteurs proches : ['COLORS =']
+rgb(29,43,59)      x  1  lignes [1828]
+                   selecteurs proches : ['COLORS =']
+rgb(22,34,47)      x  1  lignes [1829]
+                   selecteurs proches : ['COLORS =']
+rgb(15,24,34)      x  1  lignes [1830]
+                   selecteurs proches : ['COLORS =']
+#101d2b            x  1  lignes [1836]
+                   selecteurs proches : ['COLORS =']
+#152739            x  1  lignes [1837]
+                   selecteurs proches : ['COLORS =']
+#103a28            x  1  lignes [1994]
+                   selecteurs proches : ['QToolButton']
+#17344c            x  1  lignes [2032]
+                   selecteurs proches : ['QToolButton#TopTab']
+#0b263d            x  1  lignes [2043]
+                   selecteurs proches : ['QToolButton#TopTab:hover']
+#102d45            x  1  lignes [2154]
+                   selecteurs proches : ['QToolButton#SecondaryTab:hover']
+#0b2d48            x  1  lignes [2167]
+                   selecteurs proches : ['QToolButton#SecondaryTab:checked']
+rgb(25,67,112)     x  1  lignes [2182]
+                   selecteurs proches : ['QToolButton#SecondaryTab:checked']
+rgb(20,57,98)      x  1  lignes [2183]
+                   selecteurs proches : ['QToolButton#SecondaryTab:checked']
+#112d44            x  1  lignes [2215]
+                   selecteurs proches : ['QPushButton']
+#0d3521            x  1  lignes [2394]
+                   selecteurs proches : ['QComboBox QAbstractItemView::item:hover']
+rgb(18,69,47)      x  1  lignes [2398]
+                   selecteurs proches : ['QTableWidget']
+#151b20            x  1  lignes [2518]
+                   selecteurs proches : ['background:']
+
+
+=============== 4. QSS DES WIDGETS SOMBRES (selecteurs ciblant champs / listes / tableaux / dialogues) ===============
+   170: name = QLineEdit(f"Famille {index}")
+   373: QDialog {{
+  1006: QMenu {{
+  1014: QMenu::item {{
+  1021: QMenu::item:selected {{
+  1025: QMenu::item:disabled {{
+  1029: QMenu::separator {{
+  1034: QComboBoxPrivateContainer {{
+  1040: QComboBox QAbstractItemView {{
+  1048: QComboBox QAbstractItemView::item {{
+  1055: QComboBox QAbstractItemView::item:hover {{
+  1059: QToolTip {{
+  1136: QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
+  1141: QTableWidget {{
+  1146: QDialog {{
+  1151: QHeaderView::section {{
+  1901: QToolTip {{
+  1909: QMenuBar {{
+  1915: QMenuBar::item {{
+  1922: QMenuBar::item:selected {{
+  1927: QMenu {{
+  1935: QMenu::item {{
+  1941: QMenu::item:selected {{
+  1946: QDialog {{
+  1955: QDialog QDoubleSpinBox {{
+  1961: QDialog QLabel {{
+  1965: QMenu::separator {{
+  2276: QComboBox {{
+  2300: QComboBox:hover {{
+  2305: QComboBox:focus {{
+  2311: QDoubleSpinBox {{
+  2321: QDoubleSpinBox:focus {{
+  2329: QDoubleSpinBox::down-button {{
+  2338: QDoubleSpinBox::down-button:hover {{
+  2348: QCheckBox::indicator {{
+  2356: QCheckBox::indicator:hover {{
+  2360: QCheckBox::indicator:checked {{
+  2365: QCheckBox::indicator:disabled {{
+  2370: QComboBox::drop-down {{
+  2375: QComboBox QAbstractItemView {{
+  2384: QComboBox QAbstractItemView::item {{
+  2392: QComboBox QAbstractItemView::item:hover {{
+  2397: QTableWidget {{
+  2407: QTableWidget::item {{
+  2412: QTableWidget::item:hover {{
+  2416: QHeaderView::section {{
+  2431: QHeaderView::section:first {{
+  2435: QHeaderView::section:last {{
+  2594: QDialog {{
+  2598: QMessageBox {{
+  2602: QMessageBox QLabel {{
+  2607: QDialog QLabel {{
+  2612: QMessageBox QPushButton {{
+
+
+=============== 5. BOITES DE DIALOGUE (classes QDialog + leurs setStyleSheet) ===============
+class _ChainSelectionDialog(QDialog)  lignes 101-142  setStyleSheet x0
+class _MoleculeFamilyDialog(QDialog)  lignes 145-218  setStyleSheet x0
+class _ReceptorChoiceCardDialog(QDialog)  lignes 220-347  setStyleSheet x3
+class _ReceptorPickerDialog(QDialog)  lignes 350-579  setStyleSheet x7
+class GlassPreferencesDialog(QDialog)  lignes 3046-3384  setStyleSheet x0
+
+--- textes reperes dans les captures ---
+'Choisir un récepteur': lignes [369, 391, 4919, 5698]
+'Import de récepteur': lignes [6590]
+'Choisir les familles': lignes [150, 3758, 4324, 4680]
+'Indice de réfraction': lignes [698]
+"Couleur d'accent générale": lignes [689]
+'Liste déroulante': lignes [3115]
+'Tester un menu': lignes [3117]
+"Pompe d'efflux": lignes [5648]
+'Aperçu': lignes [3103, 5356]
+
+
+=============== 6. CLES DE PREFERENCES DEJA UTILISEES ===============
+['accent_green', 'accent_text', 'bg_veil_opacity', 'button_radius', 'button_shimmer', 'font_family', 'font_size', 'ma_cle', 'opacity', 'popup_tooltips', 'radius', 'reflection', 'scrollbar_tint', 'tab_radius', 'tab_shimmer', 'theme_index', 'tint']
+
+
+=============== 7. NOMS D'OBJETS (setObjectName) LES PLUS FREQUENTS ===============
+ContentPanel: 12
+SectionDescription: 3
+ToolbarPanel: 3
+PanelTitle: 2
+ChoiceCard: 1
+SpeciesFrame: 1
+ReceptorEntryCard: 1
+GlassPopupBackdrop: 1
+SectionTitle: 1
+PrimaryButton: 1
+Navigation: 1
+NavigationHeader: 1
+PrimaryNavigation: 1
+SecondaryNavigation: 1
+SecondaryTab: 1
+SdfScrollArea: 1
+PdbqtScrollArea: 1
+DangerButton: 1
+DockingScrollArea: 1
+ResultsEmptyScrollArea: 1
+ResultsScrollArea: 1
+AnalysisTypeScrollArea: 1
+AnalysisResultsScrollArea: 1
+ResiduesScrollArea: 1
+PlipScrollArea: 1
+Viewer: 1
+InteractionScrollArea: 1
+Interaction3DScrollArea: 1
+TopTab: 1
+TopHeader: 1

@@ -32,6 +32,7 @@ Name: "desktopicon"; Description: "Creer une icone sur le Bureau"; GroupDescript
 
 [Files]
 Source: "dist\VinaStudio.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\credit_du_logiciel\*"; DestDir: "{app}\credit_du_logiciel"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

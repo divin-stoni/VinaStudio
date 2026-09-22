@@ -1,0 +1,33 @@
+AutoDock Vina v1.2.7
+#################################################################
+# If you used AutoDock Vina in your work, please cite:          #
+#                                                               #
+# J. Eberhardt, D. Santos-Martins, A. F. Tillack, and S. Forli  #
+# AutoDock Vina 1.2.0: New Docking Methods, Expanded Force      #
+# Field, and Python Bindings, J. Chem. Inf. Model. (2021)       #
+# DOI 10.1021/acs.jcim.1c00203                                  #
+#                                                               #
+# O. Trott, A. J. Olson,                                        #
+# AutoDock Vina: improving the speed and accuracy of docking    #
+# with a new scoring function, efficient optimization and       #
+# multithreading, J. Comp. Chem. (2010)                         #
+# DOI 10.1002/jcc.21334                                         #
+#                                                               #
+# Please see https://github.com/ccsb-scripps/AutoDock-Vina for  #
+# more information.                                             #
+#################################################################
+
+Scoring function : vina
+Rigid receptor: /home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor/AcrB/1T9X.pdbqt
+Ligand: /home/stoni/MexAB_MexR_Analyzer_BETA/docking/ligands/prepared/aspirin_test.pdbqt
+Grid center: X 7.767 Y 39.208 Z 105.488
+Grid size  : X 24.3 Y 25.5 Z 27
+Grid space : 0.375
+Exhaustiveness: 32
+CPU: 0
+Verbosity: 1
+
+
+
+PDBQT parsing error: Unknown or inappropriate tag found in rigid receptor.
+ > HEADER    MEMBRANE PROTEIN                        19-MAY-04   1T9X              

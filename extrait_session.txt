@@ -1,0 +1,720 @@
+
+==============================================================================
+1. PATCHS APPLIQUES
+==============================================================================
+patch_familles (worker)            : OUI
+patch_table_dynamique              : OUI
+patch_campagne                     : non
+patch_libelles (texte du filtre)   : OUI
+src/campaign_table.py              : present
+
+==============================================================================
+2. FICHIERS DE RESULTATS SUSCEPTIBLES D'ETRE RELUS
+==============================================================================
+2026-09-21 07:28       307 o  scientific_analysis/scores_fusionnes_meta.json
+2026-09-21 07:28       379 o  scientific_analysis/scores_fusionnes_global.csv
+2026-09-21 07:28       446 o  scientific_analysis/scores_fusionnes.csv
+2026-09-20 22:37      4172 o  docking_results_combined_acrb_site2_ecoli_acrr_e67_ecoli.csv
+2026-09-20 22:37      4172 o  docking_results_combined.csv
+2026-09-16 21:41      4216 o  docking_results_combined_MexB_MexR.csv
+2026-09-16 14:07      3832 o  analysis_ready.csv
+2026-09-15 09:04       263 o  src/reference_data/scores_fusionnes_global.csv
+2026-09-15 09:04       318 o  src/reference_data/scores_fusionnes.csv
+2026-09-14 12:26       355 o  src/docking/results/batch_vina_engine/acrb_site2_ecoli/docking_results.csv
+
+==============================================================================
+3. FICHIERS DONT LE NOM PARLE DE SESSION / NETTOYAGE
+==============================================================================
+src/session_manager.py
+src/session_runtime.py
+
+==============================================================================
+4. LIGNES QUI PARLENT DE SESSION / NETTOYAGE / SUPPRESSION
+==============================================================================
+src/campaign_table.py:97: def _clean_text(series):
+src/campaign_table.py:106: def _clean_group(series):
+src/campaign_table.py:107: text = _clean_text(series)
+src/campaign_table.py:111: def _clean_cid_value(value):
+src/campaign_table.py:145: block["molecule"] = _clean_text(df[mol_col])
+src/campaign_table.py:148: cids = df[cid_col].map(_clean_cid_value)
+src/campaign_table.py:155: block["groupe"] = _clean_group(df[group_col])
+src/campaign_table.py:160: block["ligand_file"] = _clean_text(df["ligand_file"])
+src/campaign_table.py:182: part[field] = _clean_text(df[col])
+src/campaign_table.py:266: original = _clean_text(df[receptor_col])
+src/campaign_table.py:276: existing_roles = _clean_text(df[role_col]) if role_col else None
+src/campaign_table.py:277: existing_labels = _clean_text(df[label_col]) if label_col else None
+src/fix_receptor_pdbqt.py:22: pour que tout futur recepteur importe soit nettoye automatiquement ;
+src/fix_receptor_pdbqt.py:141: f"  [DANGER] {rel} : aucun atome apres nettoyage, "
+src/fix_receptor_pdbqt.py:181: # Tout recepteur importe est donc nettoye ici, une fois pour
+src/fix_receptor_pdbqt.py:272: "Nettoyage refuse : aucun atome ATOM/HETATM ne subsisterait."
+src/fix_receptor_pdbqt.py:334: print("       -> tout recepteur importe est desormais nettoye")
+src/patch_theme_blur.py:75: _spec("accent_text", "Texte accentué (cible active, statuts)", "color", "", _G_TXT, auto=True),
+src/session_manager.py:3: session_manager.py
+src/session_manager.py:5: Gestionnaire central du workspace temporaire d'une session.
+src/session_manager.py:8: - créer un workspace de session isolé ;
+src/session_manager.py:11: - exporter intégralement la session ;
+src/session_manager.py:12: - nettoyer la session à la fermeture.
+src/session_manager.py:24: class SessionManager:
+src/session_manager.py:26: Gestionnaire du workspace temporaire d'une session.
+src/session_manager.py:39: self.session_root: Path | None = None
+src/session_manager.py:45: def create_session(self) -> Path:
+src/session_manager.py:47: Crée une nouvelle session propre.
+src/session_manager.py:50: if self.session_root is not None:
+src/session_manager.py:52: "Une session est déjà active."
+src/session_manager.py:61: / ".session"
+src/session_manager.py:62: / f"session_{timestamp}"
+src/session_manager.py:86: self.session_root = root
+src/session_manager.py:94: def require_session(self) -> Path:
+src/session_manager.py:96: Retourne la session active ou lève une erreur.
+src/session_manager.py:99: if self.session_root is None:
+src/session_manager.py:101: "Aucune session active."
+src/session_manager.py:104: return self.session_root
+src/session_manager.py:112: return self.require_session() / "input"
+src/session_manager.py:116: return self.require_session() / "prepared"
+src/session_manager.py:120: return self.require_session() / "results"
+src/session_manager.py:124: return self.require_session() / "analysis"
+src/session_manager.py:128: return self.require_session() / "visualization"
+src/session_manager.py:132: return self.require_session() / "plip"
+src/session_manager.py:147: comme état de session.
+src/session_manager.py:185: def export_session(
+src/session_manager.py:190: Exporte intégralement la session.
+src/session_manager.py:196: session = self.require_session()
+src/session_manager.py:211: / session.name
+src/session_manager.py:215: shutil.rmtree(
+src/session_manager.py:220: session,
+src/session_manager.py:241: "EXPORT GLOBAL DE SESSION\n"
+src/session_manager.py:250: f"Session : {session.name}\n"
+src/session_manager.py:286: # NETTOYAGE
+src/session_manager.py:289: def cleanup_session(self) -> None:
+src/session_manager.py:294: if self.session_root is None:
+src/session_manager.py:297: root = self.session_root
+src/session_manager.py:300: shutil.rmtree(
+src/session_manager.py:304: self.session_root = None
+src/session_manager.py:313: self.session_root is not None
+src/session_manager.py:314: and self.session_root.exists()
+src/session_runtime.py:3: session_runtime.py
+src/session_runtime.py:5: Frontière de session de STONI.
+src/session_runtime.py:8: Tout ce qui est généré par le logiciel pendant une session est
+src/session_runtime.py:17: Le workspace .session/ est également nettoyé lorsqu'il s'agit
+src/session_runtime.py:18: d'anciennes sessions temporaires.
+src/session_runtime.py:51: SESSION_ROOT = PROJECT_ROOT / ".session"
+src/session_runtime.py:77: print(f"[SESSION CLEANUP] suppression : {path}")
+src/session_runtime.py:78: shutil.rmtree(path, ignore_errors=False)
+src/session_runtime.py:90: print(f"[SESSION CLEANUP] suppression fichier : {path}")
+src/session_runtime.py:91: path.unlink()
+src/session_runtime.py:95: # NETTOYAGE DES SORTIES LEGACY
+src/session_runtime.py:98: def cleanup_legacy_outputs() -> None:
+src/session_runtime.py:108: print("[SESSION] Nettoyage des sorties legacy...")
+src/session_runtime.py:114: print("[SESSION] Sorties legacy nettoyées.")
+src/session_runtime.py:118: # NETTOYAGE DES ANCIENNES SESSIONS
+src/session_runtime.py:121: def cleanup_old_sessions() -> None:
+src/session_runtime.py:123: Supprime les anciennes sessions temporaires.
+src/session_runtime.py:128: if not SESSION_ROOT.exists():
+src/session_runtime.py:131: print("[SESSION] Nettoyage des anciennes sessions...")
+src/session_runtime.py:133: for child in SESSION_ROOT.iterdir():
+src/session_runtime.py:137: print("[SESSION] Anciennes sessions nettoyées.")
+src/session_runtime.py:141: # NOUVELLE SESSION
+src/session_runtime.py:144: def start_new_session() -> None:
+src/session_runtime.py:146: Prépare une session totalement propre.
+src/session_runtime.py:150: 2. anciennes sessions
+src/session_runtime.py:151: 3. création d'une nouvelle session
+src/session_runtime.py:156: print("[SESSION] NOUVELLE SESSION")
+src/session_runtime.py:159: cleanup_legacy_outputs()
+src/session_runtime.py:160: cleanup_old_sessions()
+src/session_runtime.py:162: print("[SESSION] Session prête.")
+src/session_runtime.py:167: # FIN DE SESSION
+src/session_runtime.py:170: def end_session() -> None:
+src/session_runtime.py:172: Nettoyage final à la fermeture.
+src/session_runtime.py:179: print("[SESSION] FERMETURE — NETTOYAGE")
+src/session_runtime.py:182: cleanup_legacy_outputs()
+src/session_runtime.py:185: cleanup_old_sessions()
+src/session_runtime.py:187: print("[SESSION] Nettoyage terminé.")
+src/session_runtime.py:197: Nettoyage avant le démarrage d'un nouveau docking.
+src/session_runtime.py:204: print("[SESSION] RESET AVANT DOCKING")
+src/session_runtime.py:207: cleanup_legacy_outputs()
+src/session_runtime.py:209: print("[SESSION] Anciennes sorties docking supprimées.")
+src/session_runtime.py:210: print("[SESSION] Nouveau docking autorisé.")
+src/docking/ligand_manager.py:223: # Nettoyage du nom du groupe.
+src/docking/receptor_manager.py:147: "Nettoyage refuse : aucun atome ATOM/HETATM ne subsisterait."
+src/docking/receptor_manager.py:389: # Tout recepteur importe est donc nettoye ici, une fois pour
+src/docking/receptor_profile.py:309: path.unlink()
+src/docking/sdf_preparer.py:44: cleanup_text: str = "",
+src/docking/sdf_preparer.py:67: for unwanted in str(cleanup_text or "").split(","):
+src/docking/sdf_preparer.py:222: cleanup_text: str = "",
+src/docking/sdf_preparer.py:229: cleanup_text=cleanup_text,
+src/docking/sdf_preparer.py:287: cleanup_text: str = "",
+src/docking/sdf_preparer.py:335: shutil.rmtree(work_dir)
+src/docking/sdf_preparer.py:370: cleanup_text=cleanup_text,
+src/docking/sdf_preparer.py:434: shutil.rmtree(work_dir)
+src/docking/vina_engine.py:42: from src.session_runtime import reset_before_docking
+src/docking/vina_engine.py:526: correspondant à la cible active.
+src/docking/vina_engine.py:798: # SESSION PROPRE — nouveau docking
+src/docking/vina_worker.py:179: # CAS SIMPLE : une seule cible active (couvre maintenant
+src/gui/main_window.py:4: from src.session_runtime import start_new_session, end_session
+src/gui/main_window.py:5: from src.session_manager import SessionManager
+src/gui/main_window.py:710: _spec("accent_text", "Texte accentué (cible active, statuts)", "color", "", _G_TXT, auto=True),
+src/gui/main_window.py:3686: # Workspace de session : tout fichier importé ou généré
+src/gui/main_window.py:3687: # pendant la session vit ici tant qu'il n'est pas exporté
+src/gui/main_window.py:3688: # explicitement (bouton "Tout exporter la session").
+src/gui/main_window.py:3690: self._session_manager = SessionManager(self.project_root)
+src/gui/main_window.py:3691: self._session_manager.create_session()
+src/gui/main_window.py:3999: self.sdf_naming_mode.addItem("Nettoyer le nom", "clean")
+src/gui/main_window.py:4002: lambda: self.sdf_cleanup_text.setEnabled(
+src/gui/main_window.py:4007: self.sdf_cleanup_text = QLineEdit()
+src/gui/main_window.py:4008: self.sdf_cleanup_text.setPlaceholderText(
+src/gui/main_window.py:4011: self.sdf_cleanup_text.setEnabled(False)
+src/gui/main_window.py:4012: naming_row.addWidget(self.sdf_cleanup_text, 1)
+src/gui/main_window.py:4352: cleanup_text=self.sdf_cleanup_text.text(),
+src/gui/main_window.py:4593: # Nettoyage des sélections qui ne correspondent
+src/gui/main_window.py:4873: self._export_session_button = QPushButton(
+src/gui/main_window.py:4874: "Tout exporter la session"
+src/gui/main_window.py:4876: self._export_session_button.clicked.connect(
+src/gui/main_window.py:4877: self._export_session_dialog
+src/gui/main_window.py:4879: _import_toolbar.addWidget(self._export_session_button)
+src/gui/main_window.py:4960: # session, supprimé à la fermeture — ne doit pas
+src/gui/main_window.py:4963: # session en cours reste visible : il est ajouté
+src/gui/main_window.py:5406: # session, supprimé à la fermeture — ne doit pas
+src/gui/main_window.py:5409: # session en cours reste visible : il est ajouté
+src/gui/main_window.py:5736: cours de session, sans rien à synchroniser ailleurs.
+src/gui/main_window.py:5750: clean_title = text[2:] if is_warning else text
+src/gui/main_window.py:5790: (sort_rank, i, kind_label, clean_title, subtitle)
+src/gui/main_window.py:6203: les chaînes choisies dans un seul fichier nettoyé, puis
+src/gui/main_window.py:6245: self._session_manager.prepared_dir
+src/gui/main_window.py:6246: / f"{pdb_path.stem}_clean_{chains_suffix}.pdb"
+src/gui/main_window.py:6280: "Open Babel n'a pas pu convertir le fichier nettoyé en "
+src/gui/main_window.py:6287: def _export_session_dialog(self):
+src/gui/main_window.py:6289: Exporte intégralement le workspace de session courant
+src/gui/main_window.py:6295: if not self._session_manager.active:
+src/gui/main_window.py:6299: "Aucun workspace de session actif.",
+src/gui/main_window.py:6313: self._session_manager.export_session(destination)
+src/gui/main_window.py:6319: f"Impossible d'exporter la session :\n{exc}",
+src/gui/main_window.py:6332: fichier, nettoyage/conversion si PDB brut (avec sélection de
+src/gui/main_window.py:6383: pdbqt_path = self._session_manager.import_file(
+src/gui/main_window.py:6428: self._session_manager.import_file(
+src/gui/main_window.py:8200: # Repli : aucune campagne lancee dans cette session — on utilise
+src/gui/main_window.py:10108: start_new_session()
+src/gui/main_window.py:10110: gui_debug(f"Erreur nettoyage début de session : {exc}")
+src/gui/main_window.py:10260: viz_bridge.cleanup_visualization_outputs()
+src/gui/main_window.py:10262: gui_debug(f"Erreur nettoyage visualisation : {exc}")
+src/gui/main_window.py:10268: gui_debug(f"Erreur nettoyage threads Crédits : {exc}")
+src/gui/main_window.py:10271: end_session()
+src/gui/main_window.py:10273: gui_debug(f"Erreur nettoyage fin de session : {exc}")
+src/gui/main_window.py:10276: self.docking_page._session_manager.cleanup_session()
+src/gui/main_window.py:10279: f"Erreur nettoyage workspace de session : {exc}"
+src/gui/main_window.py:10579: "Cible active"
+src/gui/main_window.py:10635: # Liaison directe Docking -> en-tête (cible active affichée)
+src/gui/visualization_bridge.py:76: profil supprimé laisse malgré tout des fichiers à nettoyer, et un
+src/gui/visualization_bridge.py:80: Remplace la liste écrite en dur, qui faisait que le nettoyage de
+src/gui/visualization_bridge.py:81: fin de session et le traitement PLIP en lot ignoraient purement et
+src/gui/visualization_bridge.py:596: # NETTOYAGE — appelé à la fermeture du logiciel
+src/gui/visualization_bridge.py:601: def cleanup_visualization_outputs(targets=None) -> None:
+src/gui/visualization_bridge.py:603: # des récepteurs ajoutés après coup ne sont jamais nettoyées.
+src/gui/visualization_bridge.py:609: shutil.rmtree(folder, ignore_errors=True)
+src/tools/runtime_env.py:26: session.
+src/tools/tool_manager.py:104: def clean_version(output):
+src/tools/tool_manager.py:226: version=self.clean_version(output)
+src/tools/tool_manager.py:266: version=self.clean_version(output)
+src/tools/tool_manager.py:390: version=self.clean_version(output)
+src/visualization/interaction_3d.py:86: def clean_label_text(interaction_type):
+src/visualization/interaction_3d.py:190: type_label = clean_label_text(
+src/visualization/interaction_3d.py:299: start_new_session=True
+src/visualization/interaction_visualizer.py:258: start_new_session=True
+src/visualization/plip_runner.py:208: tmp.unlink()
+src/visualization/pose_manager.py:354: start_new_session=True
+
+==============================================================================
+5. RESULTATS MEMORISES ENTRE DEUX LANCEMENTS (QSettings)
+==============================================================================
+
+==============================================================================
+6. CODE DES FONCTIONS CONCERNEES (main_window.py)
+==============================================================================
+
+##############################################################################
+# DockingPage.clear_sdf_selection  (lignes 4228-4237)
+##############################################################################
+    def clear_sdf_selection(self):
+
+        self.sdf_files.clear()
+        self.sdf_families.clear()
+
+        self.refresh_sdf_selection()
+
+        self.sdf_log.setText(
+            "Sélection SDF vidée."
+        )
+
+##############################################################################
+# DockingPage.clear_pdbqt_selection  (lignes 4644-4653)
+##############################################################################
+    def clear_pdbqt_selection(self):
+        """Efface la sélection actuelle."""
+
+        self.pdbqt_table.clearSelection()
+
+        self.selected_ligands = []
+
+        self.pdbqt_selection_status.setText(
+            "Aucun ligand sélectionné pour le docking."
+        )
+
+##############################################################################
+# DockingPage.update_target_parameters  (lignes 5825-6004)
+##############################################################################
+    def update_target_parameters(self, target):
+
+        try:
+
+            # Chargement paresseux des deux profils (une seule fois) :
+            # chaque protéine garde ensuite son propre état, indépendant
+            # de la cible actuellement affichée dans l'interface.
+            if self.mexb_profile is None:
+                self.mexb_profile = resolve_target_profile("MexB")
+                self._load_profile_into_fields(
+                    self.mexb_profile,
+                    self.mexb_fields,
+                    self.grid_sliders,
+                    self.grid_scales,
+                )
+
+            if self.mexr_profile is None:
+                self.mexr_profile = resolve_target_profile("MexR")
+                self._load_profile_into_fields(
+                    self.mexr_profile,
+                    self.mexr_fields,
+                    self.mexr_grid_sliders,
+                    self.mexr_grid_scales,
+                )
+
+            is_dual = target == "MexB + MexR"
+            is_mexb_only = target == "MexB"
+            is_mexr_only = target == "MexR"
+            is_generic = target in self.generic_panels
+
+            # Campagne de couple générique (« A + B »), équivalent de
+            # « MexB + MexR » pour tout autre couple pompe/dérépresseur.
+            pair_members = getattr(self, "pair_targets", {}).get(target)
+            is_generic_pair = pair_members is not None
+
+            if is_generic_pair:
+                # Les deux protéines du couple doivent être chargées et
+                # affichées avec leurs valeurs PRÉDÉFINIES, jamais des
+                # valeurs éditées — même règle qu'en mode MexB + MexR.
+                for member_key in pair_members:
+                    if member_key in self.generic_panels:
+                        self._load_generic_panel(member_key)
+
+            # Chargement paresseux des profils génériques (une seule fois
+            # chacun) — même principe que MexB/MexR : chaque cible garde
+            # son propre état indépendant, jamais partagé avec une autre.
+            if is_generic and self.generic_panels[target]["profile"] is None:
+                self._load_generic_panel(target)
+
+            # Mode double cible : la grid box de chaque protéine n'est
+            # JAMAIS modifiable à la main — on réaffiche les valeurs
+            # PRÉDÉFINIES (pas d'éventuelles valeurs éditées) et on
+            # verrouille les deux panneaux.
+            if is_dual:
+                self._load_profile_into_fields(
+                    resolve_target_profile("MexB"),
+                    self.mexb_fields,
+                    self.grid_sliders,
+                    self.grid_scales,
+                )
+                self._load_profile_into_fields(
+                    resolve_target_profile("MexR"),
+                    self.mexr_fields,
+                    self.mexr_grid_sliders,
+                    self.mexr_grid_scales,
+                )
+
+            self._set_fields_enabled(
+                self.mexb_fields, self.grid_sliders, is_mexb_only
+            )
+            self._set_fields_enabled(
+                self.mexr_fields, self.mexr_grid_sliders, is_mexr_only
+            )
+
+            # Panneau MexR visible en mode MexR seul, ou en double cible
+            # (verrouillé, affiché à titre informatif dans ce cas).
+            self.mexr_panel.setVisible(is_mexr_only or is_dual)
+
+            # Même règle que mexr_panel : le bloc "Grid box" de MexB
+            # (titre + 6 champs) est masqué en bloc dès qu'une AUTRE
+            # cible unique est choisie, au lieu de rester affiché en
+            # grisé à côté du nouveau panneau — un seul panneau de
+            # paramètres visible à la fois pour une cible unique.
+            _mexb_gridbox_visible = is_mexb_only or is_dual
+            for _mexb_widget in self._mexb_gridbox_widgets:
+                _mexb_widget.setVisible(_mexb_gridbox_visible)
+
+            # Un seul panneau générique visible à la fois — celui de la
+            # cible actuellement sélectionnée, s'il y en a une.
+            for panel_key, panel_data in self.generic_panels.items():
+
+                if is_generic_pair:
+                    visible = panel_key in pair_members
+                else:
+                    visible = is_generic and target == panel_key
+
+                panel_data["panel"].setVisible(visible)
+
+                # En campagne de couple, la grid box de chaque protéine
+                # est verrouillée sur ses valeurs prédéfinies.
+                if is_generic_pair and visible:
+                    self._set_fields_enabled(
+                        panel_data["fields"],
+                        panel_data["sliders"],
+                        False,
+                    )
+                elif visible:
+                    self._set_fields_enabled(
+                        panel_data["fields"],
+                        panel_data["sliders"],
+                        True,
+                    )
+
+            if is_dual or is_generic_pair:
+                # Deux protéines à la fois : le visualiseur 3D n'a pas
+                # de cible unique à afficher.
+                self.current_single_target = None
+                self.viewer_stack.setCurrentWidget(self.viewer_placeholder)
+            elif is_generic:
+                self.current_single_target = target
+                self.viewer_stack.setCurrentWidget(self.receptor_viewer)
+                self._load_viewer_receptor(self.generic_panels[target]["profile"])
+            else:
+                self.current_single_target = "MexR" if is_mexr_only else "MexB"
+                self.viewer_stack.setCurrentWidget(self.receptor_viewer)
+                active_profile = (
+                    self.mexr_profile if is_mexr_only else self.mexb_profile
+                )
+                self._load_viewer_receptor(active_profile)
+
+... [tronque : 180 lignes en tout]
+
+##############################################################################
+# DockingPage._export_session_dialog  (lignes 6287-6327)
+##############################################################################
+    def _export_session_dialog(self):
+        """
+        Exporte intégralement le workspace de session courant
+        vers un dossier choisi par l'utilisateur. Le choix du
+        dossier dans la boîte de dialogue EST le consentement
+        explicite requis avant toute conservation durable.
+        """
+
+        if not self._session_manager.active:
+            QMessageBox.information(
+                self,
+                "Rien à exporter",
+                "Aucun workspace de session actif.",
+            )
+            return
+
+        destination = QFileDialog.getExistingDirectory(
+            self,
+            "Choisir le dossier de destination de l'export",
+        )
+
+        if not destination:
+            return
+
+        try:
+            exported_root, exported_files = (
+                self._session_manager.export_session(destination)
+            )
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Échec de l'export",
+                f"Impossible d'exporter la session :\n{exc}",
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "Export terminé",
+            f"{len(exported_files)} fichier(s) exporté(s) vers \n{exported_root}",
+        )
+
+##############################################################################
+# DockingPage._clear_pocket_list  (lignes 6968-6973)
+##############################################################################
+    def _clear_pocket_list(self):
+        self._pocket_combo.blockSignals(True)
+        self._pocket_combo.clear()
+        self._pocket_combo.blockSignals(False)
+        self._pocket_overview_active = False
+        self._set_pocket_panel_visible(False)
+
+##############################################################################
+# AnalysisPage._batch_root  (lignes 8113-8119)
+##############################################################################
+    def _batch_root():
+        return (
+            Path(__file__).resolve().parents[2]
+            / "docking"
+            / "results"
+            / "batch_vina_engine"
+        )
+
+##############################################################################
+# AnalysisPage._refresh_campaign_combo  (lignes 8165-8190)
+##############################################################################
+    def _refresh_campaign_combo(self):
+        """Recharge le menu Campagne depuis les résultats sur le disque."""
+
+        combo = getattr(self, "analysis_campaign_combo", None)
+
+        if combo is None:
+            return
+
+        current = combo.currentText()
+
+        combo.blockSignals(True)
+        combo.clear()
+
+        campaigns = self._available_campaigns()
+
+        if campaigns:
+            combo.addItems(campaigns)
+        else:
+            combo.addItem("Aucun résultat de docking")
+
+        if current:
+            index = combo.findText(current)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+
+        combo.blockSignals(False)
+
+##############################################################################
+# MainWindow.closeEvent  (lignes 10257-10282)
+##############################################################################
+    def closeEvent(self, event):
+
+        try:
+            viz_bridge.cleanup_visualization_outputs()
+        except Exception as exc:
+            gui_debug(f"Erreur nettoyage visualisation : {exc}")
+
+        try:
+            if hasattr(self, "credits_page"):
+                self.credits_page.shutdown()
+        except Exception as exc:
+            gui_debug(f"Erreur nettoyage threads Crédits : {exc}")
+
+        try:
+            end_session()
+        except Exception as exc:
+            gui_debug(f"Erreur nettoyage fin de session : {exc}")
+
+        try:
+            self.docking_page._session_manager.cleanup_session()
+        except Exception as exc:
+            gui_debug(
+                f"Erreur nettoyage workspace de session : {exc}"
+            )
+
+        super().closeEvent(event)
+
+##############################################################################
+# MainWindow.build_interface  (lignes 10539-10676)
+##############################################################################
+    def build_interface(self):
+
+        central = ThemeBackground()
+        self.theme_background = central
+
+        outer = QVBoxLayout(central)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        # --------------------------------------------------------------
+        # HEADER
+        # --------------------------------------------------------------
+
+        header = GlassPanel(radius=16, blur_strength=1.1)
+        header.setObjectName("TopHeader")
+
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(
+            20, 13, 20, 13
+        )
+
+        branding = QVBoxLayout()
+        branding.setSpacing(1)
+
+        self.app_name_label = make_label(
+            "VINA Studio",
+            "ApplicationName",
+        )
+        branding.addWidget(self.app_name_label)
+
+        self.app_subtitle_label = make_label(
+            "Molecular Docking & Interaction Analysis",
+            "ApplicationSubtitle",
+        )
+        branding.addWidget(self.app_subtitle_label)
+
+        header_layout.addLayout(branding)
+        header_layout.addStretch()
+
+        target_label = make_label(
+            "Cible active"
+        )
+
+        target_label.setStyleSheet(
+            f"font-size: 10px; "
+            f"color: {COLORS['text_muted']};"
+        )
+
+        self.header_target_label = make_label(
+            "MexB"
+        )
+
+        self.header_target_label.setStyleSheet(
+            f"font-weight: 650; "
+            f"color: {COLORS['accent_dark']};"
+        )
+
+        header_layout.addWidget(
+            target_label
+        )
+
+        header_layout.addSpacing(8)
+
+        header_layout.addWidget(
+            self.header_target_label
+        )
+
+        outer.addWidget(header)
+
+        # --------------------------------------------------------------
+        # BODY
+        # --------------------------------------------------------------
+
+        body = QWidget()
+
+        body_layout = QHBoxLayout(body)
+        body_layout.setContentsMargins(0, 0, 0, 0)
+        body_layout.setSpacing(0)
+
+        # La colonne "ESPACE DE TRAVAIL" (PrimaryNavigation) n'est plus
+        # construite ici : ses 3 destinations sont desormais les onglets
+        # horizontaux de la toolbar (voir create_toolbar()). Tout
+        # l'espace qu'elle occupait revient au contenu de chaque page.
+        self.workspace = QStackedWidget()
+
+        self.docking_page = DockingPage(lang_mgr=self.lang_mgr)
+
+        self.workspace.addWidget(
+            self.docking_page
+        )
+
+        self.analysis_page = AnalysisPage(lang_mgr=self.lang_mgr)
+
+        # Liaison directe Docking -> Analyse
+        self.docking_page.analysis_page = self.analysis_page
+
+        # Liaison directe Docking -> en-tête (cible active affichée)
+        self.docking_page.target_combo.currentTextChanged.connect(
+            self.header_target_label.setText
+        )
+
+        self.header_target_label.setText(
+            self.docking_page.target_combo.currentText()
+        )
+
+        self.workspace.addWidget(
+            self.analysis_page
+        )
+
+        self.visualization_page = VisualizationPage(
+            docking_page=getattr(self, "docking_page", None),
+            analysis_page=getattr(self, "analysis_page", None),
+            lang_mgr=getattr(self, "lang_mgr", None),
+        )
+
+        self.workspace.addWidget(
+            self.visualization_page
+        )
+
+        self.credits_page = CreditsPage()
+
+        self.workspace.addWidget(
+            self.credits_page
+        )
+
+        body_layout.addWidget(
+            self.workspace,
+            1,
+        )
+
+... [tronque : 138 lignes en tout]
+
+##############################################################################
+# None.main  (lignes 10716-10776)
+##############################################################################
+def main():
+
+    app = QApplication(sys.argv)
+
+    app.setApplicationName(
+        "VINA Studio"
+    )
+
+    app.setOrganizationName(
+        "VINA Studio"
+    )
+
+    app.setStyle(
+        "Fusion"
+    )
+
+    # Palette explicite : evite toute fuite du theme sombre du systeme
+    # d'exploitation sur les sous-elements que le QSS ne couvre pas
+    # explicitement (en-tetes verticaux, coins de tableaux, popups...).
+    # Sans cela, Fusion retombe sur la palette du bureau (GTK/Yaru
+    # sombre ici), d'ou les zones noires residuelles.
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(COLORS["window"]))
+    palette.setColor(QPalette.WindowText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Base, QColor(COLORS["panel"]))
+    palette.setColor(QPalette.AlternateBase, QColor(COLORS["surface_alt"]))
+    palette.setColor(QPalette.ToolTipBase, QColor(COLORS["panel"]))
+    palette.setColor(QPalette.ToolTipText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Text, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Button, QColor(COLORS["surface"]))
+    palette.setColor(QPalette.ButtonText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.BrightText, QColor("#ffffff"))
+    palette.setColor(QPalette.Link, QColor(COLORS["accent"]))
+    palette.setColor(QPalette.Highlight, QColor(COLORS["accent"]))
+    palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+    palette.setColor(QPalette.PlaceholderText, QColor(COLORS["text_muted"]))
+    palette.setColor(
+        QPalette.Disabled, QPalette.WindowText, QColor(COLORS["text_muted"])
+    )
+    palette.setColor(
+        QPalette.Disabled, QPalette.Text, QColor(COLORS["text_muted"])
+    )
+    palette.setColor(
+        QPalette.Disabled, QPalette.ButtonText, QColor(COLORS["text_muted"])
+    )
+
+    app.setPalette(palette)
+
+    apply_runtime_preferences()
+
+    font = QFont(
+        str(GLASS_PREFERENCES.get("font_family") or "Noto Sans"),
+        10,
+    )
+
+    app.setFont(font)
+
+    window = MainWindow()
+    window.show()
+
+    return app.exec()

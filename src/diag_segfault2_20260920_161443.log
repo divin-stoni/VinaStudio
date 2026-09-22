@@ -1,0 +1,316 @@
+=============== 1. main.py (lignes 1-130) ===============
+import os
+
+# Empeche toute integration de theme de bureau (GTK / qt6ct / qt5ct /
+# xdg-desktop-portal "Settings") de repousser sa propre palette (avec
+# son bleu d'accent a lui) par-dessus notre theme "verre liquide"
+# explicite — meme APRES app.setPalette(...). Cause frequente de
+# boutons qui restent bleu vif malgre un QSS qui dit le contraire.
+# DOIT rester avant tout import de Qt : le plugin de theme est choisi
+# a la creation de QApplication, pas modifiable apres coup.
+os.environ.setdefault("QT_QPA_PLATFORMTHEME", "")
+
+import sys
+from pathlib import Path
+
+# ----------------------------------------------------------------------
+# Rend les imports "from src...." robustes, que le script soit lance
+# depuis MexAB_MexR_Analyzer_BETA/ ou depuis MexAB_MexR_Analyzer_BETA/src/.
+# On s'assure que le dossier PARENT de "src" est sur sys.path.
+# ----------------------------------------------------------------------
+_SRC_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SRC_DIR.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from PySide6.QtGui import QFont, QFontDatabase, QPalette, QColor
+from PySide6.QtWidgets import QApplication
+
+from src.gui.main_window import MainWindow, APP_STYLE, COLORS
+
+
+def main():
+    app = QApplication(sys.argv)
+
+    app.setApplicationName("VINA Studio")
+    app.setOrganizationName("VINA Studio")
+
+    # ----------------------------------------------------------
+    # STYLE VINA STUDIO
+    # ----------------------------------------------------------
+
+    app.setStyle("Fusion")
+
+    # Palette explicite : evite toute fuite du theme sombre du systeme
+    # d'exploitation sur les sous-elements que le QSS ne couvre pas
+    # explicitement (en-tetes verticaux, coins de tableaux, popups...).
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(COLORS["window"]))
+    palette.setColor(QPalette.WindowText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Base, QColor(COLORS["panel"]))
+    palette.setColor(QPalette.AlternateBase, QColor("#f6f8fd"))
+    palette.setColor(QPalette.ToolTipBase, QColor(COLORS["panel"]))
+    palette.setColor(QPalette.ToolTipText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Text, QColor(COLORS["text"]))
+    palette.setColor(QPalette.Button, QColor(COLORS["surface"]))
+    palette.setColor(QPalette.ButtonText, QColor(COLORS["text"]))
+    palette.setColor(QPalette.BrightText, QColor("#ffffff"))
+    palette.setColor(QPalette.Link, QColor(COLORS["accent"]))
+    palette.setColor(QPalette.Highlight, QColor(COLORS["accent"]))
+    palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+    palette.setColor(QPalette.PlaceholderText, QColor(COLORS["text_muted"]))
+    palette.setColor(
+        QPalette.Disabled, QPalette.WindowText, QColor(COLORS["text_muted"])
+    )
+    palette.setColor(
+        QPalette.Disabled, QPalette.Text, QColor(COLORS["text_muted"])
+    )
+    palette.setColor(
+        QPalette.Disabled, QPalette.ButtonText, QColor(COLORS["text_muted"])
+    )
+
+    app.setPalette(palette)
+
+    app.setStyleSheet(APP_STYLE)
+
+    # Police embarquee (au lieu de "Noto Sans", non garantie presente
+    # sur toutes les machines Windows) : chargement explicite depuis
+    # un fichier .ttf inclus dans l'application, pour un rendu et des
+    # dimensions de texte identiques sur toutes les plateformes.
+    _font_path = _PROJECT_ROOT / "src" / "assets" / "fonts" / "DejaVuSans.ttf"
+    if getattr(sys, "frozen", False):
+        _font_path = Path(sys._MEIPASS) / "assets" / "fonts" / "DejaVuSans.ttf"
+
+    _font_family = "Sans Serif"
+    if _font_path.exists():
+        _font_id = QFontDatabase.addApplicationFont(str(_font_path))
+        _families = QFontDatabase.applicationFontFamilies(_font_id)
+        if _families:
+            _font_family = _families[0]
+
+    app.setFont(
+        QFont(
+            _font_family,
+            10,
+        )
+    )
+
+    # ----------------------------------------------------------
+    # FENÊTRE PRINCIPALE
+    # ----------------------------------------------------------
+
+    window = MainWindow()
+    window.show()
+
+    return app.exec()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+=============== 2. FILTRES D'EVENEMENTS / SCHEMES / PROFILS ===============
+./patch_theme_blur.py:635:        popup.installEventFilter(self)
+./patch_theme_blur.py:770:    def eventFilter(self, obj, event):
+./patch_theme_blur.py:789:        app.installEventFilter(self)
+./patch_theme_blur.py:824:    def eventFilter(self, obj, event):
+./gui/main_window.py:1264:        popup.installEventFilter(self)
+./gui/main_window.py:1399:    def eventFilter(self, obj, event):
+./gui/main_window.py:1418:        app.installEventFilter(self)
+./gui/main_window.py:1453:    def eventFilter(self, obj, event):
+./gui/main_window.py:2575:        widget.installEventFilter(self)
+./gui/main_window.py:2578:    def eventFilter(self, obj, event):
+./gui/main_window.py:5298:        self._web_channel.registerObject("bridge", self._hover_bridge)
+./gui/main_window.py:5299:        self.receptor_viewer.page().setWebChannel(self._web_channel)
+
+=============== 3. CHARGEMENT DES PAGES WEB (setHtml/load/qrc) ===============
+./gui/viewer_template.py:29:  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+./gui/main_window.py:5294:        self.receptor_viewer.setHtml(VIEWER_HTML)
+./gui/main_window.py:9442:        self.interaction_3d_viewer.setHtml(VIEWER_HTML)
+
+=============== 4. main_window.py autour du visualiseur receptor (5265-5320) ===============
+        _pocket_mode_row.addWidget(self._pocket_detail_button)
+
+        _pocket_mode_row.addStretch(1)
+        viewer_layout.addLayout(_pocket_mode_row)
+
+        self._pocket_list_hint = make_label(
+            "Choisis une poche (ou navigue avec les flèches) : elle "
+            "s'affiche seule, caméra recadrée — pratique pour une "
+            "capture d'écran nette.",
+            "SectionDescription",
+        )
+        self._pocket_list_hint.setWordWrap(True)
+        self._pocket_list_hint.setVisible(False)
+        viewer_layout.addWidget(self._pocket_list_hint)
+
+        self.viewer_stack = QStackedWidget()
+
+        self.receptor_viewer = QWebEngineView()
+        self.receptor_viewer.setMinimumHeight(380)
+        self._viewer_loaded = False
+        self._current_viewer_profile = None
+        self._pending_viewer_box = None
+        self._viewer_box_update_timer = QTimer(self)
+        self._viewer_box_update_timer.setSingleShot(True)
+        self._viewer_box_update_timer.setInterval(24)
+        self._viewer_box_update_timer.timeout.connect(
+            self._flush_viewer_box_update
+        )
+        self.receptor_viewer.loadFinished.connect(self._on_viewer_loaded)
+        self.receptor_viewer.setHtml(VIEWER_HTML)
+
+        self._hover_bridge = _ResidueHoverBridge()
+        self._web_channel = QWebChannel()
+        self._web_channel.registerObject("bridge", self._hover_bridge)
+        self.receptor_viewer.page().setWebChannel(self._web_channel)
+
+        self.viewer_placeholder = make_label(
+            "Visualisation désactivée en mode double cible."
+        )
+        self.viewer_placeholder.setAlignment(Qt.AlignCenter)
+        self.viewer_placeholder.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; padding: 60px;"
+        )
+
+        self.viewer_stack.addWidget(self.receptor_viewer)
+        self.viewer_stack.addWidget(self.viewer_placeholder)
+
+        viewer_layout.addWidget(self.viewer_stack)
+
+        right_column_layout.addWidget(viewer_panel)
+        left_column_layout.addStretch(1)
+
+
+        # ----------------------------------------------------------
+        # EXECUTION
+        # ----------------------------------------------------------
+
+=============== 5. main_window.py autour de la ligne 6680 (6660-6720) ===============
+        )
+
+    def _on_generic_grid_changed(self, target_key):
+        panel_data = self.generic_panels.get(target_key)
+
+        if panel_data is None or panel_data["profile"] is None:
+            return
+
+        self._sync_grid_profile(panel_data["profile"], panel_data["fields"])
+
+        if self.current_single_target == target_key:
+            self._update_viewer_box(panel_data["profile"].grid_box)
+
+    # ------------------------------------------------------------------
+    # VISUALISEUR 3D
+    # ------------------------------------------------------------------
+
+    def _on_viewer_loaded(self, ok):
+        """
+        Appelé une fois que VIEWER_HTML a fini de charger dans
+        QWebEngineView (chargement de la page HTML elle-même — pas
+        encore un récepteur). Charge alors la cible actuellement
+        affichée, si une cible unique est active.
+        """
+
+        self._viewer_loaded = bool(ok)
+
+        if not self._viewer_loaded or self.current_single_target is None:
+            return
+
+        profile = (
+            self.mexb_profile
+            if self.current_single_target == "MexB"
+            else self.mexr_profile
+        )
+
+        self._load_viewer_receptor(profile)
+
+    def _load_viewer_receptor(self, profile):
+        """
+        Charge (ou recharge) le récepteur + la grid box d'un profil
+        dans le visualiseur. Appelé au changement de cible unique.
+        """
+
+        if profile is None or not self._viewer_loaded:
+            return
+
+        pdb_path = profile.pdb_path_for_viewer
+
+        self._current_viewer_profile = profile
+        self._clear_pocket_list()
+
+        if pdb_path is None or not pdb_path.exists():
+            return
+
+        pdb_text = pdb_path.read_text(encoding="utf-8", errors="ignore")
+
+        cx, cy, cz = profile.grid_box.center
+        sx, sy, sz = profile.grid_box.size
+
+        script = (
+
+=============== 6. main_window.py autour du visualiseur interaction 3D (9425-9460) ===============
+        layout.setContentsMargins(28, 26, 28, 26)
+        layout.setSpacing(14)
+
+        header = QHBoxLayout()
+        header.addWidget(
+            self._t_label(
+                "viz_tab_interaction3d",
+                "Interaction 3D",
+                "SectionTitle",
+            )
+        )
+        # --- Initialisation de la vue ---
+        self.interaction_3d_viewer = QWebEngineView()
+        self.interaction_3d_viewer.setMinimumHeight(520)
+        self.interaction_3d_viewer.loadFinished.connect(
+            self._on_interaction_viewer_loaded
+        )
+        self.interaction_3d_viewer.setHtml(VIEWER_HTML)
+
+        # --- Initialisation du poller maintenant que le viewer existe ---
+        self._interaction_3d_viewer_poller = _ViewerDragRepaintPoller(self.interaction_3d_viewer)
+        header.addStretch()
+
+        self.interaction_3d_molecule_combo = QComboBox()
+        self.interaction_3d_molecule_combo.currentTextChanged.connect(
+            self._on_3d_molecule_changed
+        )
+        header.addWidget(self.interaction_3d_molecule_combo)
+        layout.addLayout(header)
+
+        panel = QFrame()
+        panel.setObjectName("ContentPanel")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(14, 12, 14, 14)
+        panel_layout.setSpacing(8)
+        panel_layout.addWidget(
+
+=============== 7. definition de gui_debug ===============
+./gui/main_window.py:9705:def gui_debug(message):
+
+=============== 8. AUTRES VERSIONS DE PYTHON DISPONIBLES ===============
+/usr/bin/python3
+/usr/bin/python3-config
+/usr/bin/python3.14
+/usr/bin/python3.14-config
+PySide6                   6.11.2
+PySide6_Addons            6.11.2
+PySide6_Essentials        6.11.2
+shiboken6                 6.11.2
+
+=============== 9. MINI-TEST A : QWebEngineView + QWebChannel SANS filtre global ===============
+TITRE PAGE: CANAL_OK
+FIN NORMALE (mode=nofilter)
+>>> code de sortie A : 0 (0 = OK, 139 = segfault)
+
+=============== 10. MINI-TEST B : idem AVEC un filtre d'evenements global vide ===============
+Fatal Python error: Segmentation fault
+
+Current thread 0x0000715132329200 [python3] (most recent call first):
+  File "/tmp/mini_webengine_test.py", line 34 in <module>
+
+Current thread's C stack trace (most recent call first):
+  <truncated rest of calls>
+
+>>> code de sortie B : 139 (0 = OK, 139 = segfault)

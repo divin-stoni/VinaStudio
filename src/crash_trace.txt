@@ -1,0 +1,855 @@
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7fffd01ff6c0 (LWP 103028)]
+[New Thread 0x7fffcf9fe6c0 (LWP 103029)]
+[New Thread 0x7fffcf1fd6c0 (LWP 103030)]
+[New Thread 0x7fffce9fc6c0 (LWP 103031)]
+[New Thread 0x7fffce1fb6c0 (LWP 103032)]
+[New Thread 0x7fffcd9fa6c0 (LWP 103033)]
+[New Thread 0x7fffcd1f96c0 (LWP 103034)]
+[New Thread 0x7fffb47ff6c0 (LWP 103035)]
+[New Thread 0x7fffb3ffe6c0 (LWP 103036)]
+[New Thread 0x7fffb37fd6c0 (LWP 103037)]
+[New Thread 0x7fffb2ffc6c0 (LWP 103038)]
+[New Thread 0x7fffb27fb6c0 (LWP 103039)]
+[New Thread 0x7fffb1ffa6c0 (LWP 103040)]
+[New Thread 0x7fffb17f96c0 (LWP 103041)]
+[New Thread 0x7fffa1dce6c0 (LWP 103042)]
+[New Thread 0x7fff9bfff6c0 (LWP 103043)]
+[New Thread 0x7fff9b7fe6c0 (LWP 103044)]
+[New Thread 0x7fff9affd6c0 (LWP 103045)]
+[New Thread 0x7fff9a7fc6c0 (LWP 103046)]
+[New Thread 0x7fff99ffb6c0 (LWP 103047)]
+[New Thread 0x7fff997fa6c0 (LWP 103048)]
+[New Thread 0x7fff98c306c0 (LWP 103053)]
+[New Thread 0x7fff83fff6c0 (LWP 103054)]
+[New Thread 0x7fff77fff6c0 (LWP 103055)]
+[New Thread 0x7fff777fe6c0 (LWP 103056)]
+[New Thread 0x7fff76ffd6c0 (LWP 103057)]
+[New Thread 0x7fff767fc6c0 (LWP 103058)]
+[New Thread 0x7fff75ffb6c0 (LWP 103059)]
+[New Thread 0x7fff757fa6c0 (LWP 103060)]
+[Thread 0x7fff757fa6c0 (LWP 103060) exited]
+[Thread 0x7fff75ffb6c0 (LWP 103059) exited]
+[Thread 0x7fff767fc6c0 (LWP 103058) exited]
+[Thread 0x7fff76ffd6c0 (LWP 103057) exited]
+[New Thread 0x7fff76ffd6c0 (LWP 103061)]
+[New Thread 0x7fff767fc6c0 (LWP 103062)]
+[New Thread 0x7fff75ffb6c0 (LWP 103063)]
+[New Thread 0x7fff757fa6c0 (LWP 103064)]
+[New Thread 0x7fff4cdff6c0 (LWP 103065)]
+[New Thread 0x7fff661ff6c0 (LWP 103066)]
+[Thread 0x7fff661ff6c0 (LWP 103066) exited]
+[Thread 0x7fff4cdff6c0 (LWP 103065) exited]
+[Thread 0x7fff757fa6c0 (LWP 103064) exited]
+[Thread 0x7fff75ffb6c0 (LWP 103063) exited]
+[Thread 0x7fff767fc6c0 (LWP 103062) exited]
+[Thread 0x7fff76ffd6c0 (LWP 103061) exited]
+[New Thread 0x7fff76ffd6c0 (LWP 103067)]
+[Detaching after fork from child process 103068]
+[Thread 0x7fffb17f96c0 (LWP 103041) exited]
+[Thread 0x7fffb1ffa6c0 (LWP 103040) exited]
+[Thread 0x7fffb27fb6c0 (LWP 103039) exited]
+[Thread 0x7fffb2ffc6c0 (LWP 103038) exited]
+[Thread 0x7fffb37fd6c0 (LWP 103037) exited]
+[Thread 0x7fffb3ffe6c0 (LWP 103036) exited]
+[Thread 0x7fffb47ff6c0 (LWP 103035) exited]
+[Thread 0x7fffcd1f96c0 (LWP 103034) exited]
+[Thread 0x7fffcd9fa6c0 (LWP 103033) exited]
+[Thread 0x7fffce1fb6c0 (LWP 103032) exited]
+[Thread 0x7fffce9fc6c0 (LWP 103031) exited]
+[Thread 0x7fffcf1fd6c0 (LWP 103030) exited]
+[Thread 0x7fffcf9fe6c0 (LWP 103029) exited]
+[Thread 0x7fffd01ff6c0 (LWP 103028) exited]
+[Detaching after fork from child process 103069]
+[Detaching after fork from child process 103070]
+[New Thread 0x7fffcd1f96c0 (LWP 103071)]
+[New Thread 0x7fffcd9fa6c0 (LWP 103072)]
+[New Thread 0x7fffce1fb6c0 (LWP 103073)]
+[New Thread 0x7fffce9fc6c0 (LWP 103074)]
+[New Thread 0x7fffcf9fe6c0 (LWP 103076)]
+[New Thread 0x7fffd01ff6c0 (LWP 103075)]
+[New Thread 0x7fffcf1fd6c0 (LWP 103077)]
+[New Thread 0x7fffb47ff6c0 (LWP 103078)]
+[New Thread 0x7fffb3ffe6c0 (LWP 103079)]
+[New Thread 0x7fffb37fd6c0 (LWP 103080)]
+[New Thread 0x7fffb2ffc6c0 (LWP 103081)]
+[New Thread 0x7fffb23ff6c0 (LWP 103082)]
+[New Thread 0x7fffb1bfe6c0 (LWP 103083)]
+[New Thread 0x7fff75ffb6c0 (LWP 103085)]
+[New Thread 0x7fff767fc6c0 (LWP 103084)]
+[New Thread 0x7fff65fff6c0 (LWP 103087)]
+[New Thread 0x7fff757fa6c0 (LWP 103086)]
+[New Thread 0x7fff657fe6c0 (LWP 103088)]
+[New Thread 0x7fff64ffd6c0 (LWP 103089)]
+[New Thread 0x7fff4ffff6c0 (LWP 103090)]
+[New Thread 0x7fff4cbff6c0 (LWP 103091)]
+[New Thread 0x7fff00dff6c0 (LWP 103092)]
+[New Thread 0x7ffefbfff6c0 (LWP 103098)]
+[Thread 0x7ffefbfff6c0 (LWP 103098) exited]
+[New Thread 0x7ffefbfff6c0 (LWP 103102)]
+[New Thread 0x7fff4f7fe6c0 (LWP 103103)]
+[New Thread 0x7fff4effd6c0 (LWP 103104)]
+[New Thread 0x7fff4e7fc6c0 (LWP 103105)]
+[New Thread 0x7fff03fff6c0 (LWP 103106)]
+[New Thread 0x7fff037fe6c0 (LWP 103107)]
+[New Thread 0x7fff02ffd6c0 (LWP 103108)]
+[New Thread 0x7fff027fc6c0 (LWP 103109)]
+[New Thread 0x7fff01ffb6c0 (LWP 103110)]
+[New Thread 0x7fff017fa6c0 (LWP 103111)]
+[New Thread 0x7ffefb7fe6c0 (LWP 103112)]
+[New Thread 0x7ffefaffd6c0 (LWP 103113)]
+[New Thread 0x7ffefa7fc6c0 (LWP 103114)]
+[New Thread 0x7ffef9ffb6c0 (LWP 103115)]
+[Thread 0x7ffef9ffb6c0 (LWP 103115) exited]
+[Thread 0x7ffefa7fc6c0 (LWP 103114) exited]
+[Thread 0x7ffefaffd6c0 (LWP 103113) exited]
+[Thread 0x7ffefb7fe6c0 (LWP 103112) exited]
+[New Thread 0x7ffefb7fe6c0 (LWP 103116)]
+[New Thread 0x7ffefaffd6c0 (LWP 103117)]
+[New Thread 0x7ffefa7fc6c0 (LWP 103118)]
+[New Thread 0x7ffef9ffb6c0 (LWP 103119)]
+[New Thread 0x7ffef97fa6c0 (LWP 103120)]
+[New Thread 0x7ffef8ff96c0 (LWP 103121)]
+[New Thread 0x7ffeb7fff6c0 (LWP 103122)]
+[New Thread 0x7ffeb77fe6c0 (LWP 103123)]
+
+Thread 1 "python3" received signal SIGSEGV, Segmentation fault.
+0x00007ffff698360e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/libpyside6.abi3.so.6.11
+
+Thread 82 (Thread 0x7ffeb77fe6c0 (LWP 103123) "Thread (pooled)"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=87003416, a2=<optimized out>, a3=a3@entry=4108491019, a4=a4@entry=140731977030688, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x52f9118, expected=4108491019, op=8388233, abstime=0x7ffeb77fdc20, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x52f9118, expected=4108491019, clockid=32767, abstime=0x7ffeb77fdc20, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x52f9118, expected=expected@entry=224, clockid=clockid@entry=1, abstime=abstime@entry=0x7ffeb77fdd30, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca3382 in __pthread_cond_wait_common (cond=0x52f90f8, mutex=0x52f90d0, clockid=<optimized out>, abstime=0x7ffeb77fdd30) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_timedwait64 (cond=0x52f90f8, mutex=0x52f90d0, abstime=0x7ffeb77fdd30) at ./nptl/pthread_cond_wait.c:478
+#7  0x00007ffff535fc9e in QWaitCondition::wait(QMutex*, QDeadlineTimer) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff52a7917 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 81 (Thread 0x7ffeb7fff6c0 (LWP 103122) "Thread (pooled)"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=111788856, a2=<optimized out>, a3=a3@entry=4108491019, a4=a4@entry=140731985423392, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x6a9c338, expected=4108491019, op=8388233, abstime=0x7ffeb7ffec20, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x6a9c338, expected=4108491019, clockid=32767, abstime=0x7ffeb7ffec20, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x6a9c338, expected=expected@entry=234, clockid=clockid@entry=1, abstime=abstime@entry=0x7ffeb7ffed30, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca3382 in __pthread_cond_wait_common (cond=0x6a9c318, mutex=0x6a9c2f0, clockid=<optimized out>, abstime=0x7ffeb7ffed30) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_timedwait64 (cond=0x6a9c318, mutex=0x6a9c2f0, abstime=0x7ffeb7ffed30) at ./nptl/pthread_cond_wait.c:478
+#7  0x00007ffff535fc9e in QWaitCondition::wait(QMutex*, QDeadlineTimer) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff52a7917 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 80 (Thread 0x7ffef8ff96c0 (LWP 103121) "Thread (pooled)"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=111788280, a2=<optimized out>, a3=a3@entry=4108491019, a4=a4@entry=140733075917856, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x6a9c0f8, expected=4108491019, op=8388233, abstime=0x7ffef8ff8c20, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x6a9c0f8, expected=4108491019, clockid=32767, abstime=0x7ffef8ff8c20, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x6a9c0f8, expected=expected@entry=230, clockid=clockid@entry=1, abstime=abstime@entry=0x7ffef8ff8d30, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca3382 in __pthread_cond_wait_common (cond=0x6a9c0d8, mutex=0x6a9c0b0, clockid=<optimized out>, abstime=0x7ffef8ff8d30) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_timedwait64 (cond=0x6a9c0d8, mutex=0x6a9c0b0, abstime=0x7ffef8ff8d30) at ./nptl/pthread_cond_wait.c:478
+#7  0x00007ffff535fc9e in QWaitCondition::wait(QMutex*, QDeadlineTimer) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff52a7917 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 79 (Thread 0x7ffef97fa6c0 (LWP 103120) "Thread (pooled)"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=87011096, a2=<optimized out>, a3=a3@entry=4108491019, a4=a4@entry=140733084310560, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x52faf18, expected=4108491019, op=8388233, abstime=0x7ffef97f9c20, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x52faf18, expected=4108491019, clockid=32767, abstime=0x7ffef97f9c20, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x52faf18, expected=expected@entry=218, clockid=clockid@entry=1, abstime=abstime@entry=0x7ffef97f9d30, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca3382 in __pthread_cond_wait_common (cond=0x52faef8, mutex=0x52faed0, clockid=<optimized out>, abstime=0x7ffef97f9d30) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_timedwait64 (cond=0x52faef8, mutex=0x52faed0, abstime=0x7ffef97f9d30) at ./nptl/pthread_cond_wait.c:478
+#7  0x00007ffff535fc9e in QWaitCondition::wait(QMutex*, QDeadlineTimer) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff52a7917 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 78 (Thread 0x7ffef9ffb6c0 (LWP 103119) "python3:gdrv0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=107345000, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x665f468, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x665f468, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x665f468, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x665f418, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x665f418) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 77 (Thread 0x7ffefa7fc6c0 (LWP 103118) "python:traceq0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=108962976, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x67ea4a0, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x67ea4a0, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x67ea4a0, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x67ea450, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x67ea450) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 76 (Thread 0x7ffefaffd6c0 (LWP 103117) "python3:gdrv0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=109291512, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x683a7f8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x683a7f8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x683a7f8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x683a7a8, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x683a7a8) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 75 (Thread 0x7ffefb7fe6c0 (LWP 103116) "python:traceq0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=109204944, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x68255d0, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x68255d0, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x68255d0, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x6825580, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x6825580) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 70 (Thread 0x7fff017fa6c0 (LWP 103111) "VizCompositorTh"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733218527632, a2=<optimized out>, a3=a3@entry=4255958529, a4=a4@entry=140733193388034, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=32767, futex_word=0x7fff017f9990, expected=4255958529, op=32374, abstime=0x7fff00000002, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff017f9990, expected=4255958529, clockid=0, abstime=0x7fff00000002, private=32767, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff017f9990, expected=expected@entry=0, clockid=clockid@entry=1, abstime=abstime@entry=0x7fff017f9860, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca3382 in __pthread_cond_wait_common (cond=0x7fff017f9970, mutex=0x7fff017f9948, clockid=<optimized out>, abstime=0x7fff017f9860) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_timedwait64 (cond=0x7fff017f9970, mutex=0x7fff017f9948, abstime=0x7fff017f9860) at ./nptl/pthread_cond_wait.c:478
+#7  0x00007fffe931bbbf in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x000000000001e422 in ?? ()
+#9  0x00000000185fdeb1 in ?? ()
+#10 0x000000000001e422 in ?? ()
+#11 0x0000000017642161 in ?? ()
+#12 0x00007fffefba1040 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#13 0x00007ffec8001330 in ?? ()
+#14 0x0000000000000000 in ?? ()
+
+Thread 69 (Thread 0x7fff01ffb6c0 (LWP 103110) "python3:sh5"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 68 (Thread 0x7fff027fc6c0 (LWP 103109) "python3:sh4"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 67 (Thread 0x7fff02ffd6c0 (LWP 103108) "python3:sh3"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 66 (Thread 0x7fff037fe6c0 (LWP 103107) "python3:sh2"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 65 (Thread 0x7fff03fff6c0 (LWP 103106) "python3:sh1"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 64 (Thread 0x7fff4e7fc6c0 (LWP 103105) "python3:gdrv0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462326760, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff1007ade8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff1007ade8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff1007ade8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff1007ad98, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff1007ad98) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 63 (Thread 0x7fff4effd6c0 (LWP 103104) "python:traceq0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462242048, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10066300, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10066300, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10066300, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff100662b0, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff100662b0) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 62 (Thread 0x7fff4f7fe6c0 (LWP 103103) "python3:sh0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733462031320, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10032bd8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10032bd8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10032bd8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10032b88, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10032b88) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 61 (Thread 0x7ffefbfff6c0 (LWP 103102) "python3:disk$0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733461861712, a2=<optimized out>, a3=a3@entry=1313019121, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff10009550, expected=1313019121, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff10009550, expected=1313019121, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff10009550, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff10009500, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff10009500) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 59 (Thread 0x7fff00dff6c0 (LWP 103092) "ThreadPoolSingl"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140733208062832, a2=<optimized out>, a3=a3@entry=14674912, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff00dfeb70, expected=14674912, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff00dfeb70, expected=14674912, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff00dfeb70, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff00dfeb28, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff00dfeb28) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x0000000000000000 in ?? ()
+
+Thread 58 (Thread 0x7fff4cbff6c0 (LWP 103091) "NetworkService"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=0, a6=0, nr=232) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=0, a6=a6@entry=0, nr=232) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d378b5 in epoll_wait (epfd=<optimized out>, events=<optimized out>, maxevents=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#4  0x00007fffe9342eb4 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000000 in ?? ()
+
+Thread 57 (Thread 0x7fff4ffff6c0 (LWP 103090) "VideoCaptureThr"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140734535559568, a2=<optimized out>, a3=a3@entry=1342171200, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff4fffe990, expected=1342171200, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff4fffe990, expected=1342171200, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff4fffe990, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff4fffe948, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff4fffe948) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00000001000192b2 in ?? ()
+#9  0x00007fffe931bd00 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#10 0x00007fff080017f8 in ?? ()
+#11 0x00007fff4fffe928 in ?? ()
+#12 0x0000000000000000 in ?? ()
+
+Thread 56 (Thread 0x7fff64ffd6c0 (LWP 103089) "Chrome_ChildIOT"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=0, a6=0, nr=232) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=0, a6=a6@entry=0, nr=232) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d378b5 in epoll_wait (epfd=<optimized out>, events=<optimized out>, maxevents=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#4  0x00007fffe9342eb4 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000000 in ?? ()
+
+Thread 55 (Thread 0x7fff657fe6c0 (LWP 103088) "Chrome_InProcGp"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140734896265616, a2=<optimized out>, a3=a3@entry=96098168, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff657fd990, expected=96098168, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff657fd990, expected=96098168, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff657fd990, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff657fd948, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff657fd948) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007f01000192b0 in ?? ()
+#9  0x00007fff10316900 in ?? ()
+#10 0x00007fffefba1040 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#11 0x00007fff10316970 in ?? ()
+#12 0x0000000000000000 in ?? ()
+
+Thread 54 (Thread 0x7fff757fa6c0 (LWP 103086) "CompositorTileW"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=93970564, a2=<optimized out>, a3=a3@entry=3937355076, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x599e084, expected=3937355076, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x599e084, expected=3937355076, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x599e084, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x599dfc8, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x599dfc8) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007fff5c001160 in ?? ()
+#9  0x0000000005de5c18 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 53 (Thread 0x7fff65fff6c0 (LWP 103087) "inotify_reader"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=0, nr=7) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d27c0e in __GI___poll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/poll.c:29
+#4  0x00007fffe9322fd6 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x00007fff65ffed40 in ?? ()
+#6  0x00007ffff7cb3ced in __libc_malloc2 (bytes=140734904659408) at ./malloc/malloc.c:3261
+#7  0x00007fffe931be3b in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007fff65fff6c0 in ?? ()
+#9  0x00007fffcf9fcb20 in ?? ()
+#10 0x00007fff65fffce4 in ?? ()
+#11 0x00007fffcf9fcc27 in ?? ()
+#12 0x00007fff65ffef30 in ?? ()
+#13 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+Backtrace stopped: frame did not save the PC
+
+Thread 52 (Thread 0x7fff767fc6c0 (LWP 103084) "ThreadPoolForeg"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140735181470576, a2=<optimized out>, a3=a3@entry=1988082656, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff767fbb70, expected=1988082656, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff767fbb70, expected=1988082656, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff767fbb70, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff767fbb28, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff767fbb28) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007fff54001bf0 in ?? ()
+#9  0x00007fff54001bf0 in ?? ()
+#10 0x00007fff767fbb10 in ?? ()
+#11 0x00007fff767fbba0 in ?? ()
+#12 0x0000000000000000 in ?? ()
+
+Thread 51 (Thread 0x7fff75ffb6c0 (LWP 103085) "ThreadPoolForeg"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140735173077872, a2=<optimized out>, a3=a3@entry=93962432, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fff75ffab70, expected=93962432, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fff75ffab70, expected=93962432, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fff75ffab70, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fff75ffab28, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fff75ffab28) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x0000000000000000 in ?? ()
+
+Thread 50 (Thread 0x7fffb1bfe6c0 (LWP 103083) "python3:sh0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=97918856, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x5d61f88, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x5d61f88, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5d61f88, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x5d61f38, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x5d61f38) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 49 (Thread 0x7fffb23ff6c0 (LWP 103082) "python3:disk$0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=97921008, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x5d627f0, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x5d627f0, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5d627f0, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x5d627a0, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x5d627a0) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 48 (Thread 0x7fffb2ffc6c0 (LWP 103081) "python3:gdrv0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=94614280, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x5a3b308, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x5a3b308, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5a3b308, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x5a3b2b8, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x5a3b2b8) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 47 (Thread 0x7fffb37fd6c0 (LWP 103080) "python:traceq0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=98146048, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x5d99700, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x5d99700, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5d99700, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x5d996b0, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x5d996b0) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 46 (Thread 0x7fffb3ffe6c0 (LWP 103079) "python3:gdrv0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=96544984, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x5c128d8, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x5c128d8, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5c128d8, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x5c12888, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x5c12888) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 45 (Thread 0x7fffb47ff6c0 (LWP 103078) "python:traceq0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=94254880, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x59e3720, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x59e3720, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x59e3720, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x59e36d0, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x59e36d0) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 44 (Thread 0x7fffcf1fd6c0 (LWP 103077) "MemoryInfra"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140736668354960, a2=<optimized out>, a3=a3@entry=98343768, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fffcf1fc990, expected=98343768, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fffcf1fc990, expected=98343768, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fffcf1fc990, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fffcf1fc948, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fffcf1fc948) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007f01000192a5 in ?? ()
+#9  0x00007fff34001300 in ?? ()
+#10 0x00007fffefba1040 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#11 0x00007fff34001310 in ?? ()
+#12 0x0000000000000000 in ?? ()
+
+Thread 43 (Thread 0x7fffd01ff6c0 (LWP 103075) "Chrome_IOThread"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=0, a6=0, nr=232) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=0, a6=a6@entry=0, nr=232) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d378b5 in epoll_wait (epfd=<optimized out>, events=<optimized out>, maxevents=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#4  0x00007fffe9342eb4 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000000 in ?? ()
+
+Thread 42 (Thread 0x7fffcf9fe6c0 (LWP 103076) "ThreadPoolForeg"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140736676748144, a2=<optimized out>, a3=a3@entry=3483360224, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fffcf9fdb70, expected=3483360224, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fffcf9fdb70, expected=3483360224, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fffcf9fdb70, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fffcf9fdb28, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fffcf9fdb28) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007fffcf9fda60 in ?? ()
+#9  0x00007ffff7cf5a0d in __GI___clock_gettime (clock_id=<optimized out>, tp=<optimized out>) at ../sysdeps/unix/sysv/linux/clock_gettime.c:42
+#10 0x00007fffe9346daf in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#11 0x7fffffffffffffff in ?? ()
+#12 0x00007fffcf9fdb08 in ?? ()
+#13 0x00007fffcf9fdd10 in ?? ()
+#14 0x7fffffffffffffff in ?? ()
+#15 0x00007fffefba0e18 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#16 0x00007fffcf9fdb00 in ?? ()
+#17 0x0000000000000000 in ?? ()
+
+Thread 41 (Thread 0x7fffce9fc6c0 (LWP 103074) "ThreadPoolSingl"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=140736659962736, a2=<optimized out>, a3=a3@entry=3466574816, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x7fffce9fbb70, expected=3466574816, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x7fffce9fbb70, expected=3466574816, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fffce9fbb70, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x7fffce9fbb28, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x7fffce9fbb28) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fffe931ba50 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x0000000000000000 in ?? ()
+
+Thread 40 (Thread 0x7fffce1fb6c0 (LWP 103073) "PerfettoTrace"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=0, a6=0, nr=232) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=0, a6=a6@entry=0, nr=232) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d378b5 in epoll_wait (epfd=<optimized out>, events=<optimized out>, maxevents=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#4  0x00007fffe9342eb4 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000000 in ?? ()
+
+Thread 39 (Thread 0x7fffcd9fa6c0 (LWP 103072) "ThreadPoolForeg"):
+#0  dl_open_worker_begin (a=0x7fffcd9f8000) at ./elf/dl-open.c:740
+#1  0x00007ffff7fc2513 in __GI__dl_catch_exception (exception=exception@entry=0x7fffcd9f7e60, operate=operate@entry=0x7ffff7fced70 <dl_open_worker_begin>, args=args@entry=0x7fffcd9f8000) at ./elf/dl-catch.c:241
+#2  0x00007ffff7fce20c in dl_open_worker (a=a@entry=0x7fffcd9f8000) at ./elf/dl-open.c:762
+#3  0x00007ffff7fc2513 in __GI__dl_catch_exception (exception=exception@entry=0x7fffcd9f8050, operate=operate@entry=0x7ffff7fce1d0 <dl_open_worker>, args=args@entry=0x7fffcd9f8000) at ./elf/dl-catch.c:241
+#4  0x00007ffff7fce74a in _dl_open (file=0x7fff54011760 "libnss_mdns4_minimal.so.2", mode=<optimized out>, caller_dlopen=0x7ffff7d62e74 <module_load+164>, nsid=<optimized out>, argc=2, argv=0x7fffffffdd18, env=0xcaaf70) at ./elf/dl-open.c:900
+#5  0x00007ffff7d93345 in do_dlopen (ptr=ptr@entry=0x7fffcd9f82d0) at ./elf/dl-libc.c:95
+#6  0x00007ffff7fc2513 in __GI__dl_catch_exception (exception=exception@entry=0x7fffcd9f8250, operate=<optimized out>, args=<optimized out>) at ./elf/dl-catch.c:241
+#7  0x00007ffff7fc2659 in _dl_catch_error (objname=0x7fffcd9f82c0, errstring=0x7fffcd9f82c8, mallocedp=0x7fffcd9f82bf, operate=<optimized out>, args=<optimized out>) at ./elf/dl-catch.c:260
+#8  0x00007ffff7d934a9 in dlerror_run (operate=0x7ffff7d93300 <do_dlopen>, args=0x7fffcd9f82d0) at ./elf/dl-libc.c:45
+#9  __libc_dlopen_mode (name=<optimized out>, mode=mode@entry=-2147483646) at ./elf/dl-libc.c:162
+#10 0x00007ffff7d62e74 in module_load (module=0x7fff54012e60) at ./nss/nss_module.c:187
+#11 0x00007ffff7d63355 in __nss_module_load (module=0x7fff54012e60) at ./nss/nss_module.c:302
+#12 __nss_module_get_function (module=0x7fff54012e60, name=name@entry=0x7ffff7ddf254 "gethostbyname2_r") at ./nss/nss_module.c:328
+#13 0x00007ffff7d63c91 in __GI___nss_lookup_function (ni=<optimized out>, fct_name=<optimized out>) at ./nss/nsswitch.c:129
+#14 __GI___nss_next2 (ni=ni@entry=0x7fffcd9f8658, fct_name=fct_name@entry=0x7ffff7ddf254 "gethostbyname2_r", fct2_name=fct2_name@entry=0x0, fctp=fctp@entry=0x7fffcd9f8660, status=<optimized out>, all_values=all_values@entry=0) at ./nss/nsswitch.c:112
+#15 0x00007ffff7d6ccb1 in __gethostbyname2_r (name=name@entry=0x7fffcd9f9420 "3dmol.org", af=af@entry=2, resbuf=resbuf@entry=0x7fffcd9f8790, buffer=<optimized out>, buflen=1024, result=result@entry=0x7fffcd9f8758, h_errnop=0x7fffcd9fa678) at ../nss/getXXbyYY_r.c:336
+#16 0x00007ffff7d6b223 in try_simple_gethostbyname (name=0x7fffcd9f9420 "3dmol.org", req=0x7fffcd9f9310, tmpbuf=0x7fffcd9f8870, res=0x7fffcd9f8770) at ./nss/getaddrinfo.c:989
+#17 gaih_inet (name=0x7fffcd9f9420 "3dmol.org", service=<optimized out>, req=<optimized out>, pai=0x7fffcd9f8740, naddrs=<synthetic pointer>, tmpbuf=0x7fffcd9f8870) at ./nss/getaddrinfo.c:1177
+#18 __GI_getaddrinfo (name=<optimized out>, service=<optimized out>, hints=<optimized out>, pai=0x7fffcd9f91e8) at ./nss/getaddrinfo.c:2382
+#19 0x00007fffe4de9d54 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#20 0x00007fffcd9f9200 in ?? ()
+#21 0x00007ffff6ac3e44 in operator new(unsigned long) () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+#22 0x00007fffe4de9ef5 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#23 0x0000000000000000 in ?? ()
+
+Thread 38 (Thread 0x7fffcd1f96c0 (LWP 103071) "ThreadPoolServi"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=0, a6=0, nr=232) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=0, a6=a6@entry=0, nr=232) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d378b5 in epoll_wait (epfd=<optimized out>, events=<optimized out>, maxevents=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#4  0x00007fffe9342eb4 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000000 in ?? ()
+
+Thread 37 (Thread 0x7fff76ffd6c0 (LWP 103067) "sandbox_ipc_thr"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=0, nr=7) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d27c0e in __GI___poll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/poll.c:29
+#4  0x00007fffe8199efa in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#5  0x0000000000000030 in ?? ()
+#6  0x00007ffff6ac3e44 in operator new(unsigned long) () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+#7  0x00007fffe931be3b in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#8  0x00007fff76ffd6c0 in ?? ()
+#9  0x00007fffffffbbb0 in ?? ()
+#10 0x00007fff76ffdce4 in ?? ()
+#11 0x00007fffffffbcb7 in ?? ()
+#12 0x00007fff76ffcf30 in ?? ()
+#13 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+Backtrace stopped: frame did not save the PC
+
+Thread 26 (Thread 0x7fff777fe6c0 (LWP 103056) "python3:sh0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=93997112, a2=<optimized out>, a3=a3@entry=0, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x59a4838, expected=0, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x59a4838, expected=0, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x59a4838, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x59a47e8, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x59a47e8) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 25 (Thread 0x7fff77fff6c0 (LWP 103055) "python3:disk$0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca030c in __internal_syscall_cancel (a1=a1@entry=93990464, a2=<optimized out>, a3=a3@entry=2162514945, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=4294967295, nr=202) at ./nptl/cancellation.c:49
+#2  0x00007ffff7ca06e7 in __futex_abstimed_wait_common64 (private=0, futex_word=0x59a2e40, expected=2162514945, op=393, abstime=0x0, cancel=true) at ./nptl/futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=0x59a2e40, expected=2162514945, clockid=0, abstime=0x0, private=0, cancel=true) at ./nptl/futex-internal.c:87
+#4  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x59a2e40, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#5  0x00007ffff7ca30c7 in __pthread_cond_wait_common (cond=<optimized out>, mutex=0x59a2df0, clockid=0, abstime=0x0) at ./nptl/pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=<optimized out>, mutex=0x59a2df0) at ./nptl/pthread_cond_wait.c:453
+#7  0x00007fff80e9dc1d in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#8  0x00007fff80e5361c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#9  0x00007fff80e9db5c in ?? () from /usr/lib/x86_64-linux-gnu/libgallium-26.0.8-1ubuntu0.3.so
+#10 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#11 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 24 (Thread 0x7fff83fff6c0 (LWP 103054) "WaylandEventThr"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=0, nr=7) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d27c0e in __GI___poll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/poll.c:29
+#4  0x00007fffa1e67be0 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/plugins/platforms/../../lib/libQt6WaylandClient.so.6
+#5  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#6  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#7  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 23 (Thread 0x7fff98c306c0 (LWP 103053) "WaylandEventThr"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=a4@entry=0, a5=a5@entry=0, a6=a6@entry=0, nr=7) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d27c0e in __GI___poll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/poll.c:29
+#4  0x00007fffa1e67be0 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/plugins/platforms/../../lib/libQt6WaylandClient.so.6
+#5  0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#6  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#7  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 22 (Thread 0x7fff997fa6c0 (LWP 103048) "dconf worker"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=8, a6=a6@entry=0, nr=271) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d28136 in __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007ffff4dc82f1 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff4dc83c3 in g_main_context_iteration () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007fffa332997d in ?? () from /usr/lib/x86_64-linux-gnu/gio/modules/libdconfsettings.so
+#7  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#8  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#9  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 21 (Thread 0x7fff99ffb6c0 (LWP 103047) "gdbus"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=8, a6=a6@entry=0, nr=271) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d28136 in __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007ffff4dc82f1 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff4dc8577 in g_main_loop_run () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007fffa09c2012 in ?? () from /usr/lib/x86_64-linux-gnu/libgio-2.0.so.0
+#7  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#8  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#9  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 20 (Thread 0x7fff9a7fc6c0 (LWP 103046) "pool-0"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007ffff4df4c0b in g_cond_wait_until () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007ffff4d8ef2d in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007ffff4d8f09d in g_async_queue_timeout_pop () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#4  0x00007ffff4dfe35f in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#7  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 19 (Thread 0x7fff9affd6c0 (LWP 103045) "gmain"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=8, a6=a6@entry=0, nr=271) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d28136 in __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007ffff4dc82f1 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff4dc83c3 in g_main_context_iteration () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007ffff4dc8411 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#7  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#8  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#9  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 18 (Thread 0x7fff9b7fe6c0 (LWP 103044) "pool-spawner"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007ffff4df3eab in g_cond_wait () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007ffff4d8ef6c in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007ffff4dfd714 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#4  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#6  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 17 (Thread 0x7fff9bfff6c0 (LWP 103043) "[pango] fontcon"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007ffff4df3eab in g_cond_wait () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007ffff4d8ef6c in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007ffff4d8efdc in g_async_queue_pop () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#4  0x00007fffa381ddcb in ?? () from /usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0
+#5  0x00007ffff4dfd279 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#7  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 16 (Thread 0x7fffa1dce6c0 (LWP 103042) "QDBusConnection"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007ffff7ca039c in __internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ./nptl/cancellation.c:49
+#2  __syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=a5@entry=8, a6=a6@entry=0, nr=271) at ./nptl/cancellation.c:75
+#3  0x00007ffff7d28136 in __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007ffff4dc82f1 in ?? () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff4dc83c3 in g_main_context_iteration () from /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#6  0x00007ffff548fffe in QEventDispatcherGlib::processEvents(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#7  0x00007ffff5195d1b in QEventLoop::exec(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff52a4153 in QThread::exec() () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff4ccb7ce in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6DBus.so.6
+#10 0x00007ffff5357c4e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#11 0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+#12 0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 1 (Thread 0x7ffff7e2c200 (LWP 103022) "python3"):
+#0  0x00007ffff698360e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/libpyside6.abi3.so.6.11
+#1  0x00007ffff698431a in PySide::getWrapperForQObject(QObject*, _typeobject*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/libpyside6.abi3.so.6.11
+#2  0x00007ffff21a65e3 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtCore.abi3.so
+#3  0x00007ffff21af9fb in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtCore.abi3.so
+#4  0x00007ffff51899de in QCoreApplicationPrivate::sendThroughApplicationEventFilters(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#5  0x00007ffff139573e in QApplicationPrivate::notify_helper(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Widgets.so.6
+#6  0x00007ffff1e3b3df in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtWidgets.abi3.so
+#7  0x00007ffff5189d90 in QCoreApplication::notifyInternal2(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff51edac7 in QObject::doSetProperty(char const*, QVariant const&, QVariant*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007ffff69842e6 in PySide::getWrapperForQObject(QObject*, _typeobject*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/libpyside6.abi3.so.6.11
+#10 0x00007ffff21a65e3 in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtCore.abi3.so
+#11 0x00007ffff21af9fb in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtCore.abi3.so
+#12 0x00007ffff51899de in QCoreApplicationPrivate::sendThroughApplicationEventFilters(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#13 0x00007ffff139573e in QApplicationPrivate::notify_helper(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Widgets.so.6
+#14 0x00007ffff1e3b3df in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/QtWidgets.abi3.so
+#15 0x00007ffff5189d90 in QCoreApplication::notifyInternal2(QObject*, QEvent*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#16 0x00007ffff51ec9fa in QObjectPrivate::setParent_helper(QObject*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#17 0x00007ffff51ed43c in QObject::QObject(QObjectPrivate&, QObject*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#18 0x00007fffe9240c15 in QWebEngineUrlRequestJob::QWebEngineUrlRequestJob(QtWebEngineCore::URLRequestCustomJobDelegate*) () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#19 0x00007fffe4a8e12e in ?? () from /home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/PySide6/Qt/lib/libQt6WebEngineCore.so.6
+#20 0x00007fffffffc958 in ?? ()
+#21 0x00007fffffffc990 in ?? ()
+#22 0x00007fffffffc9b0 in ?? ()
+#23 0x00007fffffffc878 in ?? ()
+#24 0x00007fff1031bfc0 in ?? ()
+#25 0x0000000005bb3b20 in ?? ()
+#26 0x00007fffffffc888 in ?? ()
+#27 0x00007fffffffc968 in ?? ()
+#28 0x00007fffffffc880 in ?? ()
+#29 0x00007fffffffc890 in ?? ()
+#30 0x0000000004e1fe00 in ?? ()
+#31 0x00007fffffffc8b0 in ?? ()
+#32 0x00007fffffffc8d0 in ?? ()
+#33 0x0000000006aed880 in ?? ()
+#34 0x00007fff0c0019e0 in ?? ()
+#35 0x0000000000000000 in ?? ()

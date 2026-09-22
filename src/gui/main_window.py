@@ -48,6 +48,8 @@ from src.gui.viewer_template import VIEWER_HTML
 from src.analysis.statistics_pipeline import run_statistics_pipeline
 from src.analysis.analysis_controller import analyze_docking_csv
 from src.gui import visualization_bridge as viz_bridge
+from src.gui.credits_page import CreditsPage
+from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
 
 
 class _ViewerDragRepaintPoller:
@@ -55,7 +57,7 @@ class _ViewerDragRepaintPoller:
     Sonde l'etat global de la souris via un QTimer, sans jamais
     passer par le systeme d'evenements Qt.
     """
-    def __init__(self, viewer_widget, interval_ms=16):
+    def __init__(self, viewer_widget, interval_ms=33):
         from PySide6.QtCore import QTimer
         self.viewer = viewer_widget
         self.timer = QTimer()
@@ -74,6 +76,10 @@ class _ViewerDragRepaintPoller:
         
         # Le rafraîchissement doit être constant pendant l'interaction
         # On force le rendu JS.
+        # Ne rend que pendant un vrai glisser de souris (sinon 60 appels JS/s
+        # en permanence saturent QtWebEngine et gelent l'interface).
+        if QApplication.mouseButtons() == Qt.NoButton:
+            return
         self.viewer.page().runJavaScript("if (typeof viewer !== 'undefined') { viewer.render(); }")
 
 
@@ -367,7 +373,7 @@ class _ReceptorPickerDialog(QDialog):
         self.setStyleSheet(
             f"""
             QDialog {{
-                background: {COLORS["panel"]};
+                background: {COLORS["dialog_bg"]};
                 border: 1px solid {COLORS["border"]};
             }}
             QLabel {{
@@ -656,15 +662,299 @@ GLASS_PREFERENCES = {
 }
 
 
+# ============================================================================
+# SCHEMA DES REGLAGES D'APPARENCE  —  UNE SEULE SOURCE DE VERITE
+# ----------------------------------------------------------------------------
+# Tout ce qui est modifiable depuis « Paramètres » est déclaré ICI : clé,
+# libellé, type, valeur par défaut, onglet du dialogue. Le dialogue est généré
+# automatiquement depuis cette liste. Pour rendre un nouvel élément réglable :
+#   1) ajouter une ligne dans _THEME_SCHEMA ;
+#   2) lire GLASS_PREFERENCES["ma_cle"] là où l'élément est dessiné
+#      (feuille de style ou paintEvent).
+# Les valeurs par défaut reproduisent l'apparence d'origine du logiciel.
+# ============================================================================
+
+def _spec(key, label, kind, default, group, lo=0, hi=100, auto=False):
+    return {
+        "key": key, "label": label, "kind": kind, "default": default,
+        "group": group, "lo": lo, "hi": hi, "auto": auto,
+    }
+
+
+_G_MAT = "Matériau"
+_G_TXT = "Style du texte"
+_G_TAB = "Onglets"
+_G_BTN = "Boutons"
+_G_POP = "Menus et flou"
+_G_DARK = "Zones sombres"
+
+_THEME_SCHEMA = [
+    _spec("tint", "Couleur d'accent générale", "color", "#6bd18d", _G_MAT),
+    _spec("panel_tint", "Couleur des panneaux", "color", "#6bd18d", _G_MAT),
+    _spec("scrollbar_tint", "Couleur du défilement", "color", "#6bd18d", _G_MAT),
+    _spec("accent_green", "Cases, curseurs, barre d'état", "color", "#3d915e", _G_MAT),
+    _spec("panel_opacity", "Transparence des panneaux", "int", 58, _G_MAT, 10, 95),
+    _spec("opacity", "Transparence générale du verre", "int", 58, _G_MAT, 10, 95),
+    _spec("scrollbar_opacity", "Transparence du défilement", "int", 70, _G_MAT, 10, 95),
+    _spec("reflection", "Réflexion de lumière", "int", 72, _G_MAT, 10, 100),
+    _spec("radius", "Rayon des bords (panneaux)", "int", 16, _G_MAT, 6, 36),
+    _spec("refraction", "Indice de réfraction", "float", 1.33, _G_MAT, 1.0, 2.5),
+    _spec("bg_veil_color", "Voile sur l'image de fond", "color", "#070f18", _G_MAT),
+    _spec("bg_veil_opacity", "Opacité du voile de fond", "int", 70, _G_MAT, 0, 100),
+    _spec("font_family", "Police de l'interface", "font", "Noto Sans", _G_TXT),
+    _spec("font_size", "Taille du texte (px)", "int", 13, _G_TXT, 9, 24),
+    _spec("title_size", "Taille des titres (px)", "int", 17, _G_TXT, 12, 36),
+    _spec("text_color", "Texte principal", "color", "#edf5ff", _G_TXT),
+    _spec("text_secondary_color", "Texte secondaire (descriptions)", "color", "#bfd3e6", _G_TXT),
+    _spec("text_muted_color", "Texte discret (étiquettes)", "color", "#8ea8bc", _G_TXT),
+    _spec("title_color", "Titres", "color", "", _G_TXT, auto=True),
+    _spec("accent_text", "Texte accentué (cible active, statuts)", "color", "", _G_TXT, auto=True),
+    _spec("success_color", "Message : succès", "color", "#5fd3a1", _G_TXT),
+    _spec("warning_color", "Message : avertissement", "color", "#f4c66b", _G_TXT),
+    _spec("danger_color", "Message : erreur", "color", "#ff8a8a", _G_TXT),
+    _spec("status_text_color", "Texte de la barre d'état", "color", "#dfffea", _G_TXT),
+    _spec("tab_tint", "Couleur des onglets", "color", "#6bd18d", _G_TAB),
+    _spec("tab_hover_tint", "Couleur au survol", "color", "", _G_TAB, auto=True),
+    _spec("tab_active_tint", "Couleur de l'onglet actif", "color", "#51c981", _G_TAB),
+    _spec("tab_opacity", "Transparence des onglets", "int", 66, _G_TAB, 10, 100),
+    _spec("tab_hover_opacity", "Intensité au survol", "int", 28, _G_TAB, 0, 100),
+    _spec("tab_active_opacity", "Intensité de l'onglet actif", "int", 23, _G_TAB, 0, 100),
+    _spec("tab_text_color", "Texte des onglets", "color", "", _G_TAB, auto=True),
+    _spec("tab_text_hover_color", "Texte au survol", "color", "", _G_TAB, auto=True),
+    _spec("tab_text_active_color", "Texte de l'onglet actif", "color", "", _G_TAB, auto=True),
+    _spec("tab_border_color", "Liseré des onglets", "color", "#ffffff", _G_TAB),
+    _spec("tab_border_opacity", "Opacité du liseré", "int", 71, _G_TAB, 0, 100),
+    _spec("tab_radius", "Rayon des onglets", "int", 12, _G_TAB, 2, 26),
+    _spec("tab_shimmer", "Reflet animé au survol", "bool", True, _G_TAB),
+    _spec("button_tint", "Couleur des boutons", "color", "#6bd18d", _G_BTN),
+    _spec("button_hover_tint", "Couleur au survol", "color", "", _G_BTN, auto=True),
+    _spec("button_pressed_tint", "Couleur au clic", "color", "#51c981", _G_BTN),
+    _spec("button_opacity", "Transparence des boutons", "int", 66, _G_BTN, 10, 100),
+    _spec("button_hover_opacity", "Intensité au survol", "int", 28, _G_BTN, 0, 100),
+    _spec("button_pressed_opacity", "Intensité au clic", "int", 23, _G_BTN, 0, 100),
+    _spec("button_text_color", "Texte des boutons", "color", "", _G_BTN, auto=True),
+    _spec("button_text_hover_color", "Texte au survol", "color", "", _G_BTN, auto=True),
+    _spec("button_border_color", "Liseré des boutons", "color", "#ffffff", _G_BTN),
+    _spec("button_border_opacity", "Opacité du liseré", "int", 74, _G_BTN, 0, 100),
+    _spec("button_radius", "Rayon des boutons", "int", 12, _G_BTN, 2, 26),
+    _spec("button_shimmer", "Reflet animé au survol", "bool", True, _G_BTN),
+    _spec("popup_blur", "Flou de l'arrière-plan (0 = aucun)", "int", 22, _G_POP, 0, 60),
+    _spec("popup_tint", "Teinte du verre", "color", "#0f1c2a", _G_POP),
+    _spec("popup_opacity", "Opacité de la teinte", "int", 55, _G_POP, 0, 100),
+    _spec("popup_reflection", "Reflet supérieur", "int", 30, _G_POP, 0, 100),
+    _spec("popup_radius", "Rayon des coins", "int", 14, _G_POP, 0, 28),
+    _spec("popup_border_color", "Couleur du liseré", "color", "#dcffe7", _G_POP),
+    _spec("popup_border_opacity", "Opacité du liseré", "int", 40, _G_POP, 0, 100),
+    _spec("popup_text_color", "Texte des menus", "color", "", _G_POP, auto=True),
+    _spec("popup_hover_tint", "Couleur de l'élément survolé", "color", "", _G_POP, auto=True),
+    _spec("popup_hover_opacity", "Intensité de l'élément survolé", "int", 45, _G_POP, 0, 100),
+    _spec("popup_hover_text_color", "Texte de l'élément survolé", "color", "", _G_POP, auto=True),
+    _spec("popup_tooltips", "Appliquer aussi aux info-bulles", "bool", True, _G_POP),
+    _spec("base_color", "Fond de base (visible sous les zones transparentes)", "color", "#0f1c2a", _G_DARK),
+    _spec("window_color", "Fond de la fenêtre principale", "color", "#0f1721", _G_DARK),
+    _spec("field_color", "Champs des fenêtres (saisie, listes, compteurs)", "color", "#0f1c2a", _G_DARK),
+    _spec("field_opacity", "Opacité des champs (0 = invisible)", "int", 100, _G_DARK, 0, 100),
+    _spec("dialog_color", "Fond des boîtes de dialogue", "color", "", _G_DARK, auto=True),
+    _spec("dialog_opacity", "Opacité des dialogues (si couleur choisie)", "int", 100, _G_DARK, 0, 100),
+    _spec("card_color", "Cartes et cadres de verre (choix, navigation)", "color", "#111c26", _G_DARK),
+    _spec("card_opacity", "Opacité des cartes et cadres (0 = invisible)", "int", 63, _G_DARK, 0, 100),
+    _spec("header_color", "En-têtes de tableau", "color", "", _G_DARK, auto=True),
+    _spec("header_opacity", "Opacité des en-têtes (si couleur choisie)", "int", 85, _G_DARK, 0, 100),
+    _spec("header_text_color", "Texte des en-têtes de tableau", "color", "", _G_DARK, auto=True),
+    _spec("viewer_color", "Cadre du visualiseur 3D", "color", "#0b1219", _G_DARK),
+]
+
+_THEME_DEFAULTS = {spec["key"]: spec["default"] for spec in _THEME_SCHEMA}
+
+
+def _coerce_pref(spec, raw):
+    """QSettings rend souvent des chaînes : on remet chaque valeur au bon type."""
+    kind = spec["kind"]
+    try:
+        if kind == "int":
+            return max(spec["lo"], min(spec["hi"], int(float(raw))))
+        if kind == "float":
+            return float(raw)
+        if kind == "bool":
+            if isinstance(raw, str):
+                return raw.strip().lower() in ("1", "true", "yes", "on")
+            return bool(raw)
+        return str(raw)
+    except (TypeError, ValueError):
+        return spec["default"]
+
+
+for _item in _THEME_SCHEMA:
+    if _item["key"] not in GLASS_PREFERENCES:
+        GLASS_PREFERENCES[_item["key"]] = _coerce_pref(
+            _item, _PREFERENCES.value(f"glass/{_item['key']}", _item["default"])
+        )
+
+
+
+# ============================================================================
+# MOTEUR D'APPARENCE
+# Préférences -> couleurs partagées (COLORS) -> feuille de style -> popups floutés
+# ============================================================================
+
+import re as _re
+from PySide6.QtCore import QPoint, QRect
+from PySide6.QtGui import QImage
+from PySide6.QtWidgets import (
+    QMenu,
+    QGraphicsScene,
+    QGraphicsPixmapItem,
+    QGraphicsBlurEffect,
+    QFontComboBox,
+    QAbstractButton,
+    QGroupBox,
+    QTabBar,
+)
+
+# Jetons de couleur de texte que les feuilles de style « en ligne » (posées
+# widget par widget dans le code) reprennent : on les suit pour les mettre à
+# jour en direct quand l'utilisateur change une couleur.
+_TEXT_TOKENS = (
+    "text", "text_secondary", "text_muted",
+    "accent_dark", "accent_ink", "success", "warning", "danger",
+    "panel", "surface", "surface_alt", "window", "window_gradient",
+    "glass", "glass_soft", "glass_strong", "glass_sheen", "viewer", "dialog_bg",
+)
+_TOKEN_SEEN = {}
+_PALETTE_STATE = {"last": None}
+_DEBUG_ONCE = set()
+
+
+def _debug_once(tag, exc):
+    if tag in _DEBUG_ONCE:
+        return
+    _DEBUG_ONCE.add(tag)
+    print(f"[apparence] {tag} : {exc!r}")
+
+
+def _pct_alpha(pct):
+    """Pourcentage 0-100 -> alpha Qt 0-255."""
+    try:
+        return max(0, min(255, int(round(float(pct) * 255.0 / 100.0))))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _rgba(color, alpha):
+    return (
+        f"rgba({color.red()}, {color.green()}, {color.blue()}, "
+        f"{max(0, min(255, int(alpha)))})"
+    )
+
+
+# Réglages « Auto » : dérivés d'une autre couleur tant que l'utilisateur n'a
+# pas choisi la sienne.
+_THEME_AUTO = {
+    "title_color": lambda: _theme_color("text_color"),
+    "accent_text": lambda: _theme_color("tint").lighter(175),
+    "tab_hover_tint": lambda: _theme_color("tab_tint").lighter(130),
+    "tab_text_color": lambda: _theme_color("text_color"),
+    "tab_text_hover_color": lambda: _theme_color("text_color"),
+    "tab_text_active_color": lambda: _theme_color("tab_tint"),
+    "button_hover_tint": lambda: _theme_color("button_tint").lighter(130),
+    "button_text_color": lambda: _theme_color("text_color"),
+    "button_text_hover_color": lambda: _theme_color("text_color"),
+    "popup_text_color": lambda: _theme_color("text_color"),
+    "popup_hover_tint": lambda: _theme_color("button_tint"),
+    "popup_hover_text_color": lambda: _theme_color("text_color"),
+    "dialog_color": lambda: _theme_color("panel_tint"),
+    "header_color": lambda: _theme_color("button_tint"),
+    "header_text_color": lambda: _theme_color("text_color"),
+}
+
+
+def _theme_color(key, fallback="#6bd18d"):
+    """Couleur valide pour `key` (résout « Auto » et les valeurs invalides)."""
+    raw = str(GLASS_PREFERENCES.get(key, "") or "").strip()
+    color = QColor(raw) if raw else QColor()
+    if color.isValid():
+        return color
+    auto = _THEME_AUTO.get(key)
+    if auto is not None:
+        return auto()
+    default = QColor(str(_THEME_DEFAULTS.get(key) or ""))
+    return default if default.isValid() else QColor(fallback)
+
+
+def _overlay(color_key, pct_key):
+    """Couleur `color_key` avec l'opacité (en %) donnée par `pct_key`."""
+    color = _theme_color(color_key)
+    color.setAlpha(_pct_alpha(GLASS_PREFERENCES.get(pct_key, 0)))
+    return color
+
+
+def _preference_color(key, fallback="#6bd18d"):
+    return _theme_color(key, fallback)
+
+
+def _remember_tokens():
+    for key in _TEXT_TOKENS:
+        _TOKEN_SEEN.setdefault(key, set()).add(str(COLORS[key]).lower())
+
+
+def _clamp255(value):
+    return max(0, min(255, int(value)))
+
+
+def _dark_tokens(base, window, card, card_alpha):
+    """
+    Jetons sombres de COLORS déduits des réglages « Zones sombres ».
+    base / window / card : tuples (r, g, b) ; card_alpha : 0-255.
+    Avec les réglages par défaut, le résultat est IDENTIQUE aux anciennes
+    constantes écrites en dur (l'apparence d'origine ne change pas).
+    """
+    def hexa(c, dr=0, dg=0, db=0):
+        return "#%02x%02x%02x" % (
+            _clamp255(c[0] + dr), _clamp255(c[1] + dg), _clamp255(c[2] + db)
+        )
+
+    def rgba(c, dr, dg, db, da):
+        return "rgba(%d, %d, %d, %d)" % (
+            _clamp255(c[0] + dr), _clamp255(c[1] + dg), _clamp255(c[2] + db),
+            _clamp255(card_alpha + da),
+        )
+
+    return {
+        "panel": hexa(base),
+        "surface": hexa(base, 1, 1, 1),
+        "surface_alt": hexa(base, 6, 11, 15),
+        "window": hexa(window),
+        "window_gradient": (
+            "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+            "stop:0 %s, stop:0.42 %s, stop:1 %s)"
+            % (hexa(window, 2, 6, 9), hexa(window, 8, 19, 23), hexa(window, -2, 0, 0))
+        ),
+        "glass": rgba(card, 0, 0, 0, 0),
+        "glass_soft": rgba(card, 2, 4, 6, 10),
+        "glass_strong": rgba(card, 6, 7, 10, 22),
+        "glass_sheen": (
+            "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+            "stop:0 %s, stop:0.5 %s, stop:1 %s)"
+            % (rgba(card, 12, 15, 21, 50), rgba(card, 5, 6, 9, 25), rgba(card, -2, -4, -4, 15))
+        ),
+    }
+
+
 def _refresh_preference_palette():
-    """Refresh shared accent colors before APP_STYLE is formatted."""
+    """Synchronise les jetons partagés (COLORS) avec les préférences."""
     tint = QColor(str(GLASS_PREFERENCES["tint"]))
     if not tint.isValid():
         tint = QColor("#6bd18d")
         GLASS_PREFERENCES["tint"] = tint.name()
     COLORS["accent"] = tint.name()
-    COLORS["accent_dark"] = tint.lighter(175).name()
-    COLORS["accent_ink"] = tint.lighter(185).name()
+
+    custom = str(GLASS_PREFERENCES.get("accent_text", "") or "").strip()
+    if custom and QColor(custom).isValid():
+        COLORS["accent_dark"] = QColor(custom).name()
+        COLORS["accent_ink"] = QColor(custom).name()
+    else:
+        COLORS["accent_dark"] = tint.lighter(175).name()
+        COLORS["accent_ink"] = tint.lighter(185).name()
     COLORS["accent_light"] = (
         f"rgba({tint.red()}, {tint.green()}, {tint.blue()}, 52)"
     )
@@ -677,163 +967,976 @@ def _refresh_preference_palette():
     )
     COLORS["accent_glass_hover"] = COLORS["accent_glass"]
     COLORS["accent_glass_pressed"] = COLORS["accent_glass"]
-    
+
     green = QColor(str(GLASS_PREFERENCES["accent_green"]))
-    # Si accent_green n'est pas explicitement défini (ou par défaut), on synchronise avec la scrollbar
     if GLASS_PREFERENCES["accent_green"] == "#3d915e":
         green = QColor(str(GLASS_PREFERENCES["scrollbar_tint"]))
-    
+    if not green.isValid():
+        green = QColor("#3d915e")
+
     COLORS["accent_green"] = (
         f"rgba({green.red()}, {green.green()}, {green.blue()}, 170)"
     )
-    # Dégradés dynamiques pour les champs et contrôles
-    COLORS["grad_stop0"] = f"rgba({green.red() + 40}, {green.green() + 40}, {green.blue() + 40}, 220)"
+    def _up(v, d):
+        return max(0, min(255, v + d))
+    COLORS["grad_stop0"] = f"rgba({_up(green.red(), 40)}, {_up(green.green(), 40)}, {_up(green.blue(), 40)}, 220)"
     COLORS["grad_stop1"] = f"rgba({green.red()}, {green.green()}, {green.blue()}, 180)"
-    COLORS["grad_stop2"] = f"rgba({max(0, green.red() - 30)}, {max(0, green.green() - 30)}, {max(0, green.blue() - 30)}, 150)"
+    COLORS["grad_stop2"] = f"rgba({_up(green.red(), -30)}, {_up(green.green(), -30)}, {_up(green.blue(), -30)}, 150)"
+
+    COLORS["text"] = _theme_color("text_color").name()
+    COLORS["text_secondary"] = _theme_color("text_secondary_color").name()
+    COLORS["text_muted"] = _theme_color("text_muted_color").name()
+    COLORS["success"] = _theme_color("success_color").name()
+    COLORS["warning"] = _theme_color("warning_color").name()
+    COLORS["danger"] = _theme_color("danger_color").name()
+
+    # Zones sombres : fond de base, fenêtre, cartes, visualiseur, dialogues.
+    _P = GLASS_PREFERENCES
+    _base = _theme_color("base_color", "#0f1c2a")
+    _win = _theme_color("window_color", "#0f1721")
+    _card = _theme_color("card_color", "#111c26")
+    try:
+        _card_alpha = int(float(_P.get("card_opacity", 63)) * 2.55)
+    except (TypeError, ValueError):
+        _card_alpha = 160
+    COLORS.update(_dark_tokens(
+        (_base.red(), _base.green(), _base.blue()),
+        (_win.red(), _win.green(), _win.blue()),
+        (_card.red(), _card.green(), _card.blue()),
+        _card_alpha,
+    ))
+    COLORS["viewer"] = _theme_color("viewer_color", "#0b1219").name()
+    _dlg = str(_P.get("dialog_color", "") or "").strip()
+    if _dlg and QColor(_dlg).isValid():
+        COLORS["dialog_bg"] = _rgba(QColor(_dlg), _pct_alpha(_P.get("dialog_opacity", 100)))
+    else:
+        COLORS["dialog_bg"] = _rgba(_base, 255)
+    _remember_tokens()
 
 
-def _preference_color(key, fallback="#6bd18d"):
-    color = QColor(str(GLASS_PREFERENCES.get(key, fallback)))
-    return color if color.isValid() else QColor(fallback)
+def _tab_text_qss():
+    """Texte des onglets à boutons (barre du haut, navigation latérale)."""
+    normal = _theme_color("tab_text_color").name()
+    hover = _theme_color("tab_text_hover_color").name()
+    active = _theme_color("tab_text_active_color").name()
+    names = ("TopTab", "SecondaryTab", "PrimaryNavigation")
+    sel = lambda suffix: ", ".join(f"QToolButton#{n}{suffix}" for n in names)
+    return f"""
+    {sel("")} {{ color: {normal}; }}
+    {sel(":hover")} {{ color: {hover}; }}
+    {sel(":checked")} {{ color: {active}; }}
+    {sel(":checked:hover")} {{ color: {active}; }}
+    """
+
+
+def _tab_bar_qss():
+    """Onglets de type QTabBar (résultats d'analyse, dialogues…)."""
+    P = GLASS_PREFERENCES
+    panel = _theme_color("panel_tint")
+    tab = _theme_color("tab_tint")
+    hov = _theme_color("tab_hover_tint")
+    act = _theme_color("tab_active_tint")
+    border = _theme_color("tab_border_color")
+    base_a = int(P["tab_opacity"])
+    hover_a = min(255, base_a + _pct_alpha(P["tab_hover_opacity"]))
+    active_a = min(255, base_a + _pct_alpha(P["tab_active_opacity"]))
+    radius = int(P["tab_radius"])
+    return f"""
+    QTabWidget::pane {{
+        background: {_rgba(panel, P['panel_opacity'])};
+        border: 1px solid rgba(230, 255, 238, 145);
+        border-radius: 16px;
+    }}
+    QTabBar::tab {{
+        background: {_rgba(tab, base_a)};
+        color: {_theme_color("tab_text_color").name()};
+        border: 1px solid {_rgba(border, _pct_alpha(P['tab_border_opacity']))};
+        border-bottom: none;
+        padding: 9px 18px;
+        margin-right: 4px;
+        border-top-left-radius: {radius}px;
+        border-top-right-radius: {radius}px;
+    }}
+    QTabBar::tab:hover {{
+        background: {_rgba(hov, hover_a)};
+        color: {_theme_color("tab_text_hover_color").name()};
+    }}
+    QTabBar::tab:selected {{
+        background: {_rgba(act, active_a)};
+        color: {_theme_color("tab_text_active_color").name()};
+        border-bottom: 2px solid {act.name()};
+    }}
+    QTabBar::tab:selected:hover {{
+        background: {_rgba(act, min(255, active_a + 22))};
+        color: {_theme_color("tab_text_active_color").name()};
+    }}
+    """
+
+
+def _popup_qss():
+    """Menus contextuels, listes déroulantes, info-bulles : un seul thème."""
+    P = GLASS_PREFERENCES
+    tint = _rgba(_theme_color("popup_tint"), _pct_alpha(P["popup_opacity"]))
+    border = _rgba(
+        _theme_color("popup_border_color"), _pct_alpha(P["popup_border_opacity"])
+    )
+    text = _theme_color("popup_text_color")
+    hover = _rgba(
+        _theme_color("popup_hover_tint"), _pct_alpha(P["popup_hover_opacity"])
+    )
+    hover_text = _theme_color("popup_hover_text_color").name()
+    radius = int(P["popup_radius"])
+    item_radius = max(3, radius - 4)
+    return f"""
+    QMenu {{
+        background: {tint};
+        color: {text.name()};
+        border: 1px solid {border};
+        border-radius: {radius}px;
+        padding: 8px;
+        background-image: none;
+    }}
+    QMenu::item {{
+        padding: 8px 28px 8px 14px;
+        border-radius: {item_radius}px;
+        margin: 1px 2px;
+        color: {text.name()};
+        background: transparent;
+    }}
+    QMenu::item:selected {{
+        background: {hover};
+        color: {hover_text};
+    }}
+    QMenu::item:disabled {{
+        color: {_rgba(text, 110)};
+        background: transparent;
+    }}
+    QMenu::separator {{
+        height: 1px;
+        background: {border};
+        margin: 6px 8px;
+    }}
+    QComboBoxPrivateContainer {{
+        background: {tint};
+        border: 1px solid {border};
+        border-radius: {radius}px;
+        padding: 4px;
+    }}
+    QComboBox QAbstractItemView {{
+        background: transparent;
+        color: {text.name()};
+        border: none;
+        outline: none;
+        padding: 0px;
+        selection-background-color: transparent;
+    }}
+    QComboBox QAbstractItemView::item {{
+        padding: 7px 10px;
+        border-radius: {item_radius}px;
+        color: {text.name()};
+        background: transparent;
+    }}
+    QComboBox QAbstractItemView::item:selected,
+    QComboBox QAbstractItemView::item:hover {{
+        background: {hover};
+        color: {hover_text};
+    }}
+    QToolTip {{
+        background: {tint};
+        color: {text.name()};
+        border: 1px solid {border};
+        border-radius: {item_radius}px;
+        padding: 6px 10px;
+    }}
+    """
 
 
 def _runtime_preferences_style():
-    """Override native Qt controls with the currently selected materials."""
-    panel = _preference_color("panel_tint")
-    button = _preference_color("button_tint")
-    text = _preference_color("text_color", "#edf5ff")
-    scroll = _preference_color("scrollbar_tint")
-    theme_path = ""
-    app = QApplication.instance()
-    if app is not None:
-        for widget in app.allWidgets():
-            candidate = widget.property("theme_image_path")
-            if candidate:
-                theme_path = Path(str(candidate)).resolve().as_uri()
-                break
-    theme_background = (
-        f'background-image: url("{theme_path}");'
-        if theme_path
-        else ""
+    """Feuille de style dérivée des préférences (appliquée APRÈS le style de base)."""
+    P = GLASS_PREFERENCES
+    panel = _theme_color("panel_tint")
+    button = _theme_color("button_tint")
+    text = _theme_color("text_color")
+    title = _theme_color("title_color")
+    scroll = _theme_color("scrollbar_tint")
+    panel_a = int(P["panel_opacity"])
+    button_a = int(P["button_opacity"])
+
+    size = int(P["font_size"])
+    ratio = size / 13.0
+    title_px = int(P["title_size"])
+    family = str(P["font_family"]).replace('"', "").replace("\\", "")
+
+    btn_border = _rgba(_theme_color("button_border_color"), _pct_alpha(P["button_border_opacity"]))
+    btn_hover = _rgba(
+        _theme_color("button_hover_tint"),
+        min(255, button_a + _pct_alpha(P["button_hover_opacity"])),
     )
+    btn_pressed = _rgba(
+        _theme_color("button_pressed_tint"),
+        min(255, button_a + _pct_alpha(P["button_pressed_opacity"])),
+    )
+    btn_text = _theme_color("button_text_color").name()
+    btn_text_hover = _theme_color("button_text_hover_color").name()
+
+    # --- Zones sombres : champs des fenêtres, dialogues, en-têtes de tableau ---
+    _field = QColor(str(P.get("field_color") or "#0f1c2a"))
+    if not _field.isValid():
+        _field = QColor("#0f1c2a")
+    _field_bg = _rgba(_field, _pct_alpha(P.get("field_opacity", 100)))
+    dark_qss = f"""
+    QDialog QLineEdit, QDialog QComboBox, QDialog QSpinBox, QDialog QDoubleSpinBox,
+    QDialog QLineEdit:focus, QDialog QComboBox:focus,
+    QDialog QSpinBox:focus, QDialog QDoubleSpinBox:focus {{
+        color: {text.name()};
+        background: {_field_bg};
+    }}
+    QHeaderView::section {{
+        color: {_theme_color("header_text_color").name()};
+    }}
+    """
+    _dlg_raw = str(P.get("dialog_color", "") or "").strip()
+    if _dlg_raw and QColor(_dlg_raw).isValid():
+        dark_qss += f"""
+    QDialog {{
+        background: {COLORS["dialog_bg"]};
+        border: 1px solid rgba(230, 255, 238, 175);
+    }}
+    """
+    _hdr_raw = str(P.get("header_color", "") or "").strip()
+    if _hdr_raw and QColor(_hdr_raw).isValid():
+        dark_qss += f"""
+    QHeaderView::section {{
+        background: {_rgba(QColor(_hdr_raw), _pct_alpha(P.get("header_opacity", 85)))};
+    }}
+    """
+
     return f"""
-    QWidget {{ color: {text.name()}; }}
+    QWidget {{
+        font-family: "{family}", "Noto Sans", "Segoe UI", sans-serif;
+        font-size: {size}px;
+        color: {text.name()};
+    }}
+    QLabel#ApplicationName {{ font-size: {title_px + 2}px; color: {title.name()}; }}
+    QLabel#SectionTitle {{ font-size: {title_px}px; color: {title.name()}; }}
+    QLabel#PanelTitle {{ font-size: {size}px; color: {title.name()}; }}
+    QLabel#ApplicationSubtitle {{
+        font-size: {max(7, round(11 * ratio))}px; color: {COLORS['text_secondary']};
+    }}
+    QLabel#SectionDescription {{
+        font-size: {max(7, round(12 * ratio))}px; color: {COLORS['text_secondary']};
+    }}
+    QStatusBar {{ color: {_theme_color("status_text_color").name()}; }}
+
     QFrame#ContentPanel, QFrame#ToolbarPanel, QFrame#TopHeader {{
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
+        background: {_rgba(panel, panel_a)};
         border-color: rgba(235, 255, 242, 150);
     }}
     QPushButton, QToolButton {{
-        color: {text.name()};
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, {GLASS_PREFERENCES['button_opacity']});
-        border: 1px solid rgba(230, 255, 238, 175);
+        color: {btn_text};
+        background: {_rgba(button, button_a)};
+        border: 1px solid {btn_border};
     }}
-    QPushButton[liquid_glass="true"], QToolButton[liquid_glass="true"] {{
+    QPushButton:hover, QToolButton:hover {{
+        color: {btn_text_hover};
+        background: {btn_hover};
+    }}
+    QPushButton:pressed, QToolButton:pressed {{
+        background: {btn_pressed};
+    }}
+    QPushButton[liquid_glass="true"], QToolButton[liquid_glass="true"],
+    QPushButton[liquid_glass="true"]:hover, QToolButton[liquid_glass="true"]:hover,
+    QPushButton[liquid_glass="true"]:pressed, QToolButton[liquid_glass="true"]:pressed {{
         background: transparent;
         border: none;
     }}
     QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
         color: {text.name()};
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
+        background: {_rgba(panel, panel_a)};
         border-color: rgba(230, 255, 238, 175);
     }}
-    QTableWidget, QTabWidget::pane {{
+    QTableWidget {{
         color: {text.name()};
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
+        background: {_rgba(panel, panel_a)};
         border-color: rgba(230, 255, 238, 145);
     }}
-    QMenu, QDialog, QToolTip {{
+    QDialog {{
         color: {text.name()};
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity'] + 120});
+        background: {_rgba(panel, panel_a + 120)};
         border: 1px solid rgba(230, 255, 238, 175);
-        {theme_background}
-        background-position: center;
-        background-repeat: no-repeat;
     }}
-    QMenu::item,
-    QToolButton#TopTab,
-    QToolButton#SecondaryTab,
-    QTabBar::tab {{
+    QHeaderView::section {{
         color: {text.name()};
-    }}
-    QToolButton#TopTab:checked,
-    QToolButton#SecondaryTab:checked,
-    QTabBar::tab:selected {{
-        color: {button.name()};
-        border-color: rgba({button.red()}, {button.green()}, {button.blue()}, {GLASS_PREFERENCES['button_opacity']});
-    }}
-    QMenu::item:selected,
-    QComboBox QAbstractItemView::item:selected,
-    QComboBox QAbstractItemView::item:hover {{
-        color: {text.name()};
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, {GLASS_PREFERENCES['button_opacity']});
-    }}
-    QComboBox QAbstractItemView {{
-        color: {text.name()};
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity'] + 120});
-        {theme_background}
-        background-position: center;
-        background-repeat: no-repeat;
-    }}
-    QHeaderView::section, QTabBar::tab {{
-        color: {text.name()};
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, {GLASS_PREFERENCES['button_opacity']});
+        background: {_rgba(button, button_a)};
     }}
     QScrollBar::handle:vertical, QScrollBar::handle:horizontal {{
-        background: rgba({scroll.red()}, {scroll.green()}, {scroll.blue()}, {GLASS_PREFERENCES['scrollbar_opacity']});
+        background: {_rgba(scroll, P['scrollbar_opacity'])};
         border: 1px solid rgba(230, 255, 238, 165);
     }}
     QProgressBar {{
         color: {text.name()};
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
+        background: {_rgba(panel, panel_a)};
     }}
-    """
+    """ + dark_qss + _tab_text_qss() + _tab_bar_qss() + _popup_qss()
 
 
 def _runtime_results_tab_style():
-    panel = _preference_color("panel_tint")
-    button = _preference_color("button_tint")
-    text = _preference_color("text_color", "#edf5ff")
-    return f"""
-    QTabWidget::pane {{
-        background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
-        border: 1px solid rgba(230, 255, 238, 145);
-        border-radius: 16px;
-    }}
-    QTabBar::tab {{
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, {GLASS_PREFERENCES['button_opacity']});
-        color: {text.name()};
-        border: 1px solid rgba(230, 255, 238, 175);
-        padding: 9px 18px;
-        margin-right: 4px;
-        border-top-left-radius: 11px;
-        border-top-right-radius: 11px;
-    }}
-    QTabBar::tab:selected {{
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, {min(255, GLASS_PREFERENCES['button_opacity'] + 35)});
-        color: {button.name()};
-        border-bottom: 2px solid {button.name()};
-    }}
-    QTabBar::tab:hover {{
-        background: rgba({button.red()}, {button.green()}, {button.blue()}, 230);
-        color: {text.name()};
-    }}
-    """
+    """Conservé pour compatibilité : le style des onglets est désormais global."""
+    return _tab_bar_qss()
+
+
+# ---------------------------------------------------------------------------
+# Feuilles de style « en ligne » : elles sont posées widget par widget dans le
+# code (labels de statut, cartes…). On les réécrit à partir de leur version
+# d'origine pour qu'elles suivent la taille et les couleurs de texte choisies.
+# ---------------------------------------------------------------------------
+
+def _inline_color_map():
+    owners = {}
+    for key, values in _TOKEN_SEEN.items():
+        for value in values:
+            owners.setdefault(value, set()).add(key)
+    mapping = {}
+    for key, values in _TOKEN_SEEN.items():
+        current = str(COLORS[key]).lower()
+        for value in values:
+            if value != current and len(owners[value]) == 1:
+                mapping[value] = current
+    return mapping
+
+
+def _rewrite_inline(css, mapping, ratio):
+    if mapping:
+        pattern = _re.compile("|".join(_re.escape(k) for k in mapping), _re.IGNORECASE)
+        css = pattern.sub(lambda m: mapping[m.group(0).lower()], css)
+    return _re.sub(
+        r"font-size:\s*(\d+)px",
+        lambda m: f"font-size: {max(7, int(round(int(m.group(1)) * ratio)))}px",
+        css,
+    )
+
+
+def _restyle_widget(widget, mapping=None, ratio=None):
+    try:
+        current = widget.styleSheet()
+        if not current or isinstance(widget, QTabWidget):
+            return
+        if mapping is None:
+            mapping = _inline_color_map()
+        if ratio is None:
+            ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
+        if current != widget.property("_ss_last"):
+            widget.setProperty("_ss_orig", current)   # nouvelle version posée par le code
+        original = widget.property("_ss_orig") or current
+        updated = _rewrite_inline(original, mapping, ratio)
+        if updated != current:
+            widget.setStyleSheet(updated)
+        widget.setProperty("_ss_last", updated)
+    except Exception as exc:
+        _debug_once("restyle", exc)
+
+
+def _apply_app_palette(app):
+    state = (
+        COLORS["text"], COLORS["text_muted"], COLORS["window"],
+        COLORS["panel"], COLORS["surface"], COLORS["surface_alt"],
+    )
+    if _PALETTE_STATE["last"] == state:
+        return
+    _PALETTE_STATE["last"] = state
+    palette = app.palette()
+    text = QColor(COLORS["text"])
+    muted = QColor(COLORS["text_muted"])
+    for role in (QPalette.WindowText, QPalette.Text, QPalette.ButtonText):
+        palette.setColor(role, text)
+        palette.setColor(QPalette.Disabled, role, muted)
+    palette.setColor(QPalette.ToolTipText, text)
+    palette.setColor(QPalette.PlaceholderText, muted)
+    palette.setColor(QPalette.Window, QColor(COLORS["window"]))
+    palette.setColor(QPalette.Base, QColor(COLORS["panel"]))
+    palette.setColor(QPalette.AlternateBase, QColor(COLORS["surface_alt"]))
+    palette.setColor(QPalette.Button, QColor(COLORS["surface"]))
+    palette.setColor(QPalette.ToolTipBase, QColor(COLORS["panel"]))
+    app.setPalette(palette)
 
 
 def apply_runtime_preferences():
-    """Rebuild the live stylesheet so every native widget catches up."""
+    """Reconstruit la feuille de style vivante : tous les widgets suivent."""
     _refresh_preference_palette()
     app = QApplication.instance()
-    if app is not None:
-        app.setStyleSheet(APP_STYLE + _runtime_preferences_style())
-        for widget in app.allWidgets():
-            if isinstance(widget, QTabWidget):
-                widget.setStyleSheet(_runtime_results_tab_style())
-                for index in range(widget.count()):
-                    widget.tabBar().setTabTextColor(
-                        index,
-                        _preference_color("button_tint"),
-                    )
+    if app is None:
+        return
+    _apply_app_palette(app)
+    app.setStyleSheet(_build_app_style() + _runtime_preferences_style())
+    mapping = _inline_color_map()
+    ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
+    for widget in app.allWidgets():
+        _restyle_widget(widget, mapping, ratio)
+    apply_text_overrides()
+
+
+# ---------------------------------------------------------------------------
+# Popups (menus contextuels, listes déroulantes, info-bulles) : vrai flou.
+# Qt Widgets n'a pas de « backdrop-filter » : on photographie ce qui se trouve
+# réellement derrière le popup, on le floute (rayon réglable) et on le peint
+# SOUS la teinte translucide du popup.
+# ---------------------------------------------------------------------------
+
+class _PopupBackdrop(QObject):
+    """Peint, sous un popup, l'arrière-plan réellement flouté."""
+
+    def __init__(self, popup):
+        super().__init__(popup)
+        self.setObjectName("GlassPopupBackdrop")
+        self._pixmap = None
+        self._stamp = None
+        popup.installEventFilter(self)
+
+    def invalidate(self):
+        self._pixmap = None
+        self._stamp = None
+
+    @staticmethod
+    def _source_window(popup, point):
+        candidates = []
+        parent = popup.parentWidget()
+        if parent is not None:
+            candidates.append(parent.window())
+        active = QApplication.activeWindow()
+        if active is not None:
+            candidates.append(active)
+        candidates.extend(QApplication.topLevelWidgets())
+        for widget in candidates:
+            if widget is None or widget is popup or not widget.isVisible():
+                continue
+            if widget.windowType() in (Qt.Popup, Qt.ToolTip):
+                continue
+            if widget.frameGeometry().contains(point):
+                return widget
+        return None
+
+    @staticmethod
+    def _over_native_surface(source, local_point):
+        """Vue web / OpenGL : on ne peut pas la photographier -> pas de flou."""
+        widget = source.childAt(local_point)
+        while widget is not None:
+            name = widget.metaObject().className()
+            if "WebEngine" in name or "QQuick" in name:
+                return True
+            widget = widget.parentWidget()
+        return False
+
+    @staticmethod
+    def _blur(image, radius):
+        dpr = image.devicePixelRatio() or 1.0
+        scene = QGraphicsScene()
+        item = QGraphicsPixmapItem(QPixmap.fromImage(image))
+        effect = QGraphicsBlurEffect()
+        effect.setBlurRadius(float(radius))
+        effect.setBlurHints(QGraphicsBlurEffect.QualityHint)
+        item.setGraphicsEffect(effect)
+        scene.addItem(item)
+        result = QImage(image.size(), QImage.Format_ARGB32_Premultiplied)
+        result.setDevicePixelRatio(dpr)
+        result.fill(Qt.transparent)
+        logical = QRectF(0, 0, image.width() / dpr, image.height() / dpr)
+        painter = QPainter(result)
+        scene.render(painter, logical, logical)
+        painter.end()
+        return result
+
+    def _capture(self, popup):
+        P = GLASS_PREFERENCES
+        blur = int(P.get("popup_blur", 0))
+        size = popup.size()
+        if blur <= 0 or size.width() < 4 or size.height() < 4:
+            return None
+        dpr = popup.devicePixelRatioF()
+        origin = popup.mapToGlobal(QPoint(0, 0))
+        popup_rect = QRect(origin, size)
+        source = self._source_window(popup, popup_rect.center())
+        if source is None:
+            return None
+        source_origin = source.mapToGlobal(QPoint(0, 0))
+        if self._over_native_surface(source, popup_rect.center() - source_origin):
+            return None
+
+        pad = int(blur * 2) + 2
+        wanted = popup_rect.adjusted(-pad, -pad, pad, pad)
+        local = wanted.translated(-source_origin)
+        visible = local.intersected(source.rect())
+        if visible.isEmpty():
+            return None
+        grabbed = source.grab(visible)
+
+        canvas = QImage(
+            max(1, int(round(wanted.width() * dpr))),
+            max(1, int(round(wanted.height() * dpr))),
+            QImage.Format_ARGB32_Premultiplied,
+        )
+        canvas.setDevicePixelRatio(dpr)
+        canvas.fill(_theme_color("popup_tint"))
+        painter = QPainter(canvas)
+        painter.drawPixmap(visible.topLeft() - local.topLeft(), grabbed)
+        painter.end()
+
+        blurred = self._blur(canvas, blur)
+        crop = QRect(
+            int(round(pad * dpr)), int(round(pad * dpr)),
+            int(round(size.width() * dpr)), int(round(size.height() * dpr)),
+        )
+        cropped = blurred.copy(crop)
+        cropped.setDevicePixelRatio(dpr)
+
+        final = QImage(cropped.size(), QImage.Format_ARGB32_Premultiplied)
+        final.setDevicePixelRatio(dpr)
+        final.fill(Qt.transparent)
+        painter = QPainter(final)
+        painter.setRenderHint(QPainter.Antialiasing)
+        radius = float(P.get("popup_radius", 14))
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(0, 0, size.width(), size.height()), radius, radius)
+        painter.setClipPath(path)
+        painter.drawImage(0, 0, cropped)
+        shine = int(P.get("popup_reflection", 0))
+        if shine > 0:
+            height = size.height() * 0.55
+            gradient = QLinearGradient(0, 0, 0, height)
+            gradient.setColorAt(0.0, QColor(255, 255, 255, _pct_alpha(shine * 0.6)))
+            gradient.setColorAt(1.0, QColor(255, 255, 255, 0))
+            painter.fillRect(QRectF(0, 0, size.width(), height), gradient)
+        painter.end()
+        return QPixmap.fromImage(final)
+
+    def _paint_under(self, popup):
+        origin = popup.mapToGlobal(QPoint(0, 0))
+        P = GLASS_PREFERENCES
+        stamp = (
+            popup.width(), popup.height(), origin.x(), origin.y(),
+            P.get("popup_blur"), P.get("popup_radius"), P.get("popup_reflection"),
+            P.get("popup_tint"),
+        )
+        if stamp != self._stamp:
+            self._stamp = stamp
+            self._pixmap = self._capture(popup)
+        if self._pixmap is not None and not self._pixmap.isNull():
+            painter = QPainter(popup)
+            painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+            painter.drawPixmap(0, 0, self._pixmap)
+            painter.end()
+
+    def eventFilter(self, obj, event):
+        kind = event.type()
+        if kind == QEvent.Paint:
+            obj.event(event)          # le popup se peint d'abord : teinte, liseré, texte
+            try:
+                self._paint_under(obj)   # puis le flou est glissé DESSOUS
+            except Exception as exc:
+                _debug_once("flou popup", exc)
+            return True
+        if kind in (QEvent.Show, QEvent.Move, QEvent.Resize, QEvent.Hide):
+            self.invalidate()
+        return False
+
+
+class GlassPopupManager(QObject):
+    """Filtre d'application : rend translucides et floute les popups Qt."""
+
+    def __init__(self, app):
+        super().__init__(app)
+        # PAS de app.installEventFilter(self) : un filtre global plante
+        # PySide6 6.11 + QtWebEngine (segfault). Le role est tenu par
+        # _GlassProxyStyle.polish() (widgets uniquement, thread principal).
+
+    @staticmethod
+    def _kind(obj):
+        try:
+            if not obj.isWidgetType():
+                return None
+            name = obj.metaObject().className()
+        except Exception:
+            return None
+        if name == "QComboBoxPrivateContainer":
+            return "combo"
+        if name == "QTipLabel":
+            return "tip"
+        if isinstance(obj, QMenu):
+            return "menu"
+        return None
+
+    @staticmethod
+    def _prepare(popup, kind):
+        if kind == "tip" and not GLASS_PREFERENCES.get("popup_tooltips", True):
+            return
+        if popup.property("_glass_prepared"):
+            return
+        popup.setProperty("_glass_prepared", True)
+        popup.setWindowFlags(
+            popup.windowFlags() | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint
+        )
+        popup.setAttribute(Qt.WA_TranslucentBackground, True)
+        if kind == "combo":
+            for view in popup.findChildren(QAbstractItemView):
+                view.setFrameShape(QFrame.NoFrame)
+                view.viewport().setAutoFillBackground(False)
+        _PopupBackdrop(popup)
+
+    def eventFilter(self, obj, event):
+        etype = event.type()
+        if etype == QEvent.Show:
+            try:
+                if _TEXT_OVERRIDES and obj.isWidgetType() and obj.isWindow():
+                    apply_text_overrides([obj] + obj.findChildren(QWidget))
+            except Exception as exc:
+                _debug_once("libellés (show)", exc)
+            return False
+        if etype != QEvent.Polish:
+            return False
+        try:
+            kind = self._kind(obj)
+            if kind is not None:
+                self._prepare(obj, kind)
+            elif obj.isWidgetType() and obj.styleSheet():
+                _restyle_widget(obj)
+        except Exception as exc:
+            _debug_once("popup", exc)
+        return False
+
+
+from PySide6.QtWidgets import QProxyStyle as _QProxyStyle
+
+try:
+    import shiboken6 as _shiboken6
+except Exception:
+    _shiboken6 = None
+
+_GLASS_DEFERRED_ACTIVE = False
+
+
+def _glass_alive(widget):
+    if _shiboken6 is None:
+        return True
+    try:
+        return bool(_shiboken6.isValid(widget))
+    except Exception:
+        return False
+
+
+def _glass_deferred_restyle(widget):
+    global _GLASS_DEFERRED_ACTIVE
+    if not _glass_alive(widget):
+        return
+    _GLASS_DEFERRED_ACTIVE = True
+    try:
+        _restyle_widget(widget)
+    except Exception as exc:
+        _debug_once("restyle (polish)", exc)
+    finally:
+        _GLASS_DEFERRED_ACTIVE = False
+
+
+def _glass_deferred_texts(widget):
+    if not _glass_alive(widget):
+        return
+    try:
+        if _TEXT_OVERRIDES:
+            apply_text_overrides([widget] + widget.findChildren(QWidget))
+    except Exception as exc:
+        _debug_once("libellés (polish)", exc)
+
+
+class _GlassProxyStyle(_QProxyStyle):
+    """
+    Remplace le filtre d'evenements GLOBAL de GlassPopupManager.
+    polish() n'est appele que pour de vrais QWidget, dans le thread
+    principal : aucun objet interne de Chromium/QtWebEngine ne passe
+    par Python, donc plus de segfault.
+    """
+
+    def polish(self, arg):
+        result = super().polish(arg)
+        if isinstance(arg, QWidget):
+            try:
+                self._glass_hook(arg)
+            except Exception as exc:
+                _debug_once("polish (style)", exc)
+        return result
+
+    @staticmethod
+    def _glass_hook(widget):
+        kind = GlassPopupManager._kind(widget)
+        if kind is not None:
+            GlassPopupManager._prepare(widget, kind)
+            return
+        if _GLASS_DEFERRED_ACTIVE:
+            return
+        if widget.styleSheet() and not getattr(widget, "_glass_restyle_done", False):
+            widget._glass_restyle_done = True
+            QTimer.singleShot(0, lambda w=widget: _glass_deferred_restyle(w))
+        if (
+            _TEXT_OVERRIDES
+            and widget.isWindow()
+            and not getattr(widget, "_glass_texts_done", False)
+        ):
+            widget._glass_texts_done = True
+            QTimer.singleShot(0, lambda w=widget: _glass_deferred_texts(w))
+
+
+def install_glass_proxy_style(app=None):
+    """Installe (une seule fois) le style Fusion enveloppe par _GlassProxyStyle."""
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    style = getattr(app, "_glass_proxy_style", None)
+    if style is None:
+        style = _GlassProxyStyle("Fusion")
+        app.setStyle(style)
+        app._glass_proxy_style = style
+    return style
+
+
+def install_glass_popup_manager(app=None):
+    """Installe (une seule fois) le gestionnaire de popups floutés."""
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    manager = getattr(app, "_glass_popup_manager", None)
+    if manager is None:
+        manager = GlassPopupManager(app)
+        app._glass_popup_manager = manager
+        install_glass_proxy_style(app)
+        _install_text_timer(app)
+    for widget in app.allWidgets():
+        if isinstance(widget, QComboBox):
+            try:
+                container = widget.view().window()
+                if container is not None and container is not widget.window():
+                    GlassPopupManager._prepare(container, "combo")
+            except Exception as exc:
+                _debug_once("liste déroulante", exc)
+    return manager
+
+
+
+
+
+# ============================================================================
+# LIBELLES — tous les textes de l'interface peuvent être remplacés
+# ----------------------------------------------------------------------------
+# Principe : on ne touche à aucun appel du code. Chaque texte affiché (étiquette,
+# bouton, onglet, menu, info-bulle, titre de fenêtre, en-tête de tableau…) est
+# repéré tel que le code l'a posé (le « texte d'origine »). Si l'utilisateur a
+# défini un remplacement pour ce texte, c'est lui qui s'affiche. Le remplacement
+# suit donc aussi les changements de langue (il est propre à chaque texte d'origine).
+# ============================================================================
+
+import json as _json
+
+try:
+    _TEXT_OVERRIDES = {
+        str(k): str(v)
+        for k, v in _json.loads(
+            str(_PREFERENCES.value("texts/overrides", "{}") or "{}")
+        ).items()
+        if str(v).strip()
+    }
+except (ValueError, TypeError, AttributeError):
+    _TEXT_OVERRIDES = {}
+
+_TEXT_RAW = {}          # méthodes Qt d'origine (non interceptées)
+_TEXT_KINDS = {
+    "label": "Étiquette", "button": "Bouton", "group": "Groupe",
+    "tab": "Onglet", "header": "En-tête de tableau",
+    "placeholder": "Champ de saisie", "tooltip": "Info-bulle",
+    "title": "Titre de fenêtre", "action": "Menu / action",
+}
+
+
+def _text_eligible(text):
+    """Ni vide, ni riche (HTML), ni purement numérique / symbolique."""
+    if not isinstance(text, str):
+        return False
+    value = text.strip()
+    if not value or len(value) > 400:
+        return False
+    if _re.search(r"</?[A-Za-z][^>]*>", value):
+        return False
+    return any(ch.isalpha() for ch in value)
+
+
+def _slot_get(kind, obj, idx):
+    if kind in ("label", "button", "action"):
+        return obj.text()
+    if kind == "group":
+        return obj.title()
+    if kind == "tab":
+        return obj.tabText(idx)
+    if kind == "header":
+        item = obj.horizontalHeaderItem(idx)
+        return item.text() if item is not None else ""
+    if kind == "placeholder":
+        return obj.placeholderText()
+    if kind == "tooltip":
+        return obj.toolTip()
+    if kind == "title":
+        return obj.windowTitle()
+    return ""
+
+
+def _slot_put(kind, obj, idx, text):
+    if kind in ("label", "button", "group", "action", "placeholder", "tooltip", "title"):
+        _TEXT_RAW[kind](obj, text)          # méthode d'origine : pas de ré-interception
+    elif kind == "tab":
+        QTabBar.setTabText(obj, idx, text)
+    elif kind == "header":
+        item = obj.horizontalHeaderItem(idx)
+        if item is not None:
+            item.setText(text)
+
+
+def _slot_note(kind, obj, idx, text):
+    """Appelé quand le CODE pose un texte : on retient l'original, on affiche le remplaçant."""
+    shown = _TEXT_OVERRIDES.get(text, text) if _text_eligible(text) else text
+    obj.setProperty(f"_txo_{kind}{idx}", text)
+    obj.setProperty(f"_txl_{kind}{idx}", shown)
+    return shown
+
+
+def _make_text_hook(kind, raw):
+    def hook(self, text, *args):
+        if isinstance(text, str):
+            text = _slot_note(kind, self, 0, text)
+        return raw(self, text, *args)
+    return hook
+
+
+def _install_text_hooks():
+    if _TEXT_RAW:
+        return
+    try:
+        specs = (
+            ("label", QLabel, "setText"),
+            ("button", QAbstractButton, "setText"),
+            ("group", QGroupBox, "setTitle"),
+            ("action", QAction, "setText"),
+            ("placeholder", QLineEdit, "setPlaceholderText"),
+            ("tooltip", QWidget, "setToolTip"),
+            ("title", QWidget, "setWindowTitle"),
+        )
+        for kind, cls, name in specs:
+            raw = getattr(cls, name)
+            _TEXT_RAW[kind] = raw
+            setattr(cls, name, _make_text_hook(kind, raw))
+        raw_tab = QTabWidget.setTabText
+
+        def tab_hook(self, index, text):
+            if isinstance(text, str):
+                text = _slot_note("tab", self.tabBar(), index, text)
+            return raw_tab(self, index, text)
+
+        QTabWidget.setTabText = tab_hook
+    except Exception as exc:          # le balayage périodique prend le relais
+        _debug_once("libellés (crochets)", exc)
+
+
+def _text_excluded(widget):
+    top = widget.window()
+    return top is not None and bool(top.property("_no_text_override"))
+
+
+def _iter_text_slots(widgets):
+    seen = set()
+    for w in widgets:
+        try:
+            if _text_excluded(w):
+                continue
+            if isinstance(w, QLabel):
+                yield ("label", w, 0)
+            elif isinstance(w, QAbstractButton):
+                if not (isinstance(w, QToolButton) and w.defaultAction() is not None):
+                    yield ("button", w, 0)
+            elif isinstance(w, QGroupBox):
+                yield ("group", w, 0)
+            elif isinstance(w, QTabBar):
+                for i in range(w.count()):
+                    yield ("tab", w, i)
+            elif isinstance(w, QTableWidget):
+                for i in range(w.columnCount()):
+                    if w.horizontalHeaderItem(i) is not None:
+                        yield ("header", w, i)
+            elif isinstance(w, QLineEdit):
+                yield ("placeholder", w, 0)
+            if w.toolTip():
+                yield ("tooltip", w, 0)
+            if w.isWindow():
+                yield ("title", w, 0)
+            for action in w.actions():
+                if id(action) not in seen:
+                    seen.add(id(action))
+                    yield ("action", action, 0)
+        except RuntimeError:
+            continue
+
+
+def _sync_text_slot(kind, obj, idx):
+    """Aligne le texte affiché sur les remplacements ; renvoie le texte d'origine."""
+    current = _slot_get(kind, obj, idx)
+    key_orig, key_last = f"_txo_{kind}{idx}", f"_txl_{kind}{idx}"
+    if current != obj.property(key_last):
+        original = current                    # posé par le code (ou premier passage)
+        obj.setProperty(key_orig, original)
+    else:
+        original = obj.property(key_orig)
+        if original is None:
+            original = current
+    wanted = _TEXT_OVERRIDES.get(original, original) if _text_eligible(original) else original
+    if wanted != current:
+        _slot_put(kind, obj, idx, wanted)
+    obj.setProperty(key_last, wanted)
+    return original
+
+
+def apply_text_overrides(widgets=None):
+    app = QApplication.instance()
+    if app is None:
+        return
+    for kind, obj, idx in _iter_text_slots(widgets if widgets is not None else app.allWidgets()):
+        try:
+            _sync_text_slot(kind, obj, idx)
+        except Exception as exc:
+            _debug_once("libellés", exc)
+
+
+def collect_interface_texts():
+    """{texte d'origine: {types}} pour tout ce qui est affiché en ce moment."""
+    app = QApplication.instance()
+    found = {}
+    if app is None:
+        return found
+    for kind, obj, idx in _iter_text_slots(app.allWidgets()):
+        try:
+            original = _sync_text_slot(kind, obj, idx)
+        except Exception:
+            continue
+        if _text_eligible(original):
+            found.setdefault(original, set()).add(kind)
+    return found
+
+
+def _install_text_timer(app):
+    """Rattrape les textes changés côté C++ ou par le code (ex. changement de langue)."""
+    if getattr(app, "_glass_text_timer", None) is not None:
+        return
+    timer = QTimer(app)
+    timer.setInterval(1000)
+    timer.timeout.connect(lambda: apply_text_overrides() if _TEXT_OVERRIDES else None)
+    timer.start()
+    app._glass_text_timer = timer
+
+
+_install_text_hooks()
+
+
 
 COLORS = {
     "window": "#0f1721",
@@ -907,14 +2010,16 @@ _refresh_preference_palette()
 # STYLE
 # ============================================================================
 
-APP_STYLE = f"""
+def _build_app_style():
+    """Feuille de style de base, reconstruite à chaque changement de réglage."""
+    return f"""
 QMainWindow {{
     background: {COLORS["window_gradient"]};
 }}
 
 QWidget {{
-    font-family: "Noto Sans", "Segoe UI", sans-serif;
-    font-size: 13px;
+    font-family: "{GLASS_PREFERENCES["font_family"]}", "Noto Sans", "Segoe UI", sans-serif;
+    font-size: {int(GLASS_PREFERENCES["font_size"])}px;
     color: {COLORS["text"]};
 }}
 
@@ -1635,6 +2740,9 @@ QMessageBox QPushButton {{
 """
 
 
+APP_STYLE = _build_app_style()
+
+
 # ============================================================================
 # EFFET "VERRE LIQUIDE" — ombre portée douce simulant l'élévation d'une
 # carte de verre au-dessus du dégradé de fond. QSS seul ne sait pas
@@ -1750,15 +2858,20 @@ def make_panel_title(text):
     return make_label(text, "PanelTitle")
 
 
+_GLASS_KINDS = {
+    "button": ("button_tint", "button_opacity", 66),
+    "button_hover": ("button_hover_tint", "button_opacity", 66),
+    "panel": ("panel_tint", "panel_opacity", 58),
+    "tab": ("tab_tint", "tab_opacity", 66),
+    "tab_hover": ("tab_hover_tint", "tab_opacity", 66),
+    "tab_active": ("tab_active_tint", "tab_opacity", 66),
+}
+
+
 def _glass_tint(alpha, factor=1.0, kind="button"):
-    preference_key = {
-        "button": "button_tint",
-        "panel": "panel_tint",
-    }.get(kind, "button_tint")
-    opacity_key = "panel_opacity" if kind == "panel" else "button_opacity"
-    base_opacity = 58 if kind == "panel" else 66
+    color_key, opacity_key, base_opacity = _GLASS_KINDS.get(kind, _GLASS_KINDS["button"])
     alpha = int(alpha * GLASS_PREFERENCES.get(opacity_key, base_opacity) / base_opacity)
-    color = _preference_color(preference_key)
+    color = _theme_color(color_key)
     if not color.isValid():
         color = QColor("#6bd18d")
     color.setRed(max(0, min(255, int(color.red() * factor))))
@@ -1791,7 +2904,9 @@ class LiquidGlassButton(QPushButton):
     glassFlux = Property(float, _get_glass_flux, _set_glass_flux)
 
     def enterEvent(self, event):
-        self._glass_flux_timer.start()
+        if GLASS_PREFERENCES.get("button_shimmer", True):
+            self._glass_flux_timer.start()
+        self.update()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
@@ -1806,21 +2921,19 @@ class LiquidGlassButton(QPushButton):
         if self.width() < 3 or self.height() < 3:
             return
 
+        radius = float(GLASS_PREFERENCES.get("button_radius", 12))
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         margin = 2.0
         rect = self.rect().adjusted(margin, margin, -margin, -margin)
         path = QPainterPath()
-        path.addRoundedRect(QRectF(rect), 12.0, 12.0)
+        path.addRoundedRect(QRectF(rect), radius, radius)
 
-        # Layer 0: translucent bend/backdrop. QSS has no backdrop-filter;
-        # the alpha keeps the real theme image visible through the surface.
         painter.fillPath(path, _glass_tint(GLASS_PREFERENCES["opacity"] + 30, 1.35))
 
-        # Layer 1: soft face and external depth.
         painter.setPen(Qt.NoPen)
         painter.setBrush(_glass_tint(54, 0.48))
-        painter.drawRoundedRect(QRectF(rect).translated(0, 2), 12.0, 12.0)
+        painter.drawRoundedRect(QRectF(rect).translated(0, 2), radius, radius)
         face = QLinearGradient(0, rect.top(), 0, rect.bottom())
         face.setColorAt(0.0, QColor(255, 255, 255, 128))
         face.setColorAt(0.16, _glass_tint(92, 1.35))
@@ -1829,16 +2942,18 @@ class LiquidGlassButton(QPushButton):
         painter.setBrush(face)
         painter.drawPath(path)
         if self.isDown() or self.isChecked():
-            painter.setBrush(QColor(81, 201, 129, 58))
+            painter.setBrush(_overlay("button_pressed_tint", "button_pressed_opacity"))
+            painter.drawPath(path)
+        if self.underMouse() and not self.isDown():
+            painter.setBrush(_overlay("button_hover_tint", "button_hover_opacity"))
             painter.drawPath(path)
 
-        # Layer 2: opposing inset highlights recreate the curved glass edge.
         painter.setBrush(Qt.NoBrush)
-        painter.setPen(QColor(255, 255, 255, 188))
+        painter.setPen(_overlay("button_border_color", "button_border_opacity"))
         painter.drawPath(path)
         inner = QRectF(rect).adjusted(2.0, 2.0, -2.0, -2.0)
         inner_path = QPainterPath()
-        inner_path.addRoundedRect(inner, 10.0, 10.0)
+        inner_path.addRoundedRect(inner, max(1.0, radius - 2.0), max(1.0, radius - 2.0))
         painter.setPen(QPen(_glass_tint(GLASS_PREFERENCES["reflection"], 1.25), 1.0))
         painter.drawPath(inner_path)
         lower = QLinearGradient(0, rect.top(), 0, rect.bottom())
@@ -1848,7 +2963,7 @@ class LiquidGlassButton(QPushButton):
         painter.setPen(QPen(lower, 2.0))
         painter.drawPath(path)
 
-        if self.underMouse():
+        if self.underMouse() and GLASS_PREFERENCES.get("button_shimmer", True):
             painter.save()
             painter.setClipPath(path)
             start_x = -self.width() * 0.45 + self.width() * self._glass_flux
@@ -1857,7 +2972,7 @@ class LiquidGlassButton(QPushButton):
             )
             gradient.setColorAt(0.0, QColor(255, 255, 255, 0))
             gradient.setColorAt(0.45, QColor(255, 255, 255, 48))
-            gradient.setColorAt(0.45, _glass_tint(68, 1.25))
+            gradient.setColorAt(0.45, _glass_tint(68, 1.25, "button_hover"))
             gradient.setColorAt(0.58, QColor(255, 255, 255, 150))
             gradient.setColorAt(1.0, QColor(255, 255, 255, 0))
             painter.fillPath(path, gradient)
@@ -1865,7 +2980,6 @@ class LiquidGlassButton(QPushButton):
 
         painter.end()
 
-        # Let Qt draw the native label/icon on top of the three glass layers.
         option = QStyleOptionButton()
         self.initStyleOption(option)
         content = QStylePainter(self)
@@ -1896,7 +3010,9 @@ class LiquidGlassToolButton(QToolButton):
     glassFlux = Property(float, _get_glass_flux, _set_glass_flux)
 
     def enterEvent(self, event):
-        self._glass_flux_timer.start()
+        if GLASS_PREFERENCES.get("tab_shimmer", True):
+            self._glass_flux_timer.start()
+        self.update()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
@@ -1911,36 +3027,40 @@ class LiquidGlassToolButton(QToolButton):
         if self.width() < 3 or self.height() < 3:
             return
 
+        radius = float(GLASS_PREFERENCES.get("tab_radius", 12))
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect().adjusted(2, 2, -2, -2)
         path = QPainterPath()
-        path.addRoundedRect(QRectF(rect), 12.0, 12.0)
+        path.addRoundedRect(QRectF(rect), radius, radius)
 
-        painter.fillPath(path, _glass_tint(GLASS_PREFERENCES["opacity"] + 24, 1.35))
+        painter.fillPath(path, _glass_tint(GLASS_PREFERENCES["opacity"] + 24, 1.35, "tab"))
         painter.setPen(Qt.NoPen)
-        painter.setBrush(_glass_tint(48, 0.48))
-        painter.drawRoundedRect(QRectF(rect).translated(0, 2), 12.0, 12.0)
+        painter.setBrush(_glass_tint(48, 0.48, "tab"))
+        painter.drawRoundedRect(QRectF(rect).translated(0, 2), radius, radius)
         face = QLinearGradient(0, rect.top(), 0, rect.bottom())
         face.setColorAt(0.0, QColor(255, 255, 255, 126))
-        face.setColorAt(0.18, _glass_tint(86, 1.35))
-        face.setColorAt(0.62, _glass_tint(68, 1.0))
-        face.setColorAt(1.0, _glass_tint(84, 0.52))
+        face.setColorAt(0.18, _glass_tint(86, 1.35, "tab"))
+        face.setColorAt(0.62, _glass_tint(68, 1.0, "tab"))
+        face.setColorAt(1.0, _glass_tint(84, 0.52, "tab"))
         painter.setBrush(face)
         painter.drawPath(path)
         if self.isDown() or self.isChecked():
-            painter.setBrush(QColor(81, 201, 129, 58))
+            painter.setBrush(_overlay("tab_active_tint", "tab_active_opacity"))
+            painter.drawPath(path)
+        if self.underMouse() and not self.isDown():
+            painter.setBrush(_overlay("tab_hover_tint", "tab_hover_opacity"))
             painter.drawPath(path)
         painter.setBrush(Qt.NoBrush)
-        painter.setPen(QColor(255, 255, 255, 182))
+        painter.setPen(_overlay("tab_border_color", "tab_border_opacity"))
         painter.drawPath(path)
         inner = QRectF(rect).adjusted(2.0, 2.0, -2.0, -2.0)
         inner_path = QPainterPath()
-        inner_path.addRoundedRect(inner, 10.0, 10.0)
-        painter.setPen(QPen(_glass_tint(GLASS_PREFERENCES["reflection"], 1.25), 1.0))
+        inner_path.addRoundedRect(inner, max(1.0, radius - 2.0), max(1.0, radius - 2.0))
+        painter.setPen(QPen(_glass_tint(GLASS_PREFERENCES["reflection"], 1.25, "tab"), 1.0))
         painter.drawPath(inner_path)
 
-        if self.underMouse():
+        if self.underMouse() and GLASS_PREFERENCES.get("tab_shimmer", True):
             painter.save()
             painter.setClipPath(path)
             start_x = -self.width() * 0.45 + self.width() * self._glass_flux
@@ -1949,7 +3069,7 @@ class LiquidGlassToolButton(QToolButton):
             )
             gradient.setColorAt(0.0, QColor(255, 255, 255, 0))
             gradient.setColorAt(0.5, QColor(255, 255, 255, 48))
-            gradient.setColorAt(0.5, _glass_tint(68, 1.25))
+            gradient.setColorAt(0.5, _glass_tint(68, 1.25, "tab_hover"))
             gradient.setColorAt(0.62, QColor(255, 255, 255, 150))
             gradient.setColorAt(1.0, QColor(255, 255, 255, 0))
             painter.fillPath(path, gradient)
@@ -2045,167 +3165,347 @@ class GlassToolBar(QToolBar):
         super().paintEvent(event)
 
 
+from PySide6.QtWidgets import QHeaderView, QTableWidgetItem, QAbstractItemView as _QAIV
+
+
 class GlassPreferencesDialog(QDialog):
-    """Live editor for persistent glass material preferences."""
+    """Éditeur en direct de TOUS les réglages d'apparence et des libellés.
+
+    Les onglets « Matériau », « Style du texte », « Onglets », « Boutons » et
+    « Menus & flou » sont générés automatiquement depuis _THEME_SCHEMA ;
+    l'onglet « Libellés » liste chaque texte affiché par l'interface.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Paramètres du verre")
+        self.setProperty("_no_text_override", True)   # cette fenêtre n'est pas renommable
+        self.setWindowTitle("Paramètres d'apparence")
         self.setModal(True)
-        self.setMinimumWidth(560)
+        self.resize(740, 780)
         self._original = dict(GLASS_PREFERENCES)
-        self._tints = {
-            key: _preference_color(key)
-            for key in (
-                "panel_tint",
-                "button_tint",
-                "text_color",
-                "scrollbar_tint",
-            )
-        }
+        self._original_texts = dict(_TEXT_OVERRIDES)
+        self._controls = {}
+        self._filling = False
+
+        self._style_timer = QTimer(self)
+        self._style_timer.setSingleShot(True)
+        self._style_timer.setInterval(120)
+        self._style_timer.timeout.connect(self._apply_now)
+        self._text_timer = QTimer(self)
+        self._text_timer.setSingleShot(True)
+        self._text_timer.setInterval(250)
+        self._text_timer.timeout.connect(apply_text_overrides)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 22, 24, 18)
         layout.setSpacing(12)
 
-        title = QLabel("Préférences du matériau")
+        title = QLabel("Apparence du logiciel")
         title.setObjectName("SectionTitle")
         layout.addWidget(title)
         description = QLabel(
-            "Ajuste la teinte, la transparence et les reflets. "
-            "L'aperçu est mis à jour immédiatement."
+            "Chaque élément visible se règle ici, avec aperçu immédiat. "
+            "« Auto » = couleur dérivée automatiquement d'une autre."
         )
         description.setObjectName("SectionDescription")
         description.setWordWrap(True)
         layout.addWidget(description)
 
-        form = QFormLayout()
-        form.setHorizontalSpacing(18)
-        form.setVerticalSpacing(10)
-
-        self.panel_color_button = self._color_button("panel_tint")
-        form.addRow("Couleur panneaux / onglets", self.panel_color_button)
-        self.button_color_button = self._color_button("button_tint")
-        form.addRow("Couleur boutons", self.button_color_button)
-        self.text_color_button = self._color_button("text_color")
-        form.addRow("Couleur du texte", self.text_color_button)
-        self.scrollbar_color_button = self._color_button("scrollbar_tint")
-        form.addRow("Couleur défilement", self.scrollbar_color_button)
-
-        self.opacity_slider = self._slider(10, 95, GLASS_PREFERENCES["opacity"])
-        form.addRow("Transparence générale", self.opacity_slider)
-        self.panel_opacity_slider = self._slider(10, 95, GLASS_PREFERENCES["panel_opacity"])
-        form.addRow("Transparence panneaux", self.panel_opacity_slider)
-        self.button_opacity_slider = self._slider(10, 95, GLASS_PREFERENCES["button_opacity"])
-        form.addRow("Transparence boutons", self.button_opacity_slider)
-        self.scrollbar_opacity_slider = self._slider(10, 95, GLASS_PREFERENCES["scrollbar_opacity"])
-        form.addRow("Transparence défilement", self.scrollbar_opacity_slider)
-
-        self.reflection_slider = self._slider(10, 100, GLASS_PREFERENCES["reflection"])
-        form.addRow("Réflexion de lumière", self.reflection_slider)
-
-        self.radius_slider = self._slider(6, 36, GLASS_PREFERENCES["radius"])
-        form.addRow("Rayon des bords", self.radius_slider)
-
-        self.refraction_field = QDoubleSpinBox()
-        self.refraction_field.setRange(1.00, 2.50)
-        self.refraction_field.setSingleStep(0.01)
-        self.refraction_field.setDecimals(2)
-        self.refraction_field.setValue(GLASS_PREFERENCES["refraction"])
-        self.refraction_field.setToolTip(
-            "Indice visuel utilisé pour moduler la force du reflet."
-        )
-        form.addRow("Indice de réfraction", self.refraction_field)
-        layout.addLayout(form)
+        self.tabs = QTabWidget()
+        groups = []
+        for spec in _THEME_SCHEMA:
+            if spec["group"] not in groups:
+                groups.append(spec["group"])
+        for group in groups:
+            self.tabs.addTab(self._build_page(group), group)
+        self.tabs.addTab(self._build_texts_page(), "Libellés")
+        layout.addWidget(self.tabs, 1)
 
         self.preview = GlassPanel(radius=GLASS_PREFERENCES["radius"])
-        self.preview.setMinimumHeight(120)
+        self.preview.setMinimumHeight(110)
         preview_layout = QVBoxLayout(self.preview)
-        preview_layout.setContentsMargins(22, 18, 22, 18)
-        preview_layout.addWidget(QLabel("Aperçu du verre"))
-        preview_button = LiquidGlassButton("Bouton d'exemple")
-        preview_button.setMinimumHeight(42)
-        preview_layout.addWidget(preview_button)
+        preview_layout.setContentsMargins(18, 14, 18, 14)
+        preview_layout.addWidget(QLabel("Aperçu"))
+        row = QHBoxLayout()
+        sample_button = LiquidGlassButton("Bouton d'exemple")
+        sample_button.setMinimumHeight(40)
+        row.addWidget(sample_button)
+        sample_tab = LiquidGlassToolButton()
+        sample_tab.setText("Onglet")
+        sample_tab.setCheckable(True)
+        sample_tab.setChecked(True)
+        sample_tab.setMinimumHeight(40)
+        row.addWidget(sample_tab)
+        sample_combo = QComboBox()
+        sample_combo.addItems(["Liste déroulante", "Deuxième choix", "Troisième choix"])
+        row.addWidget(sample_combo)
+        self.menu_button = LiquidGlassButton("Tester un menu")
+        self.menu_button.setMinimumHeight(40)
+        self.menu_button.clicked.connect(self._show_sample_menu)
+        row.addWidget(self.menu_button)
+        preview_layout.addLayout(row)
         layout.addWidget(self.preview)
 
         buttons = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            QDialogButtonBox.Save | QDialogButtonBox.Cancel | QDialogButtonBox.RestoreDefaults
         )
+        buttons.button(QDialogButtonBox.Save).setText("Enregistrer")
+        buttons.button(QDialogButtonBox.Cancel).setText("Annuler")
+        buttons.button(QDialogButtonBox.RestoreDefaults).setText("Réinitialiser")
         buttons.accepted.connect(self._save)
         buttons.rejected.connect(self.reject)
+        buttons.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self._restore_defaults)
         layout.addWidget(buttons)
 
-        for control in (
-            self.opacity_slider,
-            self.panel_opacity_slider,
-            self.button_opacity_slider,
-            self.scrollbar_opacity_slider,
-            self.reflection_slider,
-            self.radius_slider,
-            self.refraction_field,
-        ):
-            control.valueChanged.connect(self._preview_changed)
+        self._fill_texts()      # une fois tous les widgets rattachés au dialogue
 
-    @staticmethod
-    def _slider(minimum, maximum, value):
-        slider = QSlider(Qt.Horizontal)
-        slider.setRange(minimum, maximum)
-        slider.setValue(int(value))
-        slider.setMinimumWidth(220)
-        return slider
+    def _build_page(self, group):
+        page = QWidget()
+        form = QFormLayout(page)
+        form.setContentsMargins(14, 14, 14, 14)
+        form.setHorizontalSpacing(18)
+        form.setVerticalSpacing(10)
+        for spec in _THEME_SCHEMA:
+            if spec["group"] == group:
+                form.addRow(spec["label"], self._build_control(spec))
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+        return scroll
 
-    def _color_button(self, key):
-        button = QPushButton(self._tints[key].name())
-        button.clicked.connect(lambda: self._choose_color(key, button))
-        return button
+    def _build_control(self, spec):
+        key, kind = spec["key"], spec["kind"]
+        value = GLASS_PREFERENCES[key]
+        if kind == "color":
+            box = QWidget()
+            row = QHBoxLayout(box)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(8)
+            button = QPushButton()
+            button.setMinimumWidth(150)
+            button.clicked.connect(lambda _c=False, k=key: self._pick_color(k))
+            row.addWidget(button)
+            if spec["auto"]:
+                auto = QPushButton("Auto")
+                auto.setToolTip("Revenir à la couleur automatique")
+                auto.clicked.connect(lambda _c=False, k=key: self._set_value(k, ""))
+                row.addWidget(auto)
+            row.addStretch(1)
 
-    def _choose_color(self, key, button):
-        color = QColorDialog.getColor(self._tints[key], self, "Choisir une couleur")
+            def refresh(v, k=key, b=button):
+                color = _theme_color(k)
+                swatch = QPixmap(20, 14)
+                swatch.fill(color)
+                b.setIcon(QIcon(swatch))
+                b.setText(str(v) if str(v).strip() else "Auto")
+
+            widget = box
+        elif kind == "int":
+            box = QWidget()
+            row = QHBoxLayout(box)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(10)
+            slider = QSlider(Qt.Horizontal)
+            slider.setRange(spec["lo"], spec["hi"])
+            slider.setMinimumWidth(240)
+            label = QLabel()
+            label.setMinimumWidth(34)
+            row.addWidget(slider, 1)
+            row.addWidget(label)
+
+            def on_slide(v, k=key, lab=label):
+                lab.setText(str(v))
+                self._set_value(k, int(v), refresh=False)
+
+            slider.valueChanged.connect(on_slide)
+
+            def refresh(v, s=slider, lab=label):
+                s.blockSignals(True)
+                s.setValue(int(v))
+                s.blockSignals(False)
+                lab.setText(str(int(v)))
+
+            widget = box
+        elif kind == "float":
+            spin = QDoubleSpinBox()
+            spin.setRange(spec["lo"], spec["hi"])
+            spin.setSingleStep(0.01)
+            spin.setDecimals(2)
+            spin.valueChanged.connect(lambda v, k=key: self._set_value(k, float(v), refresh=False))
+
+            def refresh(v, s=spin):
+                s.blockSignals(True)
+                s.setValue(float(v))
+                s.blockSignals(False)
+
+            widget = spin
+        elif kind == "bool":
+            check = QCheckBox()
+            check.toggled.connect(lambda v, k=key: self._set_value(k, bool(v), refresh=False))
+
+            def refresh(v, c=check):
+                c.blockSignals(True)
+                c.setChecked(bool(v))
+                c.blockSignals(False)
+
+            widget = check
+        else:  # font
+            combo = QFontComboBox()
+            combo.currentFontChanged.connect(
+                lambda f, k=key: self._set_value(k, f.family(), refresh=False)
+            )
+
+            def refresh(v, c=combo):
+                c.blockSignals(True)
+                c.setCurrentFont(QFont(str(v)))
+                c.blockSignals(False)
+
+            widget = combo
+        refresh(value)
+        self._controls[key] = refresh
+        return widget
+
+    def _pick_color(self, key):
+        color = QColorDialog.getColor(_theme_color(key), self, "Choisir une couleur")
         if color.isValid():
-            self._tints[key] = color
-            button.setText(color.name())
-            self._preview_changed()
+            self._set_value(key, color.name())
 
-    def _preview_changed(self, _value=None):
-        for key, color in self._tints.items():
-            GLASS_PREFERENCES[key] = color.name()
-        GLASS_PREFERENCES["opacity"] = self.opacity_slider.value()
-        GLASS_PREFERENCES["panel_opacity"] = self.panel_opacity_slider.value()
-        GLASS_PREFERENCES["button_opacity"] = self.button_opacity_slider.value()
-        GLASS_PREFERENCES["scrollbar_opacity"] = self.scrollbar_opacity_slider.value()
-        GLASS_PREFERENCES["reflection"] = self.reflection_slider.value()
-        GLASS_PREFERENCES["radius"] = self.radius_slider.value()
-        GLASS_PREFERENCES["refraction"] = self.refraction_field.value()
-        self.preview._glass_radius = self.radius_slider.value()
-        self.preview.update()
+    def _set_value(self, key, value, refresh=True):
+        GLASS_PREFERENCES[key] = value
+        if refresh:
+            self._controls[key](value)
+        if not self._style_timer.isActive():     # rafraîchit pendant le glissement, sans saturer
+            self._style_timer.start()
+
+    def _build_texts_page(self):
+        page = QWidget()
+        box = QVBoxLayout(page)
+        box.setContentsMargins(14, 14, 14, 14)
+        box.setSpacing(10)
+        hint = QLabel(
+            "Chaque texte affiché par l'interface est listé ici. Écris le nouveau "
+            "texte dans la colonne de droite (vide = texte d'origine) : le "
+            "changement est immédiat. Un remplacement est lié au texte d'origine, "
+            "donc propre à chaque langue."
+        )
+        hint.setWordWrap(True)
+        hint.setObjectName("SectionDescription")
+        box.addWidget(hint)
+        self.text_search = QLineEdit()
+        self.text_search.setPlaceholderText("Filtrer les textes…")
+        self.text_search.textChanged.connect(self._filter_texts)
+        box.addWidget(self.text_search)
+        self.text_table = QTableWidget(0, 3)
+        self.text_table.setHorizontalHeaderLabels(["Type", "Texte d'origine", "Nouveau texte"])
+        self.text_table.verticalHeader().setVisible(False)
+        self.text_table.setWordWrap(True)
+        self.text_table.setSelectionBehavior(_QAIV.SelectRows)
+        header = self.text_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        self.text_table.itemChanged.connect(self._on_text_edited)
+        box.addWidget(self.text_table, 1)
+        row = QHBoxLayout()
+        refresh = QPushButton("Actualiser la liste")
+        refresh.clicked.connect(self._fill_texts)
+        restore = QPushButton("Rétablir tous les textes d'origine")
+        restore.clicked.connect(self._restore_texts)
+        row.addWidget(refresh)
+        row.addWidget(restore)
+        row.addStretch(1)
+        box.addLayout(row)
+        return page
+
+    def _fill_texts(self):
+        self._filling = True
+        found = collect_interface_texts()
+        keys = sorted(set(found) | set(_TEXT_OVERRIDES), key=lambda t: t.lower())
+        self.text_table.setRowCount(len(keys))
+        for row, original in enumerate(keys):
+            kinds = ", ".join(sorted(_TEXT_KINDS[k] for k in found.get(original, ()))) or "(non affiché)"
+            for col, text in ((0, kinds), (1, original)):
+                item = QTableWidgetItem(text)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self.text_table.setItem(row, col, item)
+            self.text_table.setItem(row, 2, QTableWidgetItem(_TEXT_OVERRIDES.get(original, "")))
+        self._filling = False
+        self._filter_texts(self.text_search.text())
+
+    def _filter_texts(self, query=""):
+        needle = str(query).strip().lower()
+        for row in range(self.text_table.rowCount()):
+            original = self.text_table.item(row, 1)
+            new = self.text_table.item(row, 2)
+            hay = f"{original.text()} {new.text() if new else ''}".lower()
+            self.text_table.setRowHidden(row, bool(needle) and needle not in hay)
+
+    def _on_text_edited(self, item):
+        if self._filling or item.column() != 2:
+            return
+        original = self.text_table.item(item.row(), 1).text()
+        value = item.text()
+        if value.strip() and value != original:
+            _TEXT_OVERRIDES[original] = value
+        else:
+            _TEXT_OVERRIDES.pop(original, None)
+        self._text_timer.start()
+
+    def _restore_texts(self):
+        _TEXT_OVERRIDES.clear()
+        apply_text_overrides()
+        self._fill_texts()
+
+    def _show_sample_menu(self):
+        menu = QMenu(self)
+        for label in ("Copier", "Coller", "Tout sélectionner"):
+            menu.addAction(label)
+        menu.addSeparator()
+        menu.addAction("Action désactivée").setEnabled(False)
+        menu.exec(self.menu_button.mapToGlobal(self.menu_button.rect().bottomLeft()))
+
+    def _apply_now(self):
         apply_runtime_preferences()
+        radius = int(GLASS_PREFERENCES["radius"])
         for widget in QApplication.instance().allWidgets():
-            if widget.property("liquid_glass") or widget.property("green_glass"):
+            if isinstance(widget, GlassPanel):
+                widget._glass_radius = radius
+            if (
+                widget.property("liquid_glass")
+                or widget.property("green_glass")
+                or isinstance(widget, ThemeBackground)
+            ):
                 widget.update()
 
+    def _restore_defaults(self):
+        for spec in _THEME_SCHEMA:
+            self._set_value(spec["key"], spec["default"])
+        self._style_timer.stop()
+        self._apply_now()
+
     def _save(self):
-        self._preview_changed()
-        for key, value in GLASS_PREFERENCES.items():
-            _PREFERENCES.setValue(f"glass/{key}", value)
+        self._style_timer.stop()
+        self._text_timer.stop()
+        self._apply_now()
+        apply_text_overrides()
+        for spec in _THEME_SCHEMA:
+            _PREFERENCES.setValue(f"glass/{spec['key']}", GLASS_PREFERENCES[spec["key"]])
+        _PREFERENCES.setValue(
+            "texts/overrides", _json.dumps(_TEXT_OVERRIDES, ensure_ascii=False)
+        )
         _PREFERENCES.sync()
         self.accept()
 
     def reject(self):
+        self._style_timer.stop()
+        self._text_timer.stop()
+        GLASS_PREFERENCES.clear()
         GLASS_PREFERENCES.update(self._original)
-        self.opacity_slider.setValue(self._original["opacity"])
-        self.reflection_slider.setValue(self._original["reflection"])
-        self.radius_slider.setValue(self._original["radius"])
-        self.refraction_field.setValue(self._original["refraction"])
-        self._tints = {
-            key: QColor(str(self._original[key]))
-            for key in self._tints
-        }
-        self.panel_color_button.setText(self._tints["panel_tint"].name())
-        self.button_color_button.setText(self._tints["button_tint"].name())
-        self.text_color_button.setText(self._tints["text_color"].name())
-        self.scrollbar_color_button.setText(self._tints["scrollbar_tint"].name())
-        self._preview_changed()
-        apply_runtime_preferences()
+        _TEXT_OVERRIDES.clear()
+        _TEXT_OVERRIDES.update(self._original_texts)
+        self._apply_now()
+        apply_text_overrides()
         super().reject()
 
 
@@ -6182,10 +7482,19 @@ class DockingPage(QWidget):
         else:
             pair_roles = None
 
+        # patch-familles : familles choisies dans l'interface -> colonne "groupe"
+        from pathlib import Path as _FamPath
+        ligand_groups = {}
+        for _lig_path, _lig_family in getattr(self, "pdbqt_families", {}).items():
+            _family = str(_lig_family or "").strip()
+            if _family and _family.lower() != "sans famille":
+                ligand_groups[str(_FamPath(_lig_path).resolve())] = _family
+
         self.worker = DockingWorker(
             engines=engines,
             ligands=ligands,
             results_root=self.project_root,
+            ligand_groups=ligand_groups,
             pair_roles=pair_roles,
         )
 
@@ -6484,7 +7793,7 @@ class DockingPage(QWidget):
 
                 self.analysis_page.statistics_result = (
                     run_statistics_pipeline(
-                        str(global_csv)
+                        str(grouped)  # patch-familles : le CSV global n'a pas de colonne groupe
                     )
                 )
 
@@ -6881,6 +8190,27 @@ class AnalysisPage(QWidget):
 
         combo.blockSignals(False)
 
+    def campaign_summary(self):
+        # patch-entete : recepteurs de la campagne analysee
+        result = getattr(self, "statistics_result", None)
+        if result:
+            labels = result.get("labels") or {}
+            names = [n for n in (labels.get("x"), labels.get("y")) if n]
+            if names:
+                return " + ".join(names)
+        csv_path = getattr(self, "docking_results_csv", None)
+        if csv_path:
+            try:
+                from src.campaign_table import normalize_docking_csv, campaign_shape
+                info = campaign_shape(normalize_docking_csv(csv_path))
+                return " + ".join(
+                    self._receptor_table_label(rid, info["labels"][rid])
+                    for rid in info["receptors"]
+                )
+            except Exception:
+                pass
+        return "Aucune campagne"
+
     def run_docking_analysis(self):
 
         csv_path = getattr(
@@ -6889,15 +8219,9 @@ class AnalysisPage(QWidget):
             None
         )
 
-        # Repli : aucune campagne lancee dans cette session — on utilise
-        # celle selectionnee dans le menu « Campagne », si ses resultats
-        # existent sur le disque.
-        if not csv_path:
-            csv_path = self._campaign_csv_path(
-                self.analysis_campaign_combo.currentText()
-                if getattr(self, "analysis_campaign_combo", None)
-                else ""
-            )
+        # patch-session : plus aucun repli sur d'anciens resultats du disque.
+        # L'analyse ne porte que sur le docking de cette session (ou sur une
+        # analyse chargee explicitement), jamais sur un fichier reste de la veille.
 
         if not csv_path:
 
@@ -6937,6 +8261,12 @@ class AnalysisPage(QWidget):
 
 
             self.populate_statistics_results()
+
+            # patch-entete : recharge le bandeau avec les recepteurs analyses
+            try:
+                self.window()._refresh_header_target()
+            except Exception:
+                pass
 
             self.stack.setCurrentIndex(
                 2
@@ -7046,6 +8376,8 @@ class AnalysisPage(QWidget):
 
         if not csv_path:
 
+            self._set_neutral_table_headers(table)  # patch-entetes
+
             table.insertRow(0)
 
             table.setItem(
@@ -7128,6 +8460,12 @@ class AnalysisPage(QWidget):
                         QTableWidgetItem(str(value)),
                     )
 
+        # patch-table-dynamique : colonnes selon les recepteurs de la campagne
+        try:
+            self._fill_docking_table_dynamic(table, csv_path)
+        except Exception as exc:
+            gui_debug("TABLEAU DYNAMIQUE ignore : " + str(exc))
+
         layout.addWidget(table, 1)
 
         scroll = QScrollArea()
@@ -7140,7 +8478,103 @@ class AnalysisPage(QWidget):
 
 
 
+    def _set_neutral_table_headers(self, table):
+        # patch-entetes : en-tetes neutres tant qu'aucune campagne n'est chargee
+        headers = list(self._docking_results_headers())
+        if len(headers) >= 6:
+            headers[3] = "Récepteur 1 (kcal/mol)"
+            headers[4] = "Récepteur 2 (kcal/mol)"
+        table.setColumnCount(len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        for col in range(len(headers)):
+            table.horizontalHeader().setSectionResizeMode(
+                col, QHeaderView.Stretch
+            )
+
     def refresh_docking_results(self):
+        # patch-table-dynamique : une colonne par recepteur de la campagne
+        try:
+            self._fill_docking_table_dynamic()
+        except Exception as exc:
+            gui_debug("TABLEAU DYNAMIQUE ignore : " + str(exc))
+            self._refresh_docking_results_legacy()
+
+    def _receptor_table_label(self, receptor_id, fallback):
+        """Nom court du recepteur (AcrB, MexB...) tire de son profil."""
+        try:
+            from src.docking.receptor_profile import (
+                resolve_target_profile,
+                short_label,
+            )
+            return str(short_label(resolve_target_profile(receptor_id)))
+        except Exception:
+            return fallback
+
+    def _fill_docking_table_dynamic(self, table=None, csv_path=None):
+        from src.campaign_table import normalize_docking_csv, campaign_shape
+
+        if table is None:
+            table = getattr(self, "docking_results_table", None)
+        if table is None:
+            return
+        if csv_path is None:
+            csv_path = getattr(self, "docking_results_csv", None)
+        if not csv_path or not Path(csv_path).exists():
+            table.setRowCount(0)
+            self._set_neutral_table_headers(table)  # patch-entetes
+            return
+
+        data = normalize_docking_csv(csv_path)
+        info = campaign_shape(data)
+        receptors = info["receptors"]
+        labels = {
+            rid: self._receptor_table_label(rid, info["labels"][rid])
+            for rid in receptors
+        }
+
+        base = self._docking_results_headers()
+        headers = (
+            list(base[:3])
+            + [labels[rid] + " (kcal/mol)" for rid in receptors]
+            + [base[-1]]
+        )
+
+        # Tout est calcule avant de toucher au tableau.
+        rows = []
+        for rank, (molecule, sub) in enumerate(
+            data.groupby("molecule", sort=False), start=1
+        ):
+            families = [g for g in sub["groupe"] if g]
+            cells = [str(rank), molecule, families[0] if families else ""]
+            problems = []
+            for rid in receptors:
+                rec = sub[sub["receptor_id"] == rid]
+                if rec.empty:
+                    cells.append("")
+                    problems.append(labels[rid] + " : absent")
+                    continue
+                value = rec["best_affinity"].iloc[0]
+                cells.append("" if value != value else "%.3f" % value)
+                status = str(rec["status"].iloc[0])
+                if status.upper() != "OK":
+                    problems.append(labels[rid] + " : " + status)
+            cells.append("OK" if not problems else " ; ".join(problems))
+            rows.append(cells)
+
+        table.setRowCount(0)
+        table.setColumnCount(len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        for col in range(len(headers)):
+            table.horizontalHeader().setSectionResizeMode(
+                col, QHeaderView.Stretch
+            )
+        for cells in rows:
+            row = table.rowCount()
+            table.insertRow(row)
+            for col, value in enumerate(cells):
+                table.setItem(row, col, QTableWidgetItem(str(value)))
+
+    def _refresh_docking_results_legacy(self):
 
         if not hasattr(
             self,
@@ -7463,6 +8897,11 @@ class AnalysisPage(QWidget):
 
             self.populate_statistics_results()
 
+            # patch-entete : recharge le bandeau avec les recepteurs analyses
+            try:
+                self.window()._refresh_header_target()
+            except Exception:
+                pass
 
             self.stack.setCurrentIndex(
                 2
@@ -7681,8 +9120,11 @@ class AnalysisPage(QWidget):
             dual_layout.addWidget(
                 make_label(
                     "Critères :\n"
-                    "- SI percentile > 50\n"
-                    "- ΔG MexR meilleur que le seuil piocyanine (-8.289 kcal/mol)"
+                    + "- SI percentile > " + ("%g" % dual.get("threshold_percentile", 50)) + "\n"
+                    + "- ΔG " + str((result.get("labels") or {}).get("y", "MexR"))
+                    + " meilleur que le seuil "
+                    + str((getattr(classification, "attrs", None) or {}).get("ref_name", "pyocyanine")).replace("pyocyanine", "piocyanine")
+                    + " (" + str((getattr(classification, "attrs", None) or {}).get("seuil_risque_absolu", -8.289)) + " kcal/mol)"  # patch-libelles-gui
                 )
             )
 
@@ -7881,51 +9323,7 @@ class AnalysisPage(QWidget):
         )
 
 
-        panel = _preference_color("panel_tint")
-        self.results_tabs.setStyleSheet(
-            f"""
-            QTabWidget::pane {{
-                border: 1px solid rgba(190, 255, 213, 125);
-                background: rgba({panel.red()}, {panel.green()}, {panel.blue()}, {GLASS_PREFERENCES['panel_opacity']});
-                border-radius: 16px;
-            }}
-
-            QTabBar::tab {{
-                background: qlineargradient(
-                    x1:0, y1:0, x2:0, y2:1,
-                    stop:0 rgba(247, 255, 250, 220),
-                    stop:0.22 rgba(216, 247, 227, 185),
-                    stop:1 rgba(61, 145, 91, {GLASS_PREFERENCES['button_opacity']})
-                );
-                );
-                color: #123a27;
-                padding: 9px 18px;
-                margin-right: 4px;
-                border: 1px solid rgba(255, 255, 255, 175);
-                border-bottom: none;
-                border-top-left-radius: 11px;
-                border-top-right-radius: 11px;
-            }}
-
-            QTabBar::tab:selected {{
-                background: qlineargradient(
-                    x1:0, y1:0, x2:0, y2:1,
-                    stop:0 rgba(255, 255, 255, 242),
-                    stop:0.18 rgba(194, 255, 215, 225),
-                    stop:0.58 rgba(93, 204, 128, 215),
-                    stop:1 rgba(35, 131, 72, 205)
-                );
-                color: #0d3521;
-                border-bottom: 2px solid {COLORS["accent"]};
-            }}
-
-            QTabBar::tab:hover {{
-                background: rgba(245, 255, 248, 242);
-                color: #0d3521;
-                border-color: rgba(255, 255, 255, 235);
-            }}
-            """
-        )
+        # Style des onglets : entièrement piloté par les réglages (Paramètres > Onglets).
 
         # Les coins du QTabWidget::pane sont arrondis en QSS mais le
         # contenu de chaque onglet reste rectangulaire : on force un
@@ -8121,7 +9519,7 @@ class VisualizationPage(QWidget):
         self.batch_errors = payload.get("errors", [])
 
         rows = []
-        for molecule, data in self.hit_results.items():
+        for key, data in self.hit_results.items():
             for res in data["interactions"]["summary"]:
                 rows.append(
                     (
@@ -8129,7 +9527,7 @@ class VisualizationPage(QWidget):
                         res["chain"],
                         str(res["residue_id"]),
                         res["interaction_types"],
-                        molecule,
+                        key,
                     )
                 )
 
@@ -8410,8 +9808,7 @@ class VisualizationPage(QWidget):
         self.interaction_3d_viewer.setHtml(VIEWER_HTML)
 
         # --- Initialisation du poller maintenant que le viewer existe ---
-        # --- TEST DIAGNOSTIC : poller désactivé ---
-        # self._interaction_3d_viewer_poller = _ViewerDragRepaintPoller(self.interaction_3d_viewer)
+        self._interaction_3d_viewer_poller = _ViewerDragRepaintPoller(self.interaction_3d_viewer)
         header.addStretch()
 
         self.interaction_3d_molecule_combo = QComboBox()
@@ -8423,6 +9820,7 @@ class VisualizationPage(QWidget):
 
         panel = QFrame()
         panel.setObjectName("ContentPanel")
+        panel.setProperty("skip_glass_elevation", True)  # patch-interaction3d : pas d'ombre portee sur un QWebEngineView
         panel_layout = QVBoxLayout(panel)
         panel_layout.setContentsMargins(14, 12, 14, 14)
         panel_layout.setSpacing(8)
@@ -8568,10 +9966,7 @@ class VisualizationPage(QWidget):
             return
 
         try:
-            target = self.current_hits[0].target if self.current_hits else viz_bridge.DEFAULT_TARGET
-
             export_dir = viz_bridge.export_visualization_results(
-                target,
                 {"results": self.hit_results, "errors": self.batch_errors},
                 Path(destination) / "export_visualisation",
             )
@@ -8738,7 +10133,9 @@ class ThemeBackground(QWidget):
             painter.drawPixmap(x, y, scaled)
 
         # The veil keeps text, tables, and controls readable over any photo.
-        painter.fillRect(self.rect(), QColor(7, 15, 24, 178))
+        veil = _theme_color("bg_veil_color")
+        veil.setAlpha(_pct_alpha(GLASS_PREFERENCES.get("bg_veil_opacity", 70)))
+        painter.fillRect(self.rect(), veil)
 
 
 class MainWindow(QMainWindow):
@@ -8783,6 +10180,10 @@ class MainWindow(QMainWindow):
 
         self.retranslate_ui()
 
+        # Apparence : popups floutés, libellés personnalisés, réglages appliqués.
+        install_glass_popup_manager(QApplication.instance())
+        apply_runtime_preferences()
+
     def retranslate_ui(self, _code=None):
         """Re-applique les textes de l'interface dans la langue active."""
         t = self.lang_mgr.t
@@ -8804,7 +10205,7 @@ class MainWindow(QMainWindow):
             self.nav_action_visualization.setText(t("nav_visualization"))
 
         if hasattr(self, "primary_tabs"):
-            tab_labels = [t("side_docking"), t("nav_analysis"), t("nav_visualization")]
+            tab_labels = [t("side_docking"), t("nav_analysis"), t("nav_visualization"), "Phytomolécules"]
             for btn, lbl in zip(self.primary_tabs, tab_labels):
                 btn.setText(lbl)
 
@@ -8899,6 +10300,18 @@ class MainWindow(QMainWindow):
             viz_bridge.cleanup_visualization_outputs()
         except Exception as exc:
             gui_debug(f"Erreur nettoyage visualisation : {exc}")
+
+        try:
+            if hasattr(self, "credits_page"):
+                self.credits_page.shutdown()
+        except Exception as exc:
+            gui_debug(f"Erreur nettoyage threads Crédits : {exc}")
+
+        try:
+            if hasattr(self, "phyto_page"):
+                self.phyto_page.shutdown()
+        except Exception as exc:
+            gui_debug(f"Erreur nettoyage threads Phytomolecules : {exc}")
 
         try:
             end_session()
@@ -9064,16 +10477,45 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
 
     def show_about_dialog(self):
+        from PySide6.QtWidgets import QDialog
 
-        QMessageBox.about(
-            self,
-            "À propos de VINA Studio",
-            "VINA Studio\n"
-            "Molecular Docking & Interaction Analysis\n\n"
+        dialog = QDialog(self)
+        dialog.setWindowTitle("À propos de VINA Studio")
+        dialog.setMinimumWidth(380)
+
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(24, 20, 24, 16)
+        layout.setSpacing(14)
+
+        text_label = QLabel(
+            "<b>VINA Studio</b><br>"
+            "Molecular Docking &amp; Interaction Analysis<br><br>"
             "Pipeline complet : préparation des ligands, docking "
             "AutoDock Vina, analyse statistique (MexB/MexR) et "
-            "visualisation des interactions.",
+            "visualisation des interactions.<br><br>"
+            '<a href="credits" style="text-decoration: underline;">Crédits</a>'
         )
+        text_label.setTextFormat(Qt.RichText)
+        text_label.setOpenExternalLinks(False)
+        text_label.setWordWrap(True)
+        text_label.linkActivated.connect(
+            lambda _link: self._open_credits_from_about(dialog)
+        )
+        layout.addWidget(text_label)
+
+        close_button = LiquidGlassButton("Fermer")
+        close_button.setCursor(Qt.PointingHandCursor)
+        close_button.clicked.connect(dialog.accept)
+        layout.addWidget(close_button, 0, Qt.AlignRight)
+
+        dialog.exec()
+
+    def _open_credits_from_about(self, dialog):
+        # Le lien "Credits" de la boite "A propos" bascule vers la page
+        # credits_page (switch_primary gere deja le scan paresseux du
+        # dossier et le changement de page de travail).
+        dialog.accept()
+        self.switch_primary(4)
 
     # ------------------------------------------------------------------
     # TOOLBAR
@@ -9101,7 +10543,7 @@ class MainWindow(QMainWindow):
         # l'espace qu'elle occupait revient au contenu de chaque page.
         self.primary_tabs = []
 
-        for index, text in enumerate(["Docking", "Analyse", "Visualisation"]):
+        for index, text in enumerate(["Docking", "Analyse", "Visualisation", "Phytomolécules"]):
             button = LiquidGlassToolButton()
             button.setObjectName("TopTab")
             button.setText(text)
@@ -9168,6 +10610,18 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # INTERFACE
     # ------------------------------------------------------------------
+
+    def _refresh_header_target(self):
+        # patch-entete : la cible affichee suit la page active
+        try:
+            page = self.workspace.currentWidget()
+            if page is self.analysis_page:
+                text = self.analysis_page.campaign_summary()
+            else:
+                text = self.docking_page.target_combo.currentText()
+            self.header_target_label.setText(text)
+        except Exception as exc:
+            gui_debug("En-tete cible ignore : " + str(exc))
 
     def build_interface(self):
 
@@ -9274,6 +10728,10 @@ class MainWindow(QMainWindow):
             self.docking_page.target_combo.currentText()
         )
 
+        self.workspace.currentChanged.connect(
+            lambda _index: self._refresh_header_target()
+        )
+
         self.workspace.addWidget(
             self.analysis_page
         )
@@ -9286,6 +10744,16 @@ class MainWindow(QMainWindow):
 
         self.workspace.addWidget(
             self.visualization_page
+        )
+
+        self.phyto_page = PhytoPage(lang_mgr=self.lang_mgr)
+
+        self.workspace.addWidget(self.phyto_page)
+
+        self.credits_page = CreditsPage()
+
+        self.workspace.addWidget(
+            self.credits_page
         )
 
         body_layout.addWidget(
@@ -9308,6 +10776,12 @@ class MainWindow(QMainWindow):
 
     def switch_primary(self, index):
 
+        if index != 4 and hasattr(self, "credits_page"):
+            # On quitte (ou on ne va pas vers) l'onglet Credits : coupe
+            # toute video en cours pour qu'elle ne continue pas a se
+            # lire en arriere-plan une fois la page quittee.
+            self.credits_page.stop_playback()
+
         self.workspace.setCurrentIndex(
             index
         )
@@ -9316,6 +10790,7 @@ class MainWindow(QMainWindow):
             "Docking",
             "Analyse",
             "Visualisation",
+            "Phytomolécules",
         ]
 
         if 0 <= index < len(names):
@@ -9326,6 +10801,13 @@ class MainWindow(QMainWindow):
 
         if index == 2 and hasattr(self, "visualization_page"):
             self.visualization_page.ensure_batch_started()
+
+        if index == 4 and hasattr(self, "credits_page"):
+            # Le scan du dossier credit_du_logiciel (photos + videos)
+            # ne demarre qu'a la premiere ouverture de l'onglet, et se
+            # fait en arriere-plan : ouvrir "Credits" ne doit jamais
+            # geler l'interface, meme avec des centaines de Mo de medias.
+            self.credits_page.ensure_loaded()
 
 
 # ============================================================================
@@ -9383,7 +10865,7 @@ def main():
     apply_runtime_preferences()
 
     font = QFont(
-        "Noto Sans",
+        str(GLASS_PREFERENCES.get("font_family") or "Noto Sans"),
         10,
     )
 

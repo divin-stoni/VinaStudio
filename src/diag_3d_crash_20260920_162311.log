@@ -1,0 +1,161 @@
+=============== 1. LANCEMENT (touche a la 3D, puis attends le crash ou ferme) ===============
+/home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/numpy/lib/_function_base_impl.py:3036: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/numpy/lib/_function_base_impl.py:3036: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+>>> code de sortie : 124 (139 = segfault, 124 = timeout, 0 = fermeture normale, autre = erreur)
+
+=============== 2. CODE DES CLASSES / FONCTIONS DU VISUALISEUR 3D ===============
+
+----- class _ViewerDragRepaintPoller (lignes 53-77) -----
+class _ViewerDragRepaintPoller:
+    """
+    Sonde l'etat global de la souris via un QTimer, sans jamais
+    passer par le systeme d'evenements Qt.
+    """
+    def __init__(self, viewer_widget, interval_ms=16):
+        from PySide6.QtCore import QTimer
+        self.viewer = viewer_widget
+        self.timer = QTimer()
+        self.timer.setInterval(interval_ms)
+        self.timer.timeout.connect(self._tick)
+        self.timer.start()
+
+    def _tick(self):
+        from PySide6.QtWidgets import QApplication
+        from PySide6.QtCore import Qt
+
+        # On vérifie si la souris est pressée, mais on ajoute une vérification 
+        # de visibilité pour être sûr.
+        if self.viewer is None or not self.viewer.isVisible():
+            return
+        
+        # Le rafraîchissement doit être constant pendant l'interaction
+        # On force le rendu JS.
+        self.viewer.page().runJavaScript("if (typeof viewer !== 'undefined') { viewer.render(); }")
+
+----- class _ResidueHoverBridge (lignes 80-92) -----
+class _ResidueHoverBridge(QObject):
+    """
+    Objet exposé au JavaScript du visualiseur via QWebChannel. Le JS
+    (3Dmol.js, setHoverable) appelle onResidueHover(chain, resn, resi)
+    à chaque survol/sortie de survol d'un atome ; ce signal Qt est
+    ensuite relayé vers le panneau d'info Python.
+    """
+
+    residueHovered = Signal(str, str, str)
+
+    @Slot(str, str, str)
+    def onResidueHover(self, chain, resn, resi):
+        self.residueHovered.emit(chain, resn, resi)
+
+----- def _on_viewer_loaded (lignes 6772-6791) -----
+    def _on_viewer_loaded(self, ok):
+        """
+        Appelé une fois que VIEWER_HTML a fini de charger dans
+        QWebEngineView (chargement de la page HTML elle-même — pas
+        encore un récepteur). Charge alors la cible actuellement
+        affichée, si une cible unique est active.
+        """
+
+        self._viewer_loaded = bool(ok)
+
+        if not self._viewer_loaded or self.current_single_target is None:
+            return
+
+        profile = (
+            self.mexb_profile
+            if self.current_single_target == "MexB"
+            else self.mexr_profile
+        )
+
+        self._load_viewer_receptor(profile)
+
+----- def _load_viewer_receptor (lignes 6793-6821) -----
+    def _load_viewer_receptor(self, profile):
+        """
+        Charge (ou recharge) le récepteur + la grid box d'un profil
+        dans le visualiseur. Appelé au changement de cible unique.
+        """
+
+        if profile is None or not self._viewer_loaded:
+            return
+
+        pdb_path = profile.pdb_path_for_viewer
+
+        self._current_viewer_profile = profile
+        self._clear_pocket_list()
+
+        if pdb_path is None or not pdb_path.exists():
+            return
+
+        pdb_text = pdb_path.read_text(encoding="utf-8", errors="ignore")
+
+        cx, cy, cz = profile.grid_box.center
+        sx, sy, sz = profile.grid_box.size
+
+        script = (
+            f"clearPockets();"
+            f"loadReceptor({json.dumps(pdb_text)});"
+            f"updateBox({cx}, {cy}, {cz}, {sx}, {sy}, {sz});"
+        )
+
+        self.receptor_viewer.page().runJavaScript(script)
+
+----- def _update_viewer_box (lignes 6921-6936) -----
+    def _update_viewer_box(self, grid_box):
+        """
+        Repositionne uniquement la grid box (pas de rechargement du
+        récepteur) — appelé à chaque changement de slider/spinbox pour
+        rester fluide même pendant un glissement continu.
+        """
+
+        if not self._viewer_loaded:
+            return
+
+        self._pending_viewer_box = (
+            tuple(grid_box.center),
+            tuple(grid_box.size),
+        )
+        if not self._viewer_box_update_timer.isActive():
+            self._viewer_box_update_timer.start()
+
+----- def _flush_viewer_box_update (lignes 6938-6949) -----
+    def _flush_viewer_box_update(self):
+        if not self._viewer_loaded or self._pending_viewer_box is None:
+            return
+
+        center, size = self._pending_viewer_box
+        self._pending_viewer_box = None
+        cx, cy, cz = center
+        sx, sy, sz = size
+
+        script = f"updateBox({cx}, {cy}, {cz}, {sx}, {sy}, {sz});"
+
+        self.receptor_viewer.page().runJavaScript(script)
+
+----- def _on_interaction_viewer_loaded (lignes 9626-9629) -----
+    def _on_interaction_viewer_loaded(self, ok):
+        self._interaction_viewer_loaded = bool(ok)
+        if self._interaction_viewer_loaded:
+            self._display_interaction_complex()
+
+----- def _on_3d_molecule_changed (lignes 9631-9633) -----
+    def _on_3d_molecule_changed(self, molecule):
+        if molecule and molecule in self.hit_results:
+            self._display_interaction_complex(molecule)
+
+=============== 3. AUTRES ACCES BAS NIVEAU AU WEBVIEW (grab / render / focusProxy / children) ===============
+77:        self.viewer.page().runJavaScript("if (typeof viewer !== 'undefined') { viewer.render(); }")
+1292:        widget = source.childAt(local_point)
+1315:        scene.render(painter, logical, logical)
+1341:        grabbed = source.grab(visible)
+1460:                    apply_text_overrides([obj] + obj.findChildren(QWidget))
+1514:            apply_text_overrides([widget] + widget.findChildren(QWidget))
+6821:        self.receptor_viewer.page().runJavaScript(script)
+6896:        self.receptor_viewer.page().runJavaScript(f"isolatePocket({pocket_id});")
+6911:        self.receptor_viewer.page().runJavaScript("showAllPockets();")
+6919:            self.receptor_viewer.page().runJavaScript(f"isolatePocket({pocket_id});")
+6949:        self.receptor_viewer.page().runJavaScript(script)
+6998:            self.receptor_viewer.page().runJavaScript(
+9658:            self.interaction_3d_viewer.page().runJavaScript(script)

@@ -25,7 +25,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from PySide6.QtGui import QFont, QFontDatabase, QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
-from src.gui.main_window import MainWindow, APP_STYLE, COLORS
+from src.gui.main_window import MainWindow, APP_STYLE, COLORS, install_glass_proxy_style
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
     # STYLE VINA STUDIO
     # ----------------------------------------------------------
 
-    app.setStyle("Fusion")
+    install_glass_proxy_style(app)
 
     # Palette explicite : evite toute fuite du theme sombre du systeme
     # d'exploitation sur les sous-elements que le QSS ne couvre pas

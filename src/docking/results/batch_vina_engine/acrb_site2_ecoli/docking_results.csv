@@ -1,0 +1,2 @@
+molecule,ligand_file,groupe,status,best_affinity,best_mode,n_modes,output_pdbqt,log_file,error,duration_seconds
+aspirin_test,aspirin_test.pdbqt,,FAILED,,,0,docking/results/batch_vina_engine/acrb_site2_ecoli/individual/aspirin_test_out.pdbqt,docking/results/batch_vina_engine/acrb_site2_ecoli/logs/aspirin_test.log,Vina code retour 1,0.00465138501022011
