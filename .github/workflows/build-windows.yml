@@ -99,7 +99,7 @@ jobs:
           pyinstaller --noconfirm --onefile --windowed \
             --name VinaStudio \
             --paths src \
-            --add-data "reference_data;reference_data" \
+            --add-data "src/reference_data;reference_data" \
             --add-data "src/i18n;i18n" \
             --add-data "docking/receptor;docking/receptor" \
             --add-data "src/assets/fonts;assets/fonts" \
