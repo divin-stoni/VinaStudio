@@ -1,0 +1,118 @@
+======================================================================
+1) Toutes les lignes de main_window.py mentionnant 'interaction_3d' (+-3 lignes de contexte)
+======================================================================
+9429-        self.stack.addWidget(self.residues_page())
+9430-        self.stack.addWidget(self.plip_page())
+9431-        self.stack.addWidget(self.interaction_page())
+9432:        self.stack.addWidget(self.interaction_3d_page())
+9433-
+9434-        root.addWidget(body_widget, 1)
+9435-
+--
+9785-
+9786-        return scroll
+9787-
+9788:    def interaction_3d_page(self):
+9789-        page = QWidget()
+9790-        layout = QVBoxLayout(page)
+9791-        layout.setContentsMargins(28, 26, 28, 26)
+--
+9800-            )
+9801-        )
+9802-        # --- Initialisation de la vue ---
+9803:        self.interaction_3d_viewer = QWebEngineView()
+9804:        self.interaction_3d_viewer.setMinimumHeight(520)
+9805:        self.interaction_3d_viewer.loadFinished.connect(
+9806-            self._on_interaction_viewer_loaded
+9807-        )
+9808:        self.interaction_3d_viewer.setHtml(VIEWER_HTML)
+9809-
+9810-        # --- Initialisation du poller maintenant que le viewer existe ---
+9811:        self._interaction_3d_viewer_poller = _ViewerDragRepaintPoller(self.interaction_3d_viewer)
+9812-        header.addStretch()
+9813-
+9814:        self.interaction_3d_molecule_combo = QComboBox()
+9815:        self.interaction_3d_molecule_combo.currentTextChanged.connect(
+9816-            self._on_3d_molecule_changed
+9817-        )
+9818:        header.addWidget(self.interaction_3d_molecule_combo)
+9819-        layout.addLayout(header)
+9820-
+9821-        panel = QFrame()
+--
+9826-        panel_layout.setSpacing(8)
+9827-        panel_layout.addWidget(
+9828-            self._t_label(
+9829:                "viz_interaction_3d_title",
+9830-                "Complexe 3D et résidus interactifs",
+9831-                "PanelTitle",
+9832-            )
+9833-        )
+9834-
+9835-
+9836:        panel_layout.addWidget(self.interaction_3d_viewer, 1)
+9837-        layout.addWidget(panel, 1)
+9838-
+9839-        scroll = QScrollArea()
+--
+9854-        combo.addItems(molecules)
+9855-        combo.blockSignals(False)
+9856-
+9857:        combo_3d = self.interaction_3d_molecule_combo
+9858-        combo_3d.blockSignals(True)
+9859-        combo_3d.clear()
+9860-        combo_3d.addItems(molecules)
+--
+9908-        if not self._interaction_viewer_loaded:
+9909-            return
+9910-
+9911:        molecule = molecule or self.interaction_3d_molecule_combo.currentText()
+9912-        data = self.hit_results.get(molecule)
+9913-        if not data:
+9914-            return
+--
+9927-                f"loadComplex({json.dumps(pdb_text)}, "
+9928-                f"{json.dumps(interactions_json)});"
+9929-            )
+9930:            self.interaction_3d_viewer.page().runJavaScript(script)
+9931-        except (OSError, TypeError, ValueError):
+9932-            return
+9933-
+
+======================================================================
+2) Fonctions/objets importes depuis interaction_3d dans main_window.py
+======================================================================
+
+======================================================================
+3) Toutes les fonctions definies dans interaction_3d.py (pour savoir ce qui est appelable)
+======================================================================
+38:def load_interactions(filename):
+64:def interaction_color(interaction_type):
+86:def clean_label_text(interaction_type):
+127:def build_commands(interactions):
+287:def launch_chimerax(commands):
+305:def main():
+
+======================================================================
+4) Lesquelles de ces fonctions sont reellement appelees dans main_window.py
+======================================================================
+load_interactions                        -> appelee 0 fois dans main_window.py
+interaction_color                        -> appelee 0 fois dans main_window.py
+clean_label_text                         -> appelee 0 fois dans main_window.py
+build_commands                           -> appelee 0 fois dans main_window.py
+launch_chimerax                          -> appelee 0 fois dans main_window.py
+main                                     -> appelee 4 fois dans main_window.py
+
+======================================================================
+5) Le viewer 3Dmol.js / QWebEngineView est-il un circuit separe ?
+======================================================================
+--- references a 3Dmol / QWebEngineView dans main_window.py ---
+6
+--- references a viewer_template dans main_window.py ---
+47:from src.gui.viewer_template import VIEWER_HTML
+6981:        POCKET_PALETTE dans viewer_template.py). La première poche
+7085:        le viewer via updatePockets() (voir viewer_template.py).
+
+======================================================================
+FIN
+======================================================================

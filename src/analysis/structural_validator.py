@@ -15,7 +15,7 @@ Objectifs :
 
 Les interactions sont qualifiées de candidates :
 elles doivent être confirmées par inspection structurale
-avec ChimeraX ou Discovery Studio.
+avec un logiciel de visualisation structurale (ex. PyMOL).
 """
 
 from __future__ import annotations

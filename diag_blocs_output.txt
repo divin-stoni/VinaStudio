@@ -1,0 +1,370 @@
+======================================================================
+1) tool_manager.py -- dict des definitions (lignes 1 a 95, numerotees)
+======================================================================
+     1	#!/usr/bin/env python3
+     2	
+     3	import json
+     4	import os
+     5	import shutil
+     6	import subprocess
+     7	import sys
+     8	from dataclasses import dataclass, asdict
+     9	from pathlib import Path
+    10	
+    11	
+    12	PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    13	CONFIG_DIR = PROJECT_ROOT / "config"
+    14	ENV_FILE = CONFIG_DIR / "environment.json"
+    15	
+    16	
+    17	@dataclass
+    18	class ToolResult:
+    19	    key: str
+    20	    name: str
+    21	    status: str
+    22	    path: str | None = None
+    23	    version: str | None = None
+    24	    runtime: str | None = None
+    25	    module: str | None = None
+    26	    message: str | None = None
+    27	
+    28	
+    29	class ToolManager:
+    30	    """
+    31	    Gestionnaire central des outils externes.
+    32	
+    33	    Objectifs :
+    34	    - détecter automatiquement les outils ;
+    35	    - tester leur véritable exécution ;
+    36	    - gérer les outils Python installés hors du venv ;
+    37	    - mémoriser les chemins détectés ;
+    38	    - fournir une API commune au reste de l'application.
+    39	    """
+    40	
+    41	    def __init__(self):
+    42	        self.results = {}
+    43	
+    44	        self.definitions = {
+    45	            "vina": {
+    46	                "name": "AutoDock Vina",
+    47	                "required": True,
+    48	                "executables": ["vina"],
+    49	            },
+    50	            "openbabel": {
+    51	                "name": "Open Babel",
+    52	                "required": True,
+    53	                "executables": ["obabel"],
+    54	            },
+    55	            "pymol": {
+    56	                "name": "PyMOL",
+    57	                "required": False,
+    58	                "executables": ["pymol"],
+    59	                "python_modules": ["pymol"],
+    60	                "python_runtimes": [
+    61	                    "/usr/bin/python3",
+    62	                    "/usr/local/bin/python3",
+    63	                ],
+    64	            },
+    65	            "chimerax": {
+    66	                "name": "ChimeraX",
+    67	                "required": False,
+    68	                "executables": ["chimerax", "ChimeraX"],
+    69	            },
+    70	        }
+    71	
+    72	    # ------------------------------------------------------------------
+    73	    # UTILITAIRES
+    74	    # ------------------------------------------------------------------
+    75	
+    76	    @staticmethod
+    77	    def find_executable(names):
+    78	        for name in names:
+    79	            path = shutil.which(name)
+    80	            if path:
+    81	                return os.path.realpath(path)
+    82	        return None
+    83	
+    84	    @staticmethod
+    85	    def run_command(command, timeout=10):
+    86	        try:
+    87	            result = subprocess.run(
+    88	                command,
+    89	                stdout=subprocess.PIPE,
+    90	                stderr=subprocess.STDOUT,
+    91	                text=True,
+    92	                timeout=timeout,
+    93	            )
+    94	
+    95	            return result.returncode, result.stdout.strip()
+
+======================================================================
+2) tool_manager.py -- methode check_chimerax complete + son appel
+   (lignes 330 a 410, numerotees a partir de 330)
+======================================================================
+   330	            )
+   331	
+   332	        return ToolResult(
+   333	            key="pymol",
+   334	            name=definition["name"],
+   335	            status="NOT_FOUND",
+   336	            message="PyMOL introuvable."
+   337	        )
+   338	
+   339	    # ------------------------------------------------------------------
+   340	    # CHIMERAX
+   341	    # ------------------------------------------------------------------
+   342	
+   343	    def check_chimerax(self):
+   344	        definition = self.definitions["chimerax"]
+   345	
+   346	        executable = self.find_executable(
+   347	            definition["executables"]
+   348	        )
+   349	
+   350	        # Recherche complémentaire des emplacements courants.
+   351	        candidates = [
+   352	            "/usr/lib/ucsf-chimerax/bin/ChimeraX",
+   353	            "/usr/bin/chimerax",
+   354	            "/usr/local/bin/chimerax",
+   355	        ]
+   356	
+   357	        if not executable:
+   358	            for candidate in candidates:
+   359	                if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+   360	                    executable = os.path.realpath(candidate)
+   361	                    break
+   362	
+   363	        if not executable:
+   364	            return ToolResult(
+   365	                key="chimerax",
+   366	                name=definition["name"],
+   367	                status="NOT_FOUND",
+   368	                message="ChimeraX introuvable."
+   369	            )
+   370	
+   371	        code, output = self.run_command(
+   372	            [executable, "--version"],
+   373	            timeout=20
+   374	        )
+   375	
+   376	        if code != 0:
+   377	            return ToolResult(
+   378	                key="chimerax",
+   379	                name=definition["name"],
+   380	                status="FOUND_BUT_NOT_TESTED",
+   381	                path=executable,
+   382	                message=output
+   383	            )
+   384	
+   385	        return ToolResult(
+   386	            key="chimerax",
+   387	            name=definition["name"],
+   388	            status="READY",
+   389	            path=executable,
+   390	            version=self.clean_version(output)
+   391	        )
+   392	
+   393	    # ------------------------------------------------------------------
+   394	    # CHECK GLOBAL
+   395	    # ------------------------------------------------------------------
+   396	
+   397	    def check_all(self):
+   398	        self.results = {
+   399	            "vina": self.check_vina(),
+   400	            "openbabel": self.check_openbabel(),
+   401	            "pymol": self.check_pymol(),
+   402	            "chimerax": self.check_chimerax(),
+   403	        }
+   404	
+   405	        return self.results
+   406	
+   407	    # ------------------------------------------------------------------
+   408	    # CONFIGURATION
+   409	    # ------------------------------------------------------------------
+   410	
+
+======================================================================
+3) environment_manager.py -- liste des Dependency() (lignes 1 a 70)
+======================================================================
+     1	#!/usr/bin/env python3
+     2	
+     3	import json
+     4	import os
+     5	import shutil
+     6	import subprocess
+     7	import sys
+     8	from dataclasses import dataclass, asdict
+     9	from pathlib import Path
+    10	from typing import Optional
+    11	
+    12	
+    13	PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    14	CONFIG_DIR = PROJECT_ROOT / "config"
+    15	CONFIG_FILE = CONFIG_DIR / "environment.json"
+    16	
+    17	
+    18	@dataclass
+    19	class Dependency:
+    20	
+    21	    name: str
+    22	    key: str
+    23	    commands: list[str]
+    24	    required: bool = False
+    25	
+    26	    path: Optional[str] = None
+    27	    version: Optional[str] = None
+    28	    python_path: Optional[str] = None
+    29	
+    30	    status: str = "NOT_FOUND"
+    31	
+    32	
+    33	class EnvironmentManager:
+    34	
+    35	    def __init__(self):
+    36	
+    37	        self.dependencies = [
+    38	
+    39	            Dependency(
+    40	                name="AutoDock Vina",
+    41	                key="vina",
+    42	                commands=["vina"],
+    43	                required=True,
+    44	            ),
+    45	
+    46	            Dependency(
+    47	                name="Open Babel",
+    48	                key="openbabel",
+    49	                commands=["obabel"],
+    50	                required=True,
+    51	            ),
+    52	
+    53	            Dependency(
+    54	                name="PyMOL",
+    55	                key="pymol",
+    56	                commands=["pymol"],
+    57	                required=False,
+    58	            ),
+    59	
+    60	            Dependency(
+    61	                name="ChimeraX",
+    62	                key="chimerax",
+    63	                commands=["chimerax"],
+    64	                required=False,
+    65	            ),
+    66	        ]
+    67	
+    68	        self.saved_config = self.load_config()
+    69	
+    70	    # ============================================================
+
+======================================================================
+4) environment_manager.py -- detect_chimerax + dispatch (lignes 400 a 495)
+======================================================================
+   400	
+   401	            dependency.status = "READY"
+   402	
+   403	            return
+   404	
+   405	        dependency.status = (
+   406	            "FOUND_BUT_NOT_TESTED"
+   407	        )
+   408	
+   409	    # ============================================================
+   410	    # CHIMERAX
+   411	    # ============================================================
+   412	
+   413	    def detect_chimerax(self, dependency):
+   414	
+   415	        path = (
+   416	            self.get_saved_path("chimerax")
+   417	            or self.find_executable(
+   418	                ["chimerax"]
+   419	            )
+   420	        )
+   421	
+   422	        if not path:
+   423	
+   424	            dependency.status = "NOT_FOUND"
+   425	            return
+   426	
+   427	        dependency.path = path
+   428	
+   429	        output = self.run_command(
+   430	            [
+   431	                path,
+   432	                "--version"
+   433	            ],
+   434	            timeout=15
+   435	        )
+   436	
+   437	        if output:
+   438	
+   439	            version = None
+   440	
+   441	            for line in output.splitlines():
+   442	
+   443	                if (
+   444	                    "ChimeraX version"
+   445	                    in line
+   446	                ):
+   447	
+   448	                    version = line.strip()
+   449	                    break
+   450	
+   451	            dependency.version = (
+   452	                version
+   453	                or output.splitlines()[0]
+   454	            )
+   455	
+   456	            dependency.status = "READY"
+   457	
+   458	        else:
+   459	
+   460	            dependency.status = (
+   461	                "FOUND_BUT_NOT_TESTED"
+   462	            )
+   463	
+   464	    # ============================================================
+   465	    # SCAN
+   466	    # ============================================================
+   467	
+   468	    def scan_dependency(self, dependency):
+   469	
+   470	        if dependency.key == "vina":
+   471	
+   472	            self.detect_vina(dependency)
+   473	
+   474	        elif dependency.key == "openbabel":
+   475	
+   476	            self.detect_openbabel(
+   477	                dependency
+   478	            )
+   479	
+   480	        elif dependency.key == "pymol":
+   481	
+   482	            self.detect_pymol(
+   483	                dependency
+   484	            )
+   485	
+   486	        elif dependency.key == "chimerax":
+   487	
+   488	            self.detect_chimerax(
+   489	                dependency
+   490	            )
+   491	
+   492	    def scan(self):
+   493	
+   494	        for dependency in self.dependencies:
+   495	
+
+======================================================================
+5) Taille des 3 fichiers a supprimer entierement (confirmation orphelins)
+======================================================================
+  475 src/visualization/interaction_3d.py
+  519 src/visualization/pose_manager.py
+  407 src/visualization/interaction_visualizer.py
+ 1401 total
+
+======================================================================
+FIN
+======================================================================

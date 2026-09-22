@@ -1,0 +1,50 @@
+======================================================================
+1) Le dossier existe-t-il localement ?
+======================================================================
+total 48
+drwxrwxr-x  5 stoni stoni 20480 Sep 21 23:13 .
+drwxrwxr-x 26 stoni stoni  4096 Sep 22 05:05 ..
+-rw-rw-r--  1 stoni stoni     2 Sep 21 23:11 captions.json
+drwxrwxr-x  2 stoni stoni  4096 Sep 21 16:32 stage_ollombo
+
+======================================================================
+2) Est-il suivi par git (index local) ?
+======================================================================
+Nombre de fichiers suivis sous credit_du_logiciel : 0
+
+======================================================================
+3) Est-il ignore par un .gitignore quelque part ?
+======================================================================
+.gitignore:41:credit_du_logiciel/	credit_du_logiciel
+.gitignore:41:credit_du_logiciel/	credit_du_logiciel/captions.json
+(si rien ne s'affiche ci-dessus : pas ignore)
+
+======================================================================
+4) Y a-t-il des fichiers non commites (git status) dans ce dossier ?
+======================================================================
+
+======================================================================
+5) Est-il present dans le dernier commit LOCAL (HEAD) ?
+======================================================================
+
+======================================================================
+6) Est-il present sur origin/main (l'etat reellement sur GitHub) ?
+======================================================================
+--- Fichiers sous credit_du_logiciel dans origin/main ---
+Nombre de fichiers sous credit_du_logiciel dans origin/main : 0
+
+======================================================================
+7) Comparaison locale HEAD vs origin/main sur ce dossier
+======================================================================
+
+======================================================================
+8) Taille totale du dossier (verifier une limite GitHub eventuelle)
+======================================================================
+180M	credit_du_logiciel
+-rwxr-xr-x 1 stoni stoni 84M Oct 26  2025 credit_du_logiciel/stage_pointe_noire/VID_20251026_211730.mp4
+-rwxr-xr-x 1 stoni stoni 89M Oct 29  2025 credit_du_logiciel/stage_pointe_noire/VID_20251029_162411.mp4
+(GitHub bloque tout fichier individuel > 100 Mo sans Git LFS, avertit des 50 Mo)
+
+======================================================================
+FIN DU DIAGNOSTIC
+======================================================================

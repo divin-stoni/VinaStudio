@@ -7136,12 +7136,21 @@ class DockingPage(QWidget):
             )
 
         except FileNotFoundError:
-            QMessageBox.critical(
-                self,
-                "fpocket introuvable",
-                "La commande 'fpocket' n'a pas été trouvée dans le PATH. "
-                "Installez fpocket (ex. 'sudo apt install fpocket') puis réessayez.",
-            )
+            import sys as _vs_sys
+            if _vs_sys.platform.startswith("win"):
+                QMessageBox.critical(
+                    self,
+                    "fpocket introuvable",
+                    "La détection des poches (fpocket) n'est disponible que sous Linux. "
+                    "Cette fonctionnalité n'est pas proposée sous Windows.",
+                )
+            else:
+                QMessageBox.critical(
+                    self,
+                    "fpocket introuvable",
+                    "La commande 'fpocket' n'a pas été trouvée dans le PATH. "
+                    "Installez fpocket (ex. 'sudo apt install fpocket') puis réessayez.",
+                )
             self._fpocket_status_label.setText("")
 
         except Exception as exc:

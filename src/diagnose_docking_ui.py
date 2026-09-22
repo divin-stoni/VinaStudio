@@ -50,7 +50,7 @@ WIDTH_HEIGHT_SETTERS = {
 # Domaine : sigles/noms propres à ne jamais considérer comme anglicismes
 DOMAIN_WHITELIST = {
     "mexb", "mexr", "mexy", "mexz", "acrb", "acrr", "adeabc", "cmeb",
-    "pdb", "pdbqt", "vina", "fpocket", "csv", "gui", "sdf", "chimerax",
+    "pdb", "pdbqt", "vina", "fpocket", "csv", "gui", "sdf",
     "rdkit", "biopython", "opengl", "pyside6", "qwebengineview",
     "dmso", "cid", "3dmol",
 }

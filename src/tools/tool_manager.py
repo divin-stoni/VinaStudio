@@ -62,11 +62,6 @@ class ToolManager:
                     "/usr/local/bin/python3",
                 ],
             },
-            "chimerax": {
-                "name": "ChimeraX",
-                "required": False,
-                "executables": ["chimerax", "ChimeraX"],
-            },
         }
 
     # ------------------------------------------------------------------
@@ -337,60 +332,6 @@ class ToolManager:
         )
 
     # ------------------------------------------------------------------
-    # CHIMERAX
-    # ------------------------------------------------------------------
-
-    def check_chimerax(self):
-        definition = self.definitions["chimerax"]
-
-        executable = self.find_executable(
-            definition["executables"]
-        )
-
-        # Recherche complémentaire des emplacements courants.
-        candidates = [
-            "/usr/lib/ucsf-chimerax/bin/ChimeraX",
-            "/usr/bin/chimerax",
-            "/usr/local/bin/chimerax",
-        ]
-
-        if not executable:
-            for candidate in candidates:
-                if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
-                    executable = os.path.realpath(candidate)
-                    break
-
-        if not executable:
-            return ToolResult(
-                key="chimerax",
-                name=definition["name"],
-                status="NOT_FOUND",
-                message="ChimeraX introuvable."
-            )
-
-        code, output = self.run_command(
-            [executable, "--version"],
-            timeout=20
-        )
-
-        if code != 0:
-            return ToolResult(
-                key="chimerax",
-                name=definition["name"],
-                status="FOUND_BUT_NOT_TESTED",
-                path=executable,
-                message=output
-            )
-
-        return ToolResult(
-            key="chimerax",
-            name=definition["name"],
-            status="READY",
-            path=executable,
-            version=self.clean_version(output)
-        )
-
-    # ------------------------------------------------------------------
     # CHECK GLOBAL
     # ------------------------------------------------------------------
 
@@ -399,7 +340,6 @@ class ToolManager:
             "vina": self.check_vina(),
             "openbabel": self.check_openbabel(),
             "pymol": self.check_pymol(),
-            "chimerax": self.check_chimerax(),
         }
 
         return self.results
