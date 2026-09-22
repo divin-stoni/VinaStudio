@@ -3801,6 +3801,17 @@ class DockingPage(QWidget):
         if hasattr(self, "pdbqt_table"):
             self.pdbqt_table.setHorizontalHeaderLabels(self._pdbqt_table_headers())
 
+        if hasattr(self, "sdf_naming_mode") and self.lang_mgr:
+            combo = self.sdf_naming_mode
+            current_data = combo.currentData()
+            naming_keys = ["sdf_naming_preserve", "sdf_naming_clean", "sdf_naming_cid"]
+            for i, key in enumerate(naming_keys):
+                if i < combo.count():
+                    combo.setItemText(i, self.lang_mgr.t(key))
+            restored_index = combo.findData(current_data)
+            if restored_index != -1:
+                combo.setCurrentIndex(restored_index)
+
     # ------------------------------------------------------------------
     # NAVIGATION
     # ------------------------------------------------------------------
@@ -3996,9 +4007,9 @@ class DockingPage(QWidget):
         naming_row = QHBoxLayout()
         naming_row.addWidget(QLabel("Nommage des ligands"))
         self.sdf_naming_mode = QComboBox()
-        self.sdf_naming_mode.addItem("Conserver le nom du fichier", "preserve")
-        self.sdf_naming_mode.addItem("Nettoyer le nom", "clean")
-        self.sdf_naming_mode.addItem("Détecter les identifiants CID", "cid")
+        self.sdf_naming_mode.addItem(self.lang_mgr.t("sdf_naming_preserve") if self.lang_mgr else "Conserver le nom du fichier", "preserve")
+        self.sdf_naming_mode.addItem(self.lang_mgr.t("sdf_naming_clean") if self.lang_mgr else "Nettoyer le nom", "clean")
+        self.sdf_naming_mode.addItem(self.lang_mgr.t("sdf_naming_cid") if self.lang_mgr else "Détecter les identifiants CID", "cid")
         self.sdf_naming_mode.currentIndexChanged.connect(
             lambda: self.sdf_cleanup_text.setEnabled(
                 self.sdf_naming_mode.currentData() == "clean"
@@ -10214,7 +10225,10 @@ class MainWindow(QMainWindow):
             self.nav_action_visualization.setText(t("nav_visualization"))
 
         if hasattr(self, "primary_tabs"):
-            tab_labels = [t("side_docking"), t("nav_analysis"), t("nav_visualization"), "Phytomolécules"]
+            tab_labels = [
+                t("side_docking"), t("nav_analysis"), t("nav_visualization"),
+                t("nav_phytomolecules"),
+            ]
             for btn, lbl in zip(self.primary_tabs, tab_labels):
                 btn.setText(lbl)
 
@@ -10269,10 +10283,18 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "lang_action"):
             self.lang_action.setText(self._lang_button_text())
+            self.lang_action.setToolTip(t("toolbar_tooltip_lang"))
         if hasattr(self, "theme_action"):
-            self.theme_action.setText("Thème")
+            self.theme_action.setText(t("toolbar_theme"))
+            self.theme_action.setToolTip(t("toolbar_tooltip_theme"))
         if hasattr(self, "preferences_action"):
-            self.preferences_action.setText("Paramètres")
+            self.preferences_action.setText(t("toolbar_preferences"))
+            self.preferences_action.setToolTip(t("toolbar_tooltip_preferences"))
+        if hasattr(self, "load_csv_action"):
+            self.load_csv_action.setText(t("toolbar_load_csv"))
+            self.load_csv_action.setToolTip(t("toolbar_tooltip_load_csv"))
+        if hasattr(self, "about_action"):
+            self.about_action.setText(t("toolbar_about"))
 
         if hasattr(self, "status"):
             self.status.showMessage(t("status_ready"))
@@ -10293,15 +10315,15 @@ class MainWindow(QMainWindow):
         if self.theme_background is None:
             return
         theme_name = self.theme_background.next_theme()
-        self.theme_action.setToolTip(f"Image de thème : {theme_name}")
-        self.status.showMessage(f"Thème appliqué : {theme_name}")
+        self.theme_action.setToolTip(self.lang_mgr.t("toolbar_theme_tooltip_applied", name=theme_name))
+        self.status.showMessage(self.lang_mgr.t("status_theme_applied", name=theme_name))
 
     def _open_preferences(self):
         dialog = GlassPreferencesDialog(self)
         if dialog.exec() == QDialog.Accepted:
-            self.status.showMessage("Préférences du verre enregistrées")
+            self.status.showMessage(self.lang_mgr.t("status_glass_prefs_saved"))
         else:
-            self.status.showMessage("Préférences du verre inchangées")
+            self.status.showMessage(self.lang_mgr.t("status_glass_prefs_unchanged"))
 
     def closeEvent(self, event):
 
@@ -10406,16 +10428,19 @@ class MainWindow(QMainWindow):
         self.menu_tools = tools_menu
         self.menu_help = help_menu
 
-        quit_action = QAction("Quitter", self)
+        t = self.lang_mgr.t
+
+        quit_action = QAction(t("menu_quit"), self)
 
         quit_action.triggered.connect(
             self.close
         )
 
         file_menu.addAction(quit_action)
+        self.menu_action_quit = quit_action
 
         prepare_action = QAction(
-            "Préparer les ligands…", self
+            t("menu_prepare_ligands"), self
         )
 
         prepare_action.triggered.connect(
@@ -10423,9 +10448,10 @@ class MainWindow(QMainWindow):
         )
 
         docking_menu.addAction(prepare_action)
+        self.menu_action_prepare = prepare_action
 
         launch_action = QAction(
-            "Lancer une campagne de docking", self
+            t("menu_launch_docking"), self
         )
 
         launch_action.triggered.connect(
@@ -10433,9 +10459,10 @@ class MainWindow(QMainWindow):
         )
 
         docking_menu.addAction(launch_action)
+        self.menu_action_launch = launch_action
 
         analysis_action = QAction(
-            "Charger une analyse CSV",
+            t("menu_load_analysis_csv"),
             self
         )
 
@@ -10446,9 +10473,10 @@ class MainWindow(QMainWindow):
         analysis_menu.addAction(
             analysis_action
         )
+        self.menu_action_load_analysis = analysis_action
 
         results_action = QAction(
-            "Voir les résultats", self
+            t("menu_view_results"), self
         )
 
         results_action.triggered.connect(
@@ -10456,9 +10484,10 @@ class MainWindow(QMainWindow):
         )
 
         analysis_menu.addAction(results_action)
+        self.menu_action_results = results_action
 
         visualization_action = QAction(
-            "Ouvrir la visualisation", self
+            t("menu_open_visualization"), self
         )
 
         visualization_action.triggered.connect(
@@ -10466,17 +10495,19 @@ class MainWindow(QMainWindow):
         )
 
         visualization_menu.addAction(visualization_action)
+        self.menu_action_visualization = visualization_action
 
         preferences_action = QAction(
-            "Préférences (bientôt disponible)", self
+            t("menu_preferences_soon"), self
         )
 
         preferences_action.setEnabled(False)
 
         tools_menu.addAction(preferences_action)
+        self.menu_action_preferences_soon = preferences_action
 
         about_action = QAction(
-            "À propos de VINA Studio", self
+            t("menu_about_vina"), self
         )
 
         about_action.triggered.connect(
@@ -10484,12 +10515,15 @@ class MainWindow(QMainWindow):
         )
 
         help_menu.addAction(about_action)
+        self.menu_action_about = about_action
 
     def show_about_dialog(self):
         from PySide6.QtWidgets import QDialog
 
+        t = self.lang_mgr.t
+
         dialog = QDialog(self)
-        dialog.setWindowTitle("À propos de VINA Studio")
+        dialog.setWindowTitle(t("menu_about_vina"))
         dialog.setMinimumWidth(380)
 
         layout = QVBoxLayout(dialog)
@@ -10497,12 +10531,10 @@ class MainWindow(QMainWindow):
         layout.setSpacing(14)
 
         text_label = QLabel(
-            "<b>VINA Studio</b><br>"
-            "Molecular Docking &amp; Interaction Analysis<br><br>"
-            "Pipeline complet : préparation des ligands, docking "
-            "AutoDock Vina, analyse statistique (MexB/MexR) et "
-            "visualisation des interactions.<br><br>"
-            '<a href="credits" style="text-decoration: underline;">Crédits</a>'
+            f"<b>{t('vina_app_name')}</b><br>"
+            f"{t('vina_app_subtitle')}<br><br>"
+            f"{t('about_pipeline_desc')}<br><br>"
+            f'<a href="credits" style="text-decoration: underline;">{t("about_credits_link")}</a>'
         )
         text_label.setTextFormat(Qt.RichText)
         text_label.setOpenExternalLinks(False)
@@ -10512,7 +10544,7 @@ class MainWindow(QMainWindow):
         )
         layout.addWidget(text_label)
 
-        close_button = LiquidGlassButton("Fermer")
+        close_button = LiquidGlassButton(t("scan_btn_close"))
         close_button.setCursor(Qt.PointingHandCursor)
         close_button.clicked.connect(dialog.accept)
         layout.addWidget(close_button, 0, Qt.AlignRight)
@@ -10552,7 +10584,12 @@ class MainWindow(QMainWindow):
         # l'espace qu'elle occupait revient au contenu de chaque page.
         self.primary_tabs = []
 
-        for index, text in enumerate(["Docking", "Analyse", "Visualisation", "Phytomolécules"]):
+        for index, text in enumerate([
+            self.lang_mgr.t("side_docking"),
+            self.lang_mgr.t("nav_analysis"),
+            self.lang_mgr.t("nav_visualization"),
+            self.lang_mgr.t("nav_phytomolecules"),
+        ]):
             button = LiquidGlassToolButton()
             button.setObjectName("TopTab")
             button.setText(text)
@@ -10584,19 +10621,19 @@ class MainWindow(QMainWindow):
                 widget.setCursor(Qt.PointingHandCursor)
 
         self.lang_action = QAction(self._lang_button_text(), self)
-        self.lang_action.setToolTip("Changer la langue de l'interface")
+        self.lang_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_lang"))
         self.lang_action.triggered.connect(self._on_toggle_language)
         toolbar.addAction(self.lang_action)
         _set_pointer_cursor(self.lang_action)
 
-        self.theme_action = QAction("Thème", self)
-        self.theme_action.setToolTip("Changer l'image de thème")
+        self.theme_action = QAction(self.lang_mgr.t("toolbar_theme"), self)
+        self.theme_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_theme"))
         self.theme_action.triggered.connect(self._on_change_theme)
         toolbar.addAction(self.theme_action)
         _set_pointer_cursor(self.theme_action)
 
-        self.preferences_action = QAction("Paramètres", self)
-        self.preferences_action.setToolTip("Préférences du verre et de l'interface")
+        self.preferences_action = QAction(self.lang_mgr.t("toolbar_preferences"), self)
+        self.preferences_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_preferences"))
         self.preferences_action.triggered.connect(self._open_preferences)
         toolbar.addAction(self.preferences_action)
         _set_pointer_cursor(self.preferences_action)
@@ -10605,13 +10642,13 @@ class MainWindow(QMainWindow):
 
         # Rapatriees depuis l'ancien menu "Fichier/Analyse" (supprime) :
         # rien n'est perdu, juste deplace la ou il reste accessible.
-        self.load_csv_action = QAction("Charger une analyse…", self)
-        self.load_csv_action.setToolTip("Charger une analyse CSV existante")
+        self.load_csv_action = QAction(self.lang_mgr.t("toolbar_load_csv"), self)
+        self.load_csv_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_load_csv"))
         self.load_csv_action.triggered.connect(self.load_statistics_analysis)
         toolbar.addAction(self.load_csv_action)
         _set_pointer_cursor(self.load_csv_action)
 
-        self.about_action = QAction("À propos", self)
+        self.about_action = QAction(self.lang_mgr.t("toolbar_about"), self)
         self.about_action.triggered.connect(self.show_about_dialog)
         toolbar.addAction(self.about_action)
         _set_pointer_cursor(self.about_action)
@@ -10796,16 +10833,16 @@ class MainWindow(QMainWindow):
         )
 
         names = [
-            "Docking",
-            "Analyse",
-            "Visualisation",
-            "Phytomolécules",
+            self.lang_mgr.t("side_docking"),
+            self.lang_mgr.t("nav_analysis"),
+            self.lang_mgr.t("nav_visualization"),
+            self.lang_mgr.t("nav_phytomolecules"),
         ]
 
         if 0 <= index < len(names):
 
             self.status.showMessage(
-                f"{names[index]} — espace de travail actif"
+                self.lang_mgr.t("status_workspace_active", name=names[index])
             )
 
         if index == 2 and hasattr(self, "visualization_page"):
