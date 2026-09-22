@@ -1,0 +1,9 @@
+3033:                prepare_sdf_files,
+3047:                family_generated = prepare_sdf_files(
+6008:            engines["MexB"] = VinaEngine(
+6015:            engines["MexR"] = VinaEngine(
+6041:                engines[sub_target] = VinaEngine(sub_config)
+6067:                engines[sub_target] = VinaEngine(sub_config)
+6071:            engines[target] = VinaEngine(
+6205:        self.worker = DockingWorker(
+8808:            dock_labels = [t("dock_tab_prepare_sdf"), t("dock_tab_load_pdbqt"), t("dock_tab_run_docking")]

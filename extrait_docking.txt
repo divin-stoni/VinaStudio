@@ -1,0 +1,701 @@
+            QMessageBox.warning(
+                self,
+                "Fichier PDB introuvable",
+                f"Aucun fichier PDB de visualisation disponible pour {profile.display_name}.",
+            )
+            return
+
+        self._fpocket_button.setEnabled(False)
+        self._fpocket_status_label.setText("Détection des poches en cours (fpocket)…")
+        self._clear_pocket_list()
+        QApplication.processEvents()
+
+        try:
+            import tempfile
+            import json as _json
+            from pathlib import Path as _Path
+            from src.analysis.pocket_detector import detect_pockets, MIN_ALPHA_SPHERES
+
+            workdir = _Path(tempfile.mkdtemp(prefix="vinastudio_fpocket_"))
+            pockets = detect_pockets(pdb_path, workdir)
+
+            if not pockets:
+                self._fpocket_status_label.setText("Aucune poche détectée.")
+                return
+
+            payload = _json.dumps(pockets)
+            self.receptor_viewer.page().runJavaScript(
+                f"updatePockets({payload!r});"
+            )
+
+            self._populate_pocket_list(pockets)
+
+            self._fpocket_status_label.setText(
+                f"{len(pockets)} poche(s) détectée(s) "
+                f"(seuil ≥ {MIN_ALPHA_SPHERES} sphères alpha)."
+            )
+
+        except FileNotFoundError:
+            QMessageBox.critical(
+                self,
+                "fpocket introuvable",
+                "La commande 'fpocket' n'a pas été trouvée dans le PATH. "
+                "Installez fpocket (ex. 'sudo apt install fpocket') puis réessayez.",
+            )
+            self._fpocket_status_label.setText("")
+
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Erreur fpocket",
+                f"La détection des poches a échoué :\n{exc}",
+            )
+            self._fpocket_status_label.setText("")
+
+        finally:
+            self._fpocket_button.setEnabled(True)
+
+    # ------------------------------------------------------------------
+    # DOCKING
+    # ------------------------------------------------------------------
+
+    def launch_docking(self):
+
+        if self.thread is not None:
+            QMessageBox.information(
+                self,
+                "Docking en cours",
+                "Une campagne de docking est déjà en cours.",
+            )
+            return
+
+        if not self.selected_ligands:
+
+            QMessageBox.warning(
+                self,
+                "Aucun ligand sélectionné",
+                "Sélectionnez d'abord les ligands PDBQT "
+                "dans l'étape « Charger les PDBQT », "
+                "puis cliquez sur « Utiliser la sélection ».",
+            )
+
+            return
+
+        # Vérification finale des fichiers sélectionnés.
+        missing = [
+            path
+            for path in self.selected_ligands
+            if not path.exists()
+        ]
+
+        if missing:
+
+            QMessageBox.warning(
+                self,
+                "Ligand introuvable",
+                "Un ou plusieurs fichiers sélectionnés "
+                "n'existent plus.",
+            )
+
+            self.selected_ligands = [
+                path
+                for path in self.selected_ligands
+                if path.exists()
+            ]
+
+            return
+
+        target = self.target_combo.currentData()
+
+        try:
+
+            # Mode double cible : utiliser MexB uniquement pour l'affichage GUI.
+            # Les moteurs MexB et MexR seront créés séparément au lancement.
+            pair_members = getattr(self, "pair_targets", {}).get(target)
+
+            if target == "MexB + MexR":
+                # Cible d'affichage uniquement : les deux moteurs sont
+                # créés séparément plus bas.
+                config_target = "MexB"
+            elif pair_members is not None:
+                config_target = pair_members[0]
+            else:
+                config_target = target
+
+            config = create_target_config(
+                config_target,
+                results_root=(
+                    self.project_root
+                    / "docking"
+                    / "results"
+                    / "batch_vina_engine"
+                ),
+            )
+
+            # Les paramètres de l'interface deviennent la configuration active.
+            # La grid box de l'interface n'est appliquée QUE pour une
+            # cible unique (MexB seul ou MexR seul). En mode double cible,
+            # chaque protéine garde ses valeurs prédéfinies — voir plus
+            # bas, sub_config = create_target_config(sub_target, ...)
+            # n'est jamais écrasé pour la grid box.
+            if target == "MexB":
+                target_fields = self.mexb_fields
+            elif target == "MexR":
+                target_fields = self.mexr_fields
+            elif pair_members is not None:
+                # Campagne de couple : chaque protéine garde sa grid box
+                # prédéfinie, rien n'est repris de l'interface.
+                target_fields = None
+            elif target in self.generic_panels:
+                target_fields = self.generic_panels[target]["fields"]
+            else:
+                target_fields = None
+
+            if target_fields is not None:
+                config.center_x = target_fields["center_x"].value()
+                config.center_y = target_fields["center_y"].value()
+                config.center_z = target_fields["center_z"].value()
+                config.size_x = target_fields["size_x"].value()
+                config.size_y = target_fields["size_y"].value()
+                config.size_z = target_fields["size_z"].value()
+
+            config.exhaustiveness = int(
+                self.exhaustiveness_field.text()
+            )
+
+            config.num_modes = int(
+                self.num_modes_field.text()
+            )
+
+        except ValueError as exc:
+
+            QMessageBox.warning(
+                self,
+                "Paramètres invalides",
+                f"Vérifiez les paramètres numériques.\n\n{exc}",
+            )
+
+            return
+
+        # ------------------------------------------------------
+        # CREATION DES MOTEURS SELON LA CIBLE
+        # ------------------------------------------------------
+
+        engines = {}
+
+        if target == "MexB":
+
+            engines["MexB"] = VinaEngine(
+                config
+            )
+
+
+        elif target == "MexR":
+
+            engines["MexR"] = VinaEngine(
+                config
+            )
+
+
+        elif target == "MexB + MexR":
+
+            for sub_target in ("MexB", "MexR"):
+
+                sub_config = create_target_config(
+                    sub_target,
+                    results_root=(
+                        self.project_root
+                        / "docking"
+                        / "results"
+                        / "batch_vina_engine"
+                    ),
+                )
+
+                # Les parametres de recherche saisis dans l'interface
+                # s'appliquent aux deux cibles. La grid box reste
+                # specifique a chaque cible (poches de liaison
+                # differentes) et n'est PAS ecrasee ici.
+                sub_config.exhaustiveness = config.exhaustiveness
+                sub_config.num_modes = config.num_modes
+
+                engines[sub_target] = VinaEngine(sub_config)
+
+        elif pair_members is not None:
+
+            # ------------------------------------------------------
+            # COUPLE GÉNÉRIQUE : pompe d'efflux + dérépresseur
+            # ------------------------------------------------------
+            # Même logique que « MexB + MexR » : un moteur par
+            # protéine, paramètres de recherche communs, grid box
+            # propre à chacune (poches différentes, jamais écrasées).
+
+            for sub_target in pair_members:
+
+                sub_config = create_target_config(
+                    sub_target,
+                    results_root=(
+                        self.project_root
+                        / "docking"
+                        / "results"
+                        / "batch_vina_engine"
+                    ),
+                )
+
+                sub_config.exhaustiveness = config.exhaustiveness
+                sub_config.num_modes = config.num_modes
+
+                engines[sub_target] = VinaEngine(sub_config)
+
+        elif target in self.generic_panels:
+
+            engines[target] = VinaEngine(
+                config
+            )
+
+        else:
+
+            raise ValueError(
+                f"Cible inconnue : {target}"
+            )
+
+
+
+        # ------------------------------------------------------
+        # VALIDATION DES MOTEURS ACTIFS
+        # ------------------------------------------------------
+
+        validation_errors = []
+
+        for engine_name, engine in engines.items():
+
+            valid, errors = engine.validate()
+
+            if not valid:
+
+                validation_errors.extend(
+                    [
+                        f"{engine_name} : {error}"
+                        for error in errors
+                    ]
+                )
+
+
+        if validation_errors:
+
+            QMessageBox.critical(
+                self,
+                "Configuration invalide",
+                "\n".join(
+                    f"• {error}"
+                    for error in validation_errors
+                ),
+            )
+
+            return
+
+        # ------------------------------------------------------
+        # VERIFICATION VINA SUR TOUS LES MOTEURS
+        # ------------------------------------------------------
+
+        vina_errors = []
+
+        for engine_name, engine in engines.items():
+
+            vina_ok, vina_message = (
+                engine.check_vina()
+            )
+
+            if not vina_ok:
+
+                vina_errors.append(
+                    f"{engine_name} : {vina_message}"
+                )
+
+
+        if vina_errors:
+
+            QMessageBox.critical(
+                self,
+                "AutoDock Vina indisponible",
+                "\n".join(vina_errors),
+            )
+
+            return
+
+        ligands = [
+            str(path)
+            for path in self.selected_ligands
+        ]
+
+        self.docking_log.setRowCount(0)
+
+        self.progress.setValue(0)
+
+        self.execution_status.setText(
+            "Préparation du calcul…"
+        )
+
+        self.execution_status.setStyleSheet(
+            f"color: {COLORS['accent_dark']}; "
+            f"font-weight: 650;"
+        )
+
+        self.launch_button.setEnabled(
+            False
+        )
+
+        self.cancel_button.setEnabled(
+            True
+        )
+
+        self.target_combo.setEnabled(
+            False
+        )
+
+        self.add_docking_log(
+            "INFO",
+            f"Campagne {target} — {len(ligands)} ligand(s) sélectionné(s)",
+        )
+
+        self.current_ligand.setText(
+            f"{len(ligands)} ligand(s) sélectionné(s) — "
+            "préparation du calcul…"
+        )
+
+        # ----------------------------------------------------------
+        # THREAD
+        # ----------------------------------------------------------
+
+        self.thread = QThread()
+
+        # Rôles transmis au worker : ils déterminent quelle protéine
+        # alimente les colonnes « pompe » et laquelle alimente les
+        # colonnes « dérépresseur » du CSV fusionné, donc l'indice de
+        # double sélectivité.
+        if pair_members is not None:
+            pair_roles = {
+                "pump": pair_members[0],
+                "repressor": pair_members[1],
+            }
+        elif target == "MexB + MexR":
+            pair_roles = {"pump": "MexB", "repressor": "MexR"}
+        else:
+            pair_roles = None
+
+        self.worker = DockingWorker(
+            engines=engines,
+            ligands=ligands,
+            results_root=self.project_root,
+            pair_roles=pair_roles,
+        )
+
+        self.worker.moveToThread(
+            self.thread
+        )
+
+        self.thread.started.connect(
+            self.worker.run
+        )
+
+        self.worker.progress.connect(
+            self.on_docking_progress
+        )
+
+        self.worker.log_line.connect(
+            self.on_docking_log
+        )
+
+        self.worker.finished.connect(
+            self.on_docking_finished
+        )
+
+        self.worker.failed.connect(
+            self.on_docking_failed
+        )
+
+        self.worker.cancelled.connect(
+            self.on_docking_cancelled
+        )
+
+        self.worker.finished.connect(
+            self.thread.quit
+        )
+
+        self.worker.failed.connect(
+            self.thread.quit
+        )
+
+        self.worker.cancelled.connect(
+            self.thread.quit
+        )
+
+        self.thread.finished.connect(
+            self.on_thread_finished
+        )
+
+        self.thread.finished.connect(
+            self.thread.deleteLater
+        )
+
+        self.thread.start()
+
+    def cancel_docking(self):
+
+        if self.worker is None:
+            return
+
+        self.worker.cancel()
+
+        self.execution_status.setText(
+            "Annulation demandée…"
+        )
+
+        self.cancel_button.setEnabled(
+            False
+        )
+
+        self.add_docking_log(
+            "ANNULATION",
+            "Annulation demandée par l'utilisateur.",
+        )
+
+    def on_docking_progress(
+        self,
+        engine,
+        current,
+        total,
+        ligand_name,
+    ):
+
+        if not hasattr(self, "docking_progress_state"):
+
+            self.docking_progress_state = {}
+
+        percent = int(
+            (current / total) * 100
+        ) if total else 0
+
+
+        self.docking_progress_state[engine] = {
+            "current": current,
+            "total": total,
+            "percent": percent,
+            "ligand": ligand_name,
+        }
+
+
+        # Calcul progression globale
+        values = [
+            item["percent"]
+            for item in self.docking_progress_state.values()
+        ]
+
+        global_percent = int(
+            sum(values) / len(values)
+        ) if values else 0
+
+
+        self.progress.setValue(
+            global_percent
+        )
+
+
+        states = []
+
+        for name, data in self.docking_progress_state.items():
+
+            states.append(
+                f"{name}: "
+                f"{data['current']}/{data['total']} "
+                f"({data['percent']}%)"
+            )
+
+
+        self.current_ligand.setText(
+            f"Ligand {ligand_name}"
+            "\n"
+            + " | ".join(states)
+        )
+
+
+        self.execution_status.setText(
+            f"Docking en cours — {global_percent}%"
+        )
+
+    def on_docking_log(self, message):
+
+        self.add_docking_log(
+            "VINA",
+            message,
+        )
+
+    def on_docking_finished(self, csv_path):
+
+        self.docking_results_csv = str(csv_path)
+
+        gui_debug(
+            "DOCKING TERMINE CSV = " + str(csv_path)
+        )
+
+        # Connexion directe Docking -> Analyse -> Résultats docking
+        try:
+
+            if hasattr(self, "analysis_page"):
+
+                self.analysis_page.docking_results_csv = str(csv_path)
+
+                gui_debug(
+                    "CSV transmis a AnalysisPage"
+                )
+
+                if hasattr(
+                    self.analysis_page,
+                    "refresh_docking_results"
+                ):
+
+                    self.analysis_page.refresh_docking_results()
+
+                    gui_debug(
+                        "Refresh resultats docking execute"
+                    )
+
+        except Exception as e:
+
+            gui_debug(
+                "Erreur refresh analyse : " + str(e)
+            )
+
+
+
+        # Mise à jour automatique des résultats docking
+        try:
+
+            if hasattr(
+                self,
+                "analysis_page"
+            ):
+
+                self.analysis_page.docking_results_csv = str(csv_path)
+
+                self.analysis_page.refresh_docking_results()
+
+                gui_debug(
+                    "RESULTATS DOCKING ACTUALISES"
+                )
+
+        except Exception as e:
+
+            gui_debug(
+                "ERREUR REFRESH RESULTATS : " + str(e)
+            )
+
+        self.progress.setValue(
+            100
+        )
+
+        self.execution_status.setText(
+            "Campagne terminée"
+        )
+
+        self.execution_status.setStyleSheet(
+            f"color: {COLORS['success']}; "
+            f"font-weight: 650;"
+        )
+
+        self.current_ligand.setText(
+            "Tous les ligands ont été traités."
+        )
+
+        self.add_docking_log(
+            "TERMINÉ",
+            f"Résultats exportés : {csv_path}",
+        )
+
+        self.status_message(
+            f"Docking terminé — résultats : {csv_path}"
+        )
+	# ------------------------------------------------------
+        # GENERATION AUTOMATIQUE DES SCORES SCIENTIFIQUES
+        # ------------------------------------------------------
+
+        try:
+
+            from src.scientific_fusion import (
+                create_scientific_scores
+            )
+
+            selected_target = self.target_combo.currentData()
+            pair_roles = None
+            if is_pair_key(selected_target):
+                pump_id, repressor_id = parse_pair_key(selected_target)
+                pair_roles = {
+                    "pump": pump_id,
+                    "repressor": repressor_id,
+                }
+
+            grouped, global_csv = create_scientific_scores(
+                csv_path,
+                pair_roles=pair_roles,
+            )
+
+            self.analysis_page.statistics_csv = str(
+                global_csv
+            )
+
+            self.add_docking_log(
+                "ANALYSE",
+                f"Fusion scientifique créée : {global_csv}",
+            )
+
+            self.analysis_page.statistics_status.setText(
+                "Résultats scientifiques disponibles automatiquement."
+            )
+
+        except Exception as exc:
+
+            self.add_docking_log(
+                "ERREUR ANALYSE",
+                str(exc),
+            )
+
+            global_csv = None
+        # ------------------------------------------------------
+        # ANALYSE STATISTIQUE AUTOMATIQUE
+        # ------------------------------------------------------
+        # L'indice de selectivite (fusion scientifique) compare
+        # MexB et MexR : il ne peut exister que pour une campagne
+        # ayant docke les DEUX cibles. Pour une campagne a une seule
+        # cible, global_csv est None ci-dessus (comportement normal,
+        # pas une erreur) : on saute proprement cette etape au lieu
+        # de planter sur une variable non definie.
+
+        if global_csv is None:
+
+            self.add_docking_log(
+                "ANALYSE",
+                "Indice de selectivite non calcule (necessite MexB "
+                "ET MexR). Les affinites brutes restent disponibles "
+                "dans le tableau des resultats.",
+            )
+
+        else:
+
+            try:
+
+                self.analysis_page.statistics_result = (
+                    run_statistics_pipeline(
+                        str(global_csv)
+                    )
+                )
+
+                print("===== RESULTAT PIPELINE =====")
+                print("TYPE :", type(self.analysis_page.statistics_result))
+
+                if isinstance(self.analysis_page.statistics_result, dict):
+
+                    print("CLES :", self.analysis_page.statistics_result.keys())
+
+                    for k, v in self.analysis_page.statistics_result.items():
+                        print(
+                            "CLE :",
+                            k,

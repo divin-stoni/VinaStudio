@@ -1,0 +1,126 @@
+qt.multimedia.plugin: Qt Multimedia requires a QCoreApplication instance
+qt.multimedia.ffmpeg: Using Qt multimedia with FFmpeg version 7.1.5 LGPL version 2.1 or later
+qt.core.qobject.connect: QObject::connect(QObject, Unknown): invalid nullptr parameter
+qt.core.qobject.connect: QObject::connect(QObject, Unknown): invalid nullptr parameter
+=============== 1. DOSSIER ===============
+Chemin : /home/stoni/MexAB_MexR_Analyzer_BETA/credit_du_logiciel | existe : True
+268 fichiers, 16 sous-dossiers, taille totale 789.4 Mo
+
+=============== 2. EXTENSIONS ===============
+.jpg       x  243     49.1 Mo  [image]
+.mp4       x   25    740.3 Mo  [video]
+
+=============== 3. SOUS-DOSSIERS (ordre alphabetique) ===============
+- '(racine)'                                    images=   0 videos=  0 autres=  0  0.0 o
+- '2_seconde'                                   images=   1 videos=  0 autres=  0  82.4 Ko
+- 'TNB'                                         images=   1 videos=  0 autres=  0  138.5 Ko
+- 'arold'                                       images=   1 videos=  0 autres=  0  127.3 Ko
+- 'autres'                                      images=  20 videos=  0 autres=  0  3.6 Mo
+- 'cyr_abraham'                                 images=   2 videos=  0 autres=  0  379.5 Ko
+- 'irris'                                       images=   3 videos=  0 autres=  0  165.3 Ko
+- 'le_blanc'                                    images=   9 videos=  0 autres=  0  3.1 Mo
+- 'ma_famille'                                  images=   2 videos=  0 autres=  0  415.7 Ko
+- 'ma_mere'                                     images=   4 videos=  0 autres=  0  375.3 Ko
+- 'moi'                                         images=  15 videos=  0 autres=  0  2.0 Mo
+- 'mon_pere'                                    images=   6 videos=  0 autres=  0  1.5 Mo
+- 'paul'                                        images=   7 videos=  0 autres=  0  2.4 Mo
+- 'sexy_boy'                                    images=   4 videos=  0 autres=  0  852.6 Ko
+- 'stage_PNR'                                   images= 106 videos= 25 autres=  0  764.1 Mo
+- 'stage_ollombo'                               images=   4 videos=  0 autres=  0  1002.8 Ko
+- 'um6ss'                                       images=  58 videos=  0 autres=  0  9.2 Mo
+
+=============== 4. EXEMPLES DE NOMS DE FICHIERS (8 premiers par dossier) ===============
+[2_seconde] ['photo_86_2026-09-19_18-12-01.jpg']
+[TNB] ['photo_2026-09-20_17-35-13.jpg']
+[arold] ['photo_67_2026-09-19_18-11-16.jpg']
+[autres] ['photo_27_2026-09-19_18-11-16.jpg', 'photo_37_2026-09-19_18-12-58.jpg', 'photo_39_2026-09-19_18-11-16.jpg', 'photo_40_2026-09-19_18-11-16.jpg', 'photo_40_2026-09-19_18-12-01.jpg', 'photo_42_2026-09-19_18-12-01.jpg', 'photo_45_2026-09-19_18-11-16.jpg', 'photo_45_2026-09-19_18-12-01.jpg']
+[cyr_abraham] ['photo_84_2026-09-19_18-12-01.jpg', 'photo_85_2026-09-19_18-12-01.jpg']
+[irris] ['IMG-20250730-WA0008.jpg', 'IMG-20250730-WA0009.jpg', 'IMG-20250730-WA0012.jpg']
+[le_blanc] ['photo_63_2026-09-19_18-10-03.jpg', 'photo_64_2026-09-19_18-10-03.jpg', 'photo_65_2026-09-19_18-10-03.jpg', 'photo_66_2026-09-19_18-10-03.jpg', 'photo_67_2026-09-19_18-10-03.jpg', 'photo_68_2026-09-19_18-10-03.jpg', 'photo_69_2026-09-19_18-10-03.jpg', 'photo_70_2026-09-19_18-10-03.jpg']
+[ma_famille] ['photo_1_2026-09-20_17-34-39.jpg', 'photo_2_2026-09-20_17-34-39.jpg']
+[ma_mere] ['photo_32_2026-09-19_18-10-03.jpg', 'photo_33_2026-09-19_18-10-03.jpg', 'photo_71_2026-09-19_18-11-16.jpg', 'photo_72_2026-09-19_18-11-16.jpg']
+[moi] ['photo_10_2026-09-19_18-10-03.jpg', 'photo_19_2026-09-19_18-10-03.jpg', 'photo_2026-09-20_17-35-34.jpg', 'photo_21_2026-09-19_18-11-16.jpg', 'photo_27_2026-09-19_18-10-03.jpg', 'photo_30_2026-09-19_18-10-03.jpg', 'photo_31_2026-09-19_18-10-03.jpg', 'photo_39_2026-09-19_18-10-03.jpg']
+[mon_pere] ['photo_38_2026-09-19_18-12-58.jpg', 'photo_46_2026-09-19_18-12-01.jpg', 'photo_47_2026-09-19_18-12-01.jpg', 'photo_49_2026-09-19_18-12-01.jpg', 'photo_60_2026-09-19_18-12-01.jpg', 'photo_69_2026-09-19_18-11-16.jpg']
+[paul] ['photo_44_2026-09-19_18-12-01.jpg', 'photo_51_2026-09-19_18-11-16.jpg', 'photo_74_2026-09-19_18-10-03.jpg', 'photo_78_2026-09-19_18-10-03.jpg', 'photo_80_2026-09-19_18-10-03.jpg', 'photo_83_2026-09-19_18-10-03.jpg', 'photo_86_2026-09-19_18-10-03.jpg']
+[sexy_boy] ['photo_33_2026-09-19_18-11-16.jpg', 'photo_34_2026-09-19_18-11-16.jpg', 'photo_35_2026-09-19_18-11-16.jpg', 'photo_96_2026-09-19_18-12-01.jpg']
+[stage_PNR] ['VID-20251026-WA0007.mp4', 'VID-20251026-WA0008.mp4', 'VID-20251026-WA0050.mp4', 'VID-20251026-WA0055.mp4', 'VID-20251026-WA0064.mp4', 'VID-20251031-WA0004.mp4', 'VID-20251031-WA0005.mp4', 'VID_20251026_081245.mp4']
+[stage_ollombo] ['photo_1_2026-09-20_17-35-04.jpg', 'photo_2_2026-09-20_17-35-04.jpg', 'photo_3_2026-09-20_17-35-04.jpg', 'photo_4_2026-09-20_17-35-04.jpg']
+[um6ss] ['photo_10_2026-09-19_18-12-01.jpg', 'photo_11_2026-09-19_18-12-01.jpg', 'photo_12_2026-09-19_18-12-01.jpg', 'photo_13_2026-09-19_18-12-01.jpg', 'photo_14_2026-09-19_18-12-01.jpg', 'photo_16_2026-09-19_18-12-01.jpg', 'photo_17_2026-09-19_18-10-03.jpg', 'photo_17_2026-09-19_18-12-01.jpg']
+
+=============== 5. 15 PLUS GROS FICHIERS ===============
+   88.6 Mo  stage_PNR/VID_20251029_162411.mp4
+   83.0 Mo  stage_PNR/VID_20251026_211730.mp4
+   73.7 Mo  stage_PNR/VID_20251031_090257.mp4
+   57.8 Mo  stage_PNR/VID_20251026_104646.mp4
+   55.0 Mo  stage_PNR/VID_20251026_160203.mp4
+   42.5 Mo  stage_PNR/VID_20251026_081245.mp4
+   40.9 Mo  stage_PNR/VID_20251029_075821.mp4
+   38.5 Mo  stage_PNR/VID_20251029_175243.mp4
+   36.0 Mo  stage_PNR/VID_20251027_235235.mp4
+   34.1 Mo  stage_PNR/VID_20251026_160223.mp4
+   32.5 Mo  stage_PNR/VID_20251030_123710.mp4
+   27.0 Mo  stage_PNR/VID_20251029_162639.mp4
+   25.3 Mo  stage_PNR/VID_20251026_174142.mp4
+   20.9 Mo  stage_PNR/VID_20251027_235838.mp4
+   19.1 Mo  stage_PNR/VID_20251030_151419.mp4
+
+=============== 6. IMAGES : dimensions ===============
+{'> 4000 px': 0, '2000-4000 px': 0, '<= 2000 px': 243} | animees : 0 | illisibles : 0
+
+=============== 7. VIDEOS (ffprobe) ===============
+ffprobe : /usr/bin/ffprobe
+25 video(s), total 740.3 Mo, plus grosse 88.6 Mo
+  stage_PNR/VID-20251026-WA0007.mp4  h264 848x480  17s  2.6 Mo
+  stage_PNR/VID-20251026-WA0008.mp4  h264 848x480  24s  3.7 Mo
+  stage_PNR/VID-20251026-WA0050.mp4  h264 848x480  6s  939.1 Ko
+  stage_PNR/VID-20251026-WA0055.mp4  h264 848x480  35s  5.4 Mo
+  stage_PNR/VID-20251026-WA0064.mp4  h264 848x480  25s  3.9 Mo
+  stage_PNR/VID-20251031-WA0004.mp4  h264 848x480  5s  737.1 Ko
+  stage_PNR/VID-20251031-WA0005.mp4  h264 848x480  5s  865.7 Ko
+  stage_PNR/VID_20251026_081245.mp4  h264 1920x1080  22s  42.5 Mo
+  stage_PNR/VID_20251026_104646.mp4  h264 1920x1080  30s  57.8 Mo
+  stage_PNR/VID_20251026_160203.mp4  h264 1920x1080  29s  55.0 Mo
+  stage_PNR/VID_20251026_160223.mp4  h264 1920x1080  18s  34.1 Mo
+  stage_PNR/VID_20251026_174142.mp4  h264 1920x1080  15s  25.3 Mo
+  stage_PNR/VID_20251026_211730.mp4  h264 1920x1080  47s  83.0 Mo
+  stage_PNR/VID_20251027_235235.mp4  h264 1920x1080  22s  36.0 Mo
+  stage_PNR/VID_20251027_235838.mp4  h264 1920x1080  13s  20.9 Mo
+  stage_PNR/VID_20251029_075821.mp4  h264 1920x1080  21s  40.9 Mo
+  stage_PNR/VID_20251029_162411.mp4  h264 1920x1080  46s  88.6 Mo
+  stage_PNR/VID_20251029_162639.mp4  h264 1920x1080  14s  27.0 Mo
+  stage_PNR/VID_20251029_175243.mp4  h264 1920x1080  20s  38.5 Mo
+  stage_PNR/VID_20251030_123710.mp4  h264 1920x1080  17s  32.5 Mo
+  stage_PNR/VID_20251030_151419.mp4  h264 1920x1080  10s  19.1 Mo
+  stage_PNR/VID_20251030_151604.mp4  h264 1920x1080  6s  12.4 Mo
+  stage_PNR/VID_20251031_090257.mp4  h264 1920x1080  38s  73.7 Mo
+  stage_PNR/VID_20251031_094521.mp4  h264 1920x1080  9s  16.9 Mo
+  stage_PNR/VID_20251031_113642.mp4  h264 1920x1080  9s  18.3 Mo
+Codecs : {'h264': 25}
+
+=============== 8. FICHIERS TEXTE / LEGENDES DEJA PRESENTS ===============
+
+=============== 9. NOMS PROBLEMATIQUES ===============
+0 nom(s) avec caracteres speciaux []
+0 fichier(s) caches []
+
+=============== 10. OUTILS PYTHON / QT ===============
+Python : 3.14.4
+  PIL                              OK
+  cryptography                     ABSENT (ModuleNotFoundError("No module named 'cryptography'"))
+  PySide6.QtMultimedia             OK
+  PySide6.QtMultimediaWidgets      OK
+  Formats video lus par Qt : ['WMV', 'AVI', 'Matroska', 'MPEG4', 'Ogg', 'QuickTime', 'Mpeg4Audio', 'AAC', 'WMA', 'FLAC', 'Wave']
+
+=============== 11. INTEGRATION DANS LE PROJET ===============
+  boucle des onglets                           : 1 occurrence(s)
+  page visualisation ajoutee au workspace      : 1 occurrence(s)
+  liste des noms switch_primary                : 1 occurrence(s)
+  presence 'credit' dans main_window           : 0 occurrence(s)
+  fichiers src/gui : ['__init__.py', 'main_window.py', 'theme_manager.py', 'viewer_template.py', 'visualization_bridge.py']
+
+=============== 12. GIT / PACKAGING ===============
+git check-ignore : (NON ignore : les medias iraient sur GitHub !)
+fichiers suivis par git dans credit_du_logiciel : 0
+  VinaStudio.iss: mentions 'credit' -> 0
+  build_deb_final.sh: mentions 'credit' -> 0
+  .gitignore: mentions 'credit' -> 0

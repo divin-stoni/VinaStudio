@@ -117,6 +117,12 @@ VIEWER_HTML = """<!DOCTYPE html>
         (resn || "?") + " " + (resi || "?");
     }
 
+    function refreshViewer() {
+      if (!viewer) return;
+      viewer.resize();
+      viewer.render();
+    }
+
     function loadReceptor(pdbData) {
       viewer.clear();
       currentBox = null;
@@ -179,22 +185,31 @@ VIEWER_HTML = """<!DOCTYPE html>
       viewer.render();
     }
 
-    function loadComplex(pdbData, interactionsJson) {
+    function loadComplex(pdbData, interactionsInput) {
       viewer.clear();
       currentBox = null;
       currentHighlight = null;
 
+      let interactions = [];
+      try {
+        if (Array.isArray(interactionsInput)) {
+          interactions = interactionsInput;
+        } else if (typeof interactionsInput === "string") {
+          const parsed = JSON.parse(interactionsInput || "[]");
+          interactions = Array.isArray(parsed) ? parsed : [];
+        }
+      } catch (error) {
+        interactions = [];
+      }
+
       const model = viewer.addModel(pdbData, "pdb");
+      viewer.resize();
       viewer.setStyle({model: model, hetflag: false}, {
         cartoon: {color: "spectrum", opacity: 1.0}
       });
       viewer.setStyle({model: model, hetflag: true}, {
         stick: {colorscheme: "Jmol", radius: 0.18}
       });
-
-      let interactions = [];
-      try { interactions = JSON.parse(interactionsJson || "[]"); }
-      catch (error) { interactions = []; }
 
       const highlighted = {};
       interactions.forEach(function(item) {
@@ -221,8 +236,14 @@ VIEWER_HTML = """<!DOCTYPE html>
         );
       });
 
+      viewer.resize();
       viewer.zoomTo({model: model});
       viewer.render();
+      setTimeout(function() {
+        viewer.resize();
+        viewer.zoomTo({model: model});
+        viewer.render();
+      }, 50);
     }
 
     function updateBox(cx, cy, cz, sx, sy, sz) {

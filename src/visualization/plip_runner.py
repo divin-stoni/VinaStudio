@@ -3,6 +3,63 @@ from pathlib import Path
 import subprocess
 
 
+def _pdb_atom_serial(line):
+    if not line.startswith(("ATOM  ", "HETATM")):
+        return None
+    try:
+        return int(line[6:11])
+    except ValueError:
+        return None
+
+
+def _renumber_pdb_block(lines, offset):
+    serial_map = {}
+    for line in lines:
+        serial = _pdb_atom_serial(line)
+        if serial is not None:
+            serial_map[serial] = serial + offset
+
+    output = []
+    for line in lines:
+        serial = _pdb_atom_serial(line)
+        if serial is not None:
+            line = line[:6] + f"{serial_map[serial]:5d}" + line[11:]
+        elif line.startswith("CONECT"):
+            fields = [line[index:index + 5] for index in range(6, len(line), 5)]
+            mapped = []
+            for field in fields:
+                try:
+                    value = serial_map[int(field)]
+                except (ValueError, KeyError):
+                    continue
+                mapped.append(f"{value:5d}")
+            line = "CONECT" + "".join(mapped)
+        output.append(line)
+    return output, serial_map
+
+
+def _merge_pdb_files(receptor_path, ligand_path, output_path):
+    receptor_lines = receptor_path.read_text(errors="ignore").splitlines()
+    ligand_lines = ligand_path.read_text(errors="ignore").splitlines()
+
+    receptor_block, receptor_map = _renumber_pdb_block(receptor_lines, 0)
+    receptor_max = max(receptor_map.values(), default=0)
+    ligand_block, _ = _renumber_pdb_block(ligand_lines, receptor_max)
+
+    merged = []
+    for line in receptor_block:
+        if line.startswith(("END", "MASTER")):
+            continue
+        merged.append(line)
+    merged.append("TER")
+    for line in ligand_block:
+        if line.startswith(("END", "MASTER")):
+            continue
+        merged.append(line)
+    merged.append("END")
+    output_path.write_text("\n".join(merged) + "\n")
+
+
 class PLIPRunner:
 
 
@@ -204,32 +261,11 @@ class PLIPRunner:
         )
 
 
-        with open(complex_file, "w") as out:
-
-            # IMPORTANT : receptor_pdb et ligand_pdb sont chacun produits
-            # par obabel, qui termine son PDB par une ligne END/ENDMDL.
-            # Si on les concatene tels quels, ce END se retrouve AU MILIEU
-            # du complexe -> PLIP arrete de lire le fichier juste apres le
-            # recepteur et ne voit JAMAIS le ligand (aucun crash, mais
-            # 0 interaction detectee). On filtre donc ces lignes de fin
-            # dans chaque bloc, et on n'ecrit qu'un seul END, a la toute
-            # fin du fichier complet.
-
-            for i, f in enumerate([receptor_pdb, ligand_pdb]):
-
-                for line in f.read_text().splitlines():
-
-                    if line.startswith("END"):
-                        # capture END et ENDMDL, qu'on ne veut pas ici
-                        continue
-
-                    out.write(line + "\n")
-
-                if i == 0:
-                    # separateur propre entre recepteur et ligand
-                    out.write("TER\n")
-
-            out.write("END\n")
+        # Les deux PDB produits par Open Babel commencent leur numerotation
+        # atomique a 1. Les concatener tels quels fait interpreter les
+        # CONECT du ligand comme des liaisons vers les premiers atomes du
+        # recepteur. Le ligand doit donc etre renumerote avant la fusion.
+        _merge_pdb_files(receptor_pdb, ligand_pdb, complex_file)
 
 
         return complex_file

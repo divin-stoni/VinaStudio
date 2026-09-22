@@ -1,0 +1,151 @@
+370
+     RDKit          2D
+
+ 18 18  0  0  0  0  0  0  0  0999 V2000
+    4.2690    2.4050    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    6.0010    1.4050    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    2.5369    1.4050    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4030   -2.0950    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1350   -2.0950    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2690   -0.5950    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2690    1.4050    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1350    0.9050    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4030    0.9050    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1350   -0.0950    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4030   -0.0950    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2690   -1.5950    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.6720   -0.4050    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8660   -0.4050    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    4.8059    2.7150    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    6.5380    1.0950    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000    1.0950    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4030   -2.7150    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+  1  7  1  0
+  1 15  1  0
+  2  8  1  0
+  2 16  1  0
+  3  9  1  0
+  3 17  1  0
+  4 12  1  0
+  4 18  1  0
+  5 12  2  0
+  6 10  1  0
+  6 11  2  0
+  6 12  1  0
+  7  8  1  0
+  7  9  2  0
+  8 10  2  0
+  9 11  1  0
+ 10 13  1  0
+ 11 14  1  0
+M  END
+>  <PUBCHEM_COMPOUND_CID>  (1) 
+370
+
+>  <PUBCHEM_COMPOUND_CANONICALIZED>  (1) 
+1
+
+>  <PUBCHEM_CACTVS_COMPLEXITY>  (1) 
+169
+
+>  <PUBCHEM_CACTVS_HBOND_ACCEPTOR>  (1) 
+5
+
+>  <PUBCHEM_CACTVS_HBOND_DONOR>  (1) 
+4
+
+>  <PUBCHEM_CACTVS_ROTATABLE_BOND>  (1) 
+1
+
+>  <PUBCHEM_CACTVS_SUBSKEYS>  (1) 
+AAADcYBgOAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAABAAAAGgAACAAADASAmAAwDoAAAgCIAiDSCAACAAAkIAAAiAEGiMgJJzKCFRKAcQElwBUJmYfK7DTOIAABCAAAQABAAAIQAACAAAAAAAAAAA==
+
+>  <PUBCHEM_IUPAC_OPENEYE_NAME>  (1) 
+3,4,5-trihydroxybenzoic acid
+
+>  <PUBCHEM_IUPAC_CAS_NAME>  (1) 
+3,4,5-trihydroxybenzoic acid
+
+>  <PUBCHEM_IUPAC_NAME_MARKUP>  (1) 
+3,4,5-trihydroxybenzoic acid
+
+>  <PUBCHEM_IUPAC_NAME>  (1) 
+3,4,5-trihydroxybenzoic acid
+
+>  <PUBCHEM_IUPAC_SYSTEMATIC_NAME>  (1) 
+3,4,5-tris(oxidanyl)benzoic acid
+
+>  <PUBCHEM_IUPAC_TRADITIONAL_NAME>  (1) 
+gallic acid
+
+>  <PUBCHEM_IUPAC_INCHI>  (1) 
+InChI=1S/C7H6O5/c8-4-1-3(7(11)12)2-5(9)6(4)10/h1-2,8-10H,(H,11,12)
+
+>  <PUBCHEM_IUPAC_INCHIKEY>  (1) 
+LNTHITQWFMADLM-UHFFFAOYSA-N
+
+>  <PUBCHEM_XLOGP3>  (1) 
+0.7
+
+>  <PUBCHEM_EXACT_MASS>  (1) 
+170.02152329
+
+>  <PUBCHEM_MOLECULAR_FORMULA>  (1) 
+C7H6O5
+
+>  <PUBCHEM_MOLECULAR_WEIGHT>  (1) 
+170.12
+
+>  <PUBCHEM_SMILES>  (1) 
+C1=C(C=C(C(=C1O)O)O)C(=O)O
+
+>  <PUBCHEM_CONNECTIVITY_SMILES>  (1) 
+C1=C(C=C(C(=C1O)O)O)C(=O)O
+
+>  <PUBCHEM_CACTVS_TPSA>  (1) 
+98
+
+>  <PUBCHEM_MONOISOTOPIC_WEIGHT>  (1) 
+170.02152329
+
+>  <PUBCHEM_TOTAL_CHARGE>  (1) 
+0
+
+>  <PUBCHEM_HEAVY_ATOM_COUNT>  (1) 
+12
+
+>  <PUBCHEM_ATOM_DEF_STEREO_COUNT>  (1) 
+0
+
+>  <PUBCHEM_ATOM_UDEF_STEREO_COUNT>  (1) 
+0
+
+>  <PUBCHEM_BOND_DEF_STEREO_COUNT>  (1) 
+0
+
+>  <PUBCHEM_BOND_UDEF_STEREO_COUNT>  (1) 
+0
+
+>  <PUBCHEM_ISOTOPIC_ATOM_COUNT>  (1) 
+0
+
+>  <PUBCHEM_COMPONENT_COUNT>  (1) 
+1
+
+>  <PUBCHEM_CACTVS_TAUTO_COUNT>  (1) 
+-1
+
+>  <PUBCHEM_COORDINATE_TYPE>  (1) 
+1
+5
+255
+
+>  <PUBCHEM_BONDANNOTATIONS>  (1) 
+6  10  8
+6  11  8
+7  8  8
+7  9  8
+8  10  8
+9  11  8
+
+$$$$

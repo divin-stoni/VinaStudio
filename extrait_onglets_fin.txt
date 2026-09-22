@@ -1,0 +1,48 @@
+                print(
+                    "Histogrammes groupes ignorés :",
+                    e
+                )
+
+
+        # ---------------------------------------------
+        # RAFRAICHISSEMENT INTERFACE DYNAMIQUE
+        # ---------------------------------------------
+
+        if hasattr(self, "results_tabs"):
+
+            self.results_tabs.setCurrentIndex(0)
+
+            self.results_tabs.show()
+
+            self.results_tabs.update()
+
+            self.results_tabs.repaint()
+
+
+            gui_debug(
+                "ONGLETS DYNAMIQUES VISIBLES = "
+                + str(self.results_tabs.count())
+            )
+
+
+            loo = result.get(
+                "leave_one_out"
+            )
+
+            if loo is not None:
+
+                try:
+
+                    add_figure(
+                        "Leave-one-out",
+                        fig_loo_influence(
+                            loo
+                        )
+                    )
+
+                except Exception as e:
+
+                    print(
+                        "LOO ignoré :",
+                        e
+                    )

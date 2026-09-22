@@ -42,6 +42,34 @@ def _infer_affinity_columns(df):
     )
 
 
+def _receptor_labels(csv_path, x_col, y_col):
+    """Noms des deux recepteurs : fichier meta de la fusion, sinon defauts."""
+    labels = {"x": None, "y": None}
+    try:
+        import json
+
+        meta_path = Path(csv_path).parent / "scores_fusionnes_meta.json"
+        if meta_path.is_file():
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            pump = meta.get("pump") or {}
+            repressor = meta.get("repressor") or {}
+            # Le fichier meta ne sert que s'il decrit bien ces colonnes.
+            if pump.get("column") == x_col and repressor.get("column") == y_col:
+                labels["x"] = pump.get("label")
+                labels["y"] = repressor.get("label")
+    except Exception:
+        pass
+    defaults = {
+        "dg_mexb": "MexB",
+        "dg_mexr": "MexR",
+        "dg_pump": "Pompe",
+        "dg_repressor": "Répresseur",
+    }
+    labels["x"] = labels["x"] or defaults.get(x_col, str(x_col))
+    labels["y"] = labels["y"] or defaults.get(y_col, str(y_col))
+    return labels
+
+
 def run_statistics_pipeline(csv_path):
 
     csv_path = Path(csv_path)
@@ -69,6 +97,12 @@ def run_statistics_pipeline(csv_path):
     result["classification"] = (
         compute_si_and_classification(df, x_col=x_col, y_col=y_col)
     )
+
+    # patch-libelles : noms des recepteurs (fusion -> meta -> pipeline -> figures)
+    result["labels"] = _receptor_labels(csv_path, x_col, y_col)
+    for _frame in (result["classification"], df):
+        _frame.attrs["x_label"] = result["labels"]["x"]
+        _frame.attrs["y_label"] = result["labels"]["y"]
 
 
     result["top_candidates"] = (
@@ -121,7 +155,7 @@ def run_statistics_pipeline(csv_path):
 
     else:
 
-        result["leave_one_out"] = None
+        result["leave_one_out"] = leave_one_out(df, x_col=x_col, y_col=y_col)  # patch-familles : LOO aussi en mode global
         result["homogeneity"] = None
 
 

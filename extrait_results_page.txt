@@ -1,0 +1,182 @@
+    def results_page(self):
+
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(28, 26, 28, 26)
+        layout.setSpacing(16)
+
+        layout.addWidget(
+            self._t_label(
+                "analysis_results_section_title",
+                "Résultats du docking",
+                "SectionTitle",
+            )
+        )
+
+        layout.addWidget(
+            self._t_label(
+                "analysis_results_section_desc",
+                "Classement des molécules selon leur meilleure "
+                "affinité de liaison.",
+                "SectionDescription",
+            )
+        )
+
+        toolbar = QFrame()
+        toolbar.setObjectName("ToolbarPanel")
+
+        row = QHBoxLayout(toolbar)
+        row.setContentsMargins(10, 8, 10, 8)
+
+        row.addWidget(
+            self._t_label("analysis_campaign_label", "Campagne")
+        )
+
+        # Menu « Campagne » : auparavant une liste écrite en dur
+        # (MexB + MexR / MexB / MexR) stockée dans une variable locale
+        # jamais relue — il laissait croire qu'on choisissait une
+        # campagne alors que l'analyse portait toujours sur le dernier
+        # docking. Il est désormais peuplé depuis les résultats
+        # réellement présents sur le disque, et conservé.
+        combo = QComboBox()
+        self.analysis_campaign_combo = combo
+        self._refresh_campaign_combo()
+
+        row.addWidget(combo)
+        row.addStretch()
+
+        analyze = self._t_button(
+            "analysis_btn_run",
+            "Lancer l'analyse",
+            primary=True,
+        )
+
+        analyze.clicked.connect(
+            self.run_docking_analysis
+        )
+
+        row.addWidget(analyze)
+
+        layout.addWidget(toolbar)
+
+        self.docking_results_table = QTableWidget(0, 6)
+
+        table = self.docking_results_table
+
+        table.setHorizontalHeaderLabels(
+            self._docking_results_headers()
+        )
+
+        for col in range(6):
+            table.horizontalHeader().setSectionResizeMode(
+                col,
+                QHeaderView.Stretch,
+            )
+
+        table.setAlternatingRowColors(True)
+        table.verticalHeader().setVisible(False)
+        table.setSelectionBehavior(
+            QAbstractItemView.SelectRows
+        )
+
+        import csv
+
+        csv_path = getattr(
+            self,
+            "docking_results_csv",
+            None
+        )
+
+        if not csv_path:
+
+            table.insertRow(0)
+
+            table.setItem(
+                0,
+                1,
+                QTableWidgetItem(
+                    "Aucun résultat de docking disponible"
+                )
+            )
+
+            layout.addWidget(
+                table,
+                1
+            )
+
+            scroll = QScrollArea()
+            scroll.setObjectName("ResultsEmptyScrollArea")
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setWidget(page)
+
+            return scroll
+
+        csv_file = Path(csv_path)
+
+        if csv_file.exists():
+
+            with csv_file.open(
+                "r",
+                encoding="utf-8"
+            ) as handle:
+
+                reader = csv.DictReader(handle)
+
+                rows = []
+
+                for index, data in enumerate(reader, start=1):
+
+                    mexb = data.get(
+                        "best_affinity_mexb",
+                        ""
+                    )
+
+                    mexr = data.get(
+                        "best_affinity_mexr",
+                        ""
+                    )
+
+                    status = (
+                        data.get("status_mexb", "")
+                        + " / "
+                        + data.get("status_mexr", "")
+                    )
+
+                    rows.append(
+                        (
+                            str(index),
+                            data.get("molecule", ""),
+                            data.get("groupe", ""),
+                            mexb,
+                            mexr,
+                            status,
+                        )
+                    )
+
+
+            for row_data in rows:
+
+                row_index = table.rowCount()
+
+                table.insertRow(
+                    row_index
+                )
+
+                for col, value in enumerate(row_data):
+
+                    table.setItem(
+                        row_index,
+                        col,
+                        QTableWidgetItem(str(value)),
+                    )
+
+        layout.addWidget(table, 1)
+
+        scroll = QScrollArea()
+        scroll.setObjectName("ResultsScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(page)
+
+        return scroll

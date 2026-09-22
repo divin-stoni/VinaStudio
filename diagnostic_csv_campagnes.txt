@@ -1,0 +1,149 @@
+DIAGNOSTIC CSV DE CAMPAGNES - 2026-09-20T21:26:11
+Racine : /home/stoni/MexAB_MexR_Analyzer_BETA
+Fichiers trouves : 10
+
+==============================================================================
+FICHIER : analysis_ready.csv
+Modifie le : 2026-09-16T14:07
+Forme : 7 lignes x 19 colonnes
+Colonnes : molecule, ligand_file, groupe, status_mexb, dg_mexb, best_mode_mexb, n_modes_mexb, output_pdbqt_mexb, log_file_mexb, error_mexb, duration_seconds_mexb, status_mexr, dg_mexr, best_mode_mexr, n_modes_mexr, output_pdbqt_mexr, log_file_mexr, error_mexr, duration_seconds_mexr
+Molecules distinctes (molecule) : 7
+Familles (groupe) : 1 distinctes
+    nan : 7
+Colonnes d'affinite : dg_mexb, dg_mexr
+Statuts status_mexb : {'OK': np.int64(7)}
+Statuts status_mexr : {'OK': np.int64(7)}
+Apercu (2 premieres lignes) :
+   molecule ligand_file  groupe status_mexb  dg_mexb  best_mode_mexb  n_modes_mexb              output_pdbqt_mexb                  log_file_mexb  error_mexb  duration_seconds_mexb status_mexr  dg_mexr  best_mode_mexr  n_modes_mexr              output_pdbqt_mexr                  log_file_mexr  error_mexr  duration_seconds_mexr
+0      2081  2081.pdbqt     NaN          OK   -5.683               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              19.559871          OK   -5.897               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              28.057636
+1      2160  2160.pdbqt     NaN          OK   -7.297               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              16.435505          OK   -7.119               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              21.568210
+
+==============================================================================
+FICHIER : docking_results_combined.csv
+Modifie le : 2026-09-17T15:21
+Forme : 21 lignes x 19 colonnes
+Colonnes : molecule, ligand_file, groupe, status_acrb_site2_ecoli, best_affinity_acrb_site2_ecoli, best_mode_acrb_site2_ecoli, n_modes_acrb_site2_ecoli, output_pdbqt_acrb_site2_ecoli, log_file_acrb_site2_ecoli, error_acrb_site2_ecoli, duration_seconds_acrb_site2_ecoli, status_acrr_e67_ecoli, best_affinity_acrr_e67_ecoli, best_mode_acrr_e67_ecoli, n_modes_acrr_e67_ecoli, output_pdbqt_acrr_e67_ecoli, log_file_acrr_e67_ecoli, error_acrr_e67_ecoli, duration_seconds_acrr_e67_ecoli
+Molecules distinctes (molecule) : 21
+Familles (groupe) : 1 distinctes
+    nan : 21
+Colonnes d'affinite : best_affinity_acrb_site2_ecoli, best_affinity_acrr_e67_ecoli
+Statuts status_acrb_site2_ecoli : {'OK': np.int64(21)}
+Statuts status_acrr_e67_ecoli : {'OK': np.int64(21)}
+Apercu (2 premieres lignes) :
+                      molecule                    ligand_file  groupe status_acrb_site2_ecoli  best_affinity_acrb_site2_ecoli  best_mode_acrb_site2_ecoli  n_modes_acrb_site2_ecoli  output_pdbqt_acrb_site2_ecoli      log_file_acrb_site2_ecoli  error_acrb_site2_ecoli  duration_seconds_acrb_site2_ecoli status_acrr_e67_ecoli  best_affinity_acrr_e67_ecoli  best_mode_acrr_e67_ecoli  n_modes_acrr_e67_ecoli    output_pdbqt_acrr_e67_ecoli        log_file_acrr_e67_ecoli  error_acrr_e67_ecoli  duration_seconds_acrr_e67_ecoli
+0  -_-Chlorpheniramine_CID2725  -_-Chlorpheniramine_CID272...     NaN                      OK                         -6.537                            1                         4  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                     NaN                      35.797369                        OK                        -6.216                         1                       6  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                   NaN                      40.867018  
+1      Alcaftadine_CID19371515  Alcaftadine_CID19371515.pdbqt     NaN                      OK                         -9.601                            1                         9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                     NaN                      15.110636                        OK                        -8.369                         1                       9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                   NaN                      15.485794  
+
+==============================================================================
+FICHIER : docking_results_combined_MexB_MexR.csv
+Modifie le : 2026-09-16T21:41
+Forme : 7 lignes x 19 colonnes
+Colonnes : molecule, ligand_file, groupe, status_mexb, best_affinity_mexb, best_mode_mexb, n_modes_mexb, output_pdbqt_mexb, log_file_mexb, error_mexb, duration_seconds_mexb, status_mexr, best_affinity_mexr, best_mode_mexr, n_modes_mexr, output_pdbqt_mexr, log_file_mexr, error_mexr, duration_seconds_mexr
+Molecules distinctes (molecule) : 7
+Familles (groupe) : 1 distinctes
+    nan : 7
+Colonnes d'affinite : best_affinity_mexb, best_affinity_mexr
+Statuts status_mexb : {'OK': np.int64(7)}
+Statuts status_mexr : {'OK': np.int64(7)}
+Apercu (2 premieres lignes) :
+                molecule                  ligand_file  groupe status_mexb  best_affinity_mexb  best_mode_mexb  n_modes_mexb              output_pdbqt_mexb                  log_file_mexb  error_mexb  duration_seconds_mexb status_mexr  best_affinity_mexr  best_mode_mexr  n_modes_mexr              output_pdbqt_mexr                  log_file_mexr  error_mexr  duration_seconds_mexr
+0  Agomelatine_CID_82148  Agomelatine_CID_82148.pdbqt     NaN          OK              -9.271               1             8  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              17.200055          OK              -8.171               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              20.948109
+1   Alaproclate_CID_2081   Alaproclate_CID_2081.pdbqt     NaN          OK              -7.257               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              26.764768          OK              -6.855               1             9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...         NaN              27.870354
+
+==============================================================================
+FICHIER : docking_results_combined_acrb_site2_ecoli_acrr_e67_ecoli.csv
+Modifie le : 2026-09-17T15:21
+Forme : 21 lignes x 19 colonnes
+Colonnes : molecule, ligand_file, groupe, status_acrb_site2_ecoli, best_affinity_acrb_site2_ecoli, best_mode_acrb_site2_ecoli, n_modes_acrb_site2_ecoli, output_pdbqt_acrb_site2_ecoli, log_file_acrb_site2_ecoli, error_acrb_site2_ecoli, duration_seconds_acrb_site2_ecoli, status_acrr_e67_ecoli, best_affinity_acrr_e67_ecoli, best_mode_acrr_e67_ecoli, n_modes_acrr_e67_ecoli, output_pdbqt_acrr_e67_ecoli, log_file_acrr_e67_ecoli, error_acrr_e67_ecoli, duration_seconds_acrr_e67_ecoli
+Molecules distinctes (molecule) : 21
+Familles (groupe) : 1 distinctes
+    nan : 21
+Colonnes d'affinite : best_affinity_acrb_site2_ecoli, best_affinity_acrr_e67_ecoli
+Statuts status_acrb_site2_ecoli : {'OK': np.int64(21)}
+Statuts status_acrr_e67_ecoli : {'OK': np.int64(21)}
+Apercu (2 premieres lignes) :
+                      molecule                    ligand_file  groupe status_acrb_site2_ecoli  best_affinity_acrb_site2_ecoli  best_mode_acrb_site2_ecoli  n_modes_acrb_site2_ecoli  output_pdbqt_acrb_site2_ecoli      log_file_acrb_site2_ecoli  error_acrb_site2_ecoli  duration_seconds_acrb_site2_ecoli status_acrr_e67_ecoli  best_affinity_acrr_e67_ecoli  best_mode_acrr_e67_ecoli  n_modes_acrr_e67_ecoli    output_pdbqt_acrr_e67_ecoli        log_file_acrr_e67_ecoli  error_acrr_e67_ecoli  duration_seconds_acrr_e67_ecoli
+0  -_-Chlorpheniramine_CID2725  -_-Chlorpheniramine_CID272...     NaN                      OK                         -6.537                            1                         4  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                     NaN                      35.797369                        OK                        -6.216                         1                       6  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                   NaN                      40.867018  
+1      Alcaftadine_CID19371515  Alcaftadine_CID19371515.pdbqt     NaN                      OK                         -9.601                            1                         9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                     NaN                      15.110636                        OK                        -8.369                         1                       9  /home/stoni/MexAB_MexR_Ana...  /home/stoni/MexAB_MexR_Ana...                   NaN                      15.485794  
+
+==============================================================================
+FICHIER : ligands/antidepresseur/SDF_brute/dataset_fusionne.csv
+Modifie le : 2026-08-05T22:03
+Forme : 48 lignes x 6 colonnes
+Colonnes : nom, CID, MW, LogP, DeltaG_MexB, DeltaG_MexR
+Molecules distinctes (nom) : 48
+Familles : pas de colonne 'groupe'
+Colonnes d'affinite : DeltaG_MexB, DeltaG_MexR
+Apercu (2 premieres lignes) :
+           nom    CID       MW    LogP  DeltaG_MexB  DeltaG_MexR
+0  Agomélatine  82148  243.306  2.5270       -9.271       -8.171
+1  Alaproclate   2081  255.745  2.5515       -7.257       -6.796
+
+==============================================================================
+FICHIER : scientific_analysis/scores_fusionnes.csv
+Modifie le : 2026-09-20T02:27
+Forme : 21 lignes x 5 colonnes
+Colonnes : molecule, groupe, dg_pump, dg_repressor, indice_selectivite
+Molecules distinctes (molecule) : 21
+Familles (groupe) : 1 distinctes
+    SANS_GROUPE : 21
+Colonnes d'affinite : dg_pump, dg_repressor
+Apercu (2 premieres lignes) :
+                      molecule       groupe  dg_pump  dg_repressor  indice_selectivite
+0  -_-Chlorpheniramine_CID2725  SANS_GROUPE   -6.537        -6.216               0.321
+1      Alcaftadine_CID19371515  SANS_GROUPE   -9.601        -8.369               1.232
+
+==============================================================================
+FICHIER : scientific_analysis/scores_fusionnes_global.csv
+Modifie le : 2026-09-20T02:27
+Forme : 21 lignes x 4 colonnes
+Colonnes : molecule, dg_pump, dg_repressor, indice_selectivite
+Molecules distinctes (molecule) : 21
+Familles : pas de colonne 'groupe'
+Colonnes d'affinite : dg_pump, dg_repressor
+Apercu (2 premieres lignes) :
+                      molecule  dg_pump  dg_repressor  indice_selectivite
+0  -_-Chlorpheniramine_CID2725   -6.537        -6.216               0.321
+1      Alcaftadine_CID19371515   -9.601        -8.369               1.232
+
+==============================================================================
+FICHIER : src/docking/results/batch_vina_engine/acrb_site2_ecoli/docking_results.csv
+Modifie le : 2026-09-14T12:26
+Forme : 1 lignes x 11 colonnes
+Colonnes : molecule, ligand_file, groupe, status, best_affinity, best_mode, n_modes, output_pdbqt, log_file, error, duration_seconds
+Molecules distinctes (molecule) : 1
+Familles (groupe) : 1 distinctes
+    nan : 1
+Colonnes d'affinite : best_affinity
+Statuts status : {'FAILED': np.int64(1)}
+Cible seule : deduite du dossier -> acrb_site2_ecoli
+Apercu (2 premieres lignes) :
+       molecule         ligand_file  groupe  status  best_affinity  best_mode  n_modes                   output_pdbqt                       log_file               error  duration_seconds
+0  aspirin_test  aspirin_test.pdbqt     NaN  FAILED            NaN        NaN        0  docking/results/batch_vina...  docking/results/batch_vina...  Vina code retour 1          0.004651
+
+==============================================================================
+FICHIER : src/reference_data/scores_fusionnes.csv
+Modifie le : 2026-09-15T09:04
+Forme : 4 lignes x 5 colonnes
+Colonnes : molecule, groupe, dg_mexb, dg_mexr, indice_selectivite
+Molecules distinctes (molecule) : 4
+Familles (groupe) : 1 distinctes
+    SANS_GROUPE : 4
+Colonnes d'affinite : dg_mexb, dg_mexr
+Apercu (2 premieres lignes) :
+                molecule       groupe  dg_mexb  dg_mexr  indice_selectivite
+0  Agomelatine_CID_82148  SANS_GROUPE   -6.698   -6.185               0.513
+1   Alaproclate_CID_2081  SANS_GROUPE   -5.683   -5.464               0.219
+
+==============================================================================
+FICHIER : src/reference_data/scores_fusionnes_global.csv
+Modifie le : 2026-09-15T09:04
+Forme : 4 lignes x 4 colonnes
+Colonnes : molecule, dg_mexb, dg_mexr, indice_selectivite
+Molecules distinctes (molecule) : 4
+Familles : pas de colonne 'groupe'
+Colonnes d'affinite : dg_mexb, dg_mexr
+Apercu (2 premieres lignes) :
+                molecule  dg_mexb  dg_mexr  indice_selectivite
+0  Agomelatine_CID_82148   -6.698   -6.185               0.513
+1   Alaproclate_CID_2081   -5.683   -5.464               0.219

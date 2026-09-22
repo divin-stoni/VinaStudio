@@ -1,0 +1,1078 @@
+DIAGNOSTIC DOCKING -> ANALYSE (lecture seule)
+
+==============================================================================
+1. ENVIRONNEMENT
+==============================================================================
+Date            : 2026-09-20 21:04:32
+Python          : 3.14.4
+Racine projet   : /home/stoni/MexAB_MexR_Analyzer_BETA
+Dossier src     : /home/stoni/MexAB_MexR_Analyzer_BETA/src
+PySide6         : 6.11.2
+pandas          : 3.0.5
+numpy           : 2.5.2
+scipy           : 1.18.1
+statsmodels     : 0.14.6
+matplotlib      : 3.11.1
+scikit-learn    : 1.9.0
+rdkit           : 2026.3.5
+vina            : (non installe)
+
+==============================================================================
+2. FICHIERS PYTHON DE src/ (lignes)
+==============================================================================
+   169  column_matcher.py
+   117  diag_dark_zones.py
+   412  diagnose_docking_ui.py
+   288  diagnose_generic_docking.py
+   208  diagnose_generic_docking_2.py
+   419  diagnostic_analyse.py
+   442  docking_parser.py
+    87  fetch_mw_logp.py
+   425  fix_receptor_pdbqt.py
+   125  folder_scanner.py
+   108  main.py
+   285  patch_dark_zones.py
+   180  patch_glass_no_app_filter.py
+   179  patch_interaction3d.py
+  1820  patch_theme_blur.py
+   376  plip_2d_diagram.py
+   177  plip_engine.py
+   655  plotting.py  <- moteur
+    59  regression_model.py
+   257  scientific_fusion.py  <- moteur
+   315  session_manager.py
+   211  session_runtime.py
+   134  statistics_pipeline.py
+   589  stats_engine.py
+   906  translations.py
+     0  analysis/__init__.py  <- moteur
+    34  analysis/analysis_controller.py  <- moteur
+   670  analysis/comparative_analysis.py  <- moteur
+   444  analysis/hit_selector.py  <- moteur
+   458  analysis/integrated_hit_report.py  <- moteur
+   615  analysis/interaction_analyzer.py  <- moteur
+   457  analysis/interaction_summary.py  <- moteur
+   195  analysis/pocket_detector.py  <- moteur
+   263  analysis/pose_convergence.py  <- moteur
+   324  analysis/pose_validator.py  <- moteur
+   128  analysis/statistics_pipeline.py  <- moteur
+   618  analysis/structural_validator.py  <- moteur
+     0  dist/VinaStudio/_internal/i18n/__init__.py
+    90  dist/VinaStudio/_internal/i18n/language_manager.py
+    11  docking/__init__.py  <- moteur
+   528  docking/config_manager.py  <- moteur
+   751  docking/docking_results.py  <- moteur
+    81  docking/fusion_results.py  <- moteur
+   544  docking/ligand_manager.py  <- moteur
+   611  docking/receptor_manager.py  <- moteur
+   611  docking/receptor_profile.py  <- moteur
+   205  docking/receptor_viewer_pdb_prep.py  <- moteur
+   441  docking/sdf_preparer.py  <- moteur
+  1703  docking/vina_engine.py  <- moteur
+   455  docking/vina_worker.py  <- moteur
+     0  environment/__init__.py
+   676  environment/environment_manager.py
+     2  gui/__init__.py
+  1238  gui/credits_page.py
+ 10680  gui/main_window.py
+   490  gui/theme_manager.py
+   383  gui/viewer_template.py
+   609  gui/visualization_bridge.py
+     0  i18n/__init__.py
+    90  i18n/language_manager.py
+     0  tools/__init__.py
+    61  tools/obabel_locator.py
+    78  tools/plip_worker.py
+    55  tools/runtime_env.py
+   512  tools/tool_manager.py
+    52  tools/vcredist_check.py
+     0  visualization/__init__.py  <- moteur
+   475  visualization/interaction_3d.py  <- moteur
+   407  visualization/interaction_visualizer.py  <- moteur
+   378  visualization/plip_runner.py  <- moteur
+   519  visualization/pose_manager.py  <- moteur
+   115  visualization/visualization_manager.py  <- moteur
+
+==============================================================================
+3. "MexB" / "MexR" ECRITS EN DUR (nombre par fichier)
+==============================================================================
+   311  gui/main_window.py
+   181  docking/vina_engine.py
+   114  translations.py
+    26  column_matcher.py
+    24  docking/vina_worker.py
+    21  stats_engine.py
+    20  plotting.py
+    20  docking/fusion_results.py
+    17  docking/receptor_profile.py
+    15  folder_scanner.py
+    14  scientific_fusion.py
+    12  regression_model.py
+    12  gui/visualization_bridge.py
+     8  diagnose_generic_docking.py
+     6  docking/config_manager.py
+     6  diagnostic_analyse.py
+     5  analysis/statistics_pipeline.py
+     4  statistics_pipeline.py
+     4  diagnose_generic_docking_2.py
+     2  main.py
+     2  fix_receptor_pdbqt.py
+     2  diagnose_docking_ui.py
+     2  analysis/integrated_hit_report.py
+     1  visualization/pose_manager.py
+     1  visualization/interaction_visualizer.py
+     1  visualization/interaction_3d.py
+     1  tools/tool_manager.py
+     1  patch_theme_blur.py
+     1  patch_glass_no_app_filter.py
+     1  patch_dark_zones.py
+     1  environment/environment_manager.py
+     1  diag_dark_zones.py
+     1  analysis/pose_convergence.py
+     1  analysis/interaction_summary.py
+
+Fichiers de config / traduction concernes :
+     2  dist/VinaStudio/_internal/receptor_profiles/2v50_clean_b_2.json
+     2  dist/VinaStudio/_internal/receptor_profiles/7o9w_clean_a.json
+     2  dist/VinaStudio/_internal/receptor_profiles/7o9w_clean_b.json
+     2  dist/VinaStudio/_internal/receptor_profiles/acrb_site2_ecoli.json
+     2  dist/VinaStudio/_internal/receptor_profiles/acrr_e67_ecoli.json
+     2  dist/VinaStudio/_internal/receptor_profiles/cmeb_ampicillin_cjejuni.json
+     2  dist/VinaStudio/_internal/receptor_profiles/cmer_cholate_cjejuni.json
+     2  dist/VinaStudio/_internal/receptor_profiles/cmer_taurocholate_cjejuni.json
+     4  dist/VinaStudio/_internal/receptor_profiles/mexb_paeruginosa.json
+     6  dist/VinaStudio/_internal/receptor_profiles/mexr_paeruginosa.json
+
+==============================================================================
+3b. DETAIL DANS LE MOTEUR (analysis, docking, fusion, plotting)
+==============================================================================
+plotting.py:26: def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
+plotting.py:27: """Nuage de points ΔG(MexB) vs ΔG(MexR), couleur par famille,
+plotting.py:39: ax.set_xlabel("ΔG(MexB) (kcal/mol)")
+plotting.py:40: ax.set_ylabel("ΔG(MexR) (kcal/mol)")
+plotting.py:41: ax.set_title("Corrélation ΔG(MexB) – ΔG(MexR) par famille")
+plotting.py:53: ax.set_xlabel("Indice de sélectivité SI = ΔG(MexR) − ΔG(MexB)")
+plotting.py:353: def fig_prediction_mode2(df_pred, x_col="dg_mexb", y_pred_col="dg_mexr_predit",
+plotting.py:354: y_lo_col="dg_mexr_IC95_bas", y_hi_col="dg_mexr_IC95_haut"):
+plotting.py:365: edgecolor="white", linewidth=0.5, label="ΔG(MexR) prédit")
+plotting.py:366: ax.set_xlabel("ΔG(MexB) (kcal/mol) — observé")
+plotting.py:367: ax.set_ylabel("ΔG(MexR) (kcal/mol) — prédit")
+plotting.py:368: ax.set_title("Prédiction ΔG(MexR) à partir de ΔG(MexB) seul")
+plotting.py:400: "Carte 2D des interactions ligand–MexB"
+scientific_fusion.py:4: Conversion des résultats de docking MexB/MexR
+scientific_fusion.py:9: docking_results_MexB_MexR.csv
+scientific_fusion.py:41: if "dg_mexb" in columns and "dg_mexr" in columns:
+scientific_fusion.py:42: return "dg_mexb", "dg_mexr", "MexB", "MexR"
+scientific_fusion.py:161: pump_output_col = "dg_mexb" if pump_name == "MexB" else "dg_pump"
+scientific_fusion.py:162: repressor_output_col = "dg_mexr" if repressor_name == "MexR" else "dg_repressor"
+analysis/integrated_hit_report.py:8: BASE = os.path.expanduser("~/MexAB_MexR_Analyzer_BETA")
+analysis/integrated_hit_report.py:338: f.write("RAPPORT INTÉGRÉ DES HITS — MexAB/MexR\n")
+analysis/interaction_summary.py:381: print("MEXAB/MEXR ANALYZER — INTERACTION SUMMARY")
+analysis/pose_convergence.py:8: BASE = os.path.expanduser("~/MexAB_MexR_Analyzer_BETA")
+analysis/statistics_pipeline.py:33: if "dg_mexb" in df.columns and "dg_mexr" in df.columns:
+analysis/statistics_pipeline.py:34: return "dg_mexb", "dg_mexr"
+analysis/statistics_pipeline.py:89: "threshold_mexr": -8.289,
+docking/config_manager.py:98: `target` peut être un alias historique ("mexb", "mexr") ou un
+docking/config_manager.py:99: profile_id complet (ex. "mexb_paeruginosa").
+docking/config_manager.py:440: de MexAB_MexR_Analyzer_BETA.
+docking/config_manager.py:443: receptor_profile "mexb_paeruginosa" (source unique de vérité, voir
+docking/config_manager.py:452: target="mexb_paeruginosa",
+docking/fusion_results.py:4: Fusion des résultats docking MexB + MexR.
+docking/fusion_results.py:12: mexb_csv,
+docking/fusion_results.py:13: mexr_csv,
+docking/fusion_results.py:17: mexb = pd.read_csv(mexb_csv)
+docking/fusion_results.py:18: mexr = pd.read_csv(mexr_csv)
+docking/fusion_results.py:21: mexb = mexb[
+docking/fusion_results.py:31: "best_affinity_mexb"
+docking/fusion_results.py:36: mexr = mexr[
+docking/fusion_results.py:44: "best_affinity_mexr"
+docking/fusion_results.py:50: mexb,
+docking/fusion_results.py:51: mexr,
+docking/fusion_results.py:76: "docking/results/batch_vina_engine/MexB/docking_results.csv",
+docking/fusion_results.py:77: "docking/results/batch_vina_engine/MexR/docking_results.csv",
+docking/fusion_results.py:78: "docking/results/batch_vina_engine/docking_results_MexB_MexR.csv"
+docking/receptor_profile.py:30: # (target="MexB"/"MexR") -> profile_id réel.
+docking/receptor_profile.py:32: "mexb": "mexb_paeruginosa",
+docking/receptor_profile.py:33: "mexr": "mexr_paeruginosa",
+docking/receptor_profile.py:83: # pour n'importe quel couple, et plus seulement MexB + MexR.
+docking/receptor_profile.py:180: Résout un `target` (alias historique "MexB"/"MexR", ou un profile_id
+docking/receptor_profile.py:324: # role = "pump" -> pompe d'efflux (ex. MexB, AcrB, MexY, AdeB)
+docking/receptor_profile.py:325: # role = "repressor" -> regulateur/derepresseur (ex. MexR, AcrR)
+docking/receptor_profile.py:329: # c'est lui qui determine quelle cible recoit les colonnes "_mexb" et
+docking/receptor_profile.py:330: # laquelle recoit "_mexr" dans le CSV fusionne, de sorte que toute la
+docking/receptor_profile.py:367: Nom court et lisible pour les menus : "MexB", "AcrB", "MexY"...
+docking/receptor_profile.py:438: Le couple historique MexB/MexR est inclus d'office s'il est
+docking/vina_engine.py:87: # Valeurs par défaut issues du receptor_profile "mexb" (source unique
+docking/vina_engine.py:88: # de vérité, voir receptor_profile.py) — plus aucune valeur MexB en
+docking/vina_engine.py:91: default_factory=lambda: resolve_target_profile("mexb").pdbqt_path
+docking/vina_engine.py:104: default_factory=lambda: resolve_target_profile("mexb").grid_box.center[0]
+docking/vina_engine.py:107: default_factory=lambda: resolve_target_profile("mexb").grid_box.center[1]
+docking/vina_engine.py:110: default_factory=lambda: resolve_target_profile("mexb").grid_box.center[2]
+docking/vina_engine.py:114: default_factory=lambda: resolve_target_profile("mexb").grid_box.size[0]
+docking/vina_engine.py:117: default_factory=lambda: resolve_target_profile("mexb").grid_box.size[1]
+docking/vina_engine.py:120: default_factory=lambda: resolve_target_profile("mexb").grid_box.size[2]
+docking/vina_engine.py:145: (alias historiques "MexB"/"MexR", ou n'importe quel profile_id présent
+docking/vina_engine.py:168: # historique passé par l'appelant ("MexB", "MexR", ...).
+docking/vina_engine.py:758: print("BATCH DOCKING — MEXB / 3W9J")
+docking/vina_engine.py:930: # CAMPAGNE DOUBLE MEXB / MEXR
+docking/vina_engine.py:934: mexb_results: list[VinaDockingResult],
+docking/vina_engine.py:935: mexr_results: list[VinaDockingResult],
+docking/vina_engine.py:937: pump_name: str = "MexB",
+docking/vina_engine.py:938: repressor_name: str = "MexR",
+docking/vina_engine.py:941: Fusionne les résultats MexB et MexR par molécule.
+docking/vina_engine.py:946: .../MexB/docking_results.csv
+docking/vina_engine.py:947: .../MexR/docking_results.csv
+docking/vina_engine.py:967: mexb_by_molecule = {}
+docking/vina_engine.py:969: for result in mexb_results:
+docking/vina_engine.py:976: "Un résultat MexB possède un nom de molécule vide."
+docking/vina_engine.py:979: if molecule in mexb_by_molecule:
+docking/vina_engine.py:981: "Doublon de molécule détecté dans les résultats MexB : "
+docking/vina_engine.py:985: mexb_by_molecule[molecule] = result
+docking/vina_engine.py:987: mexr_by_molecule = {}
+docking/vina_engine.py:989: for result in mexr_results:
+docking/vina_engine.py:996: "Un résultat MexR possède un nom de molécule vide."
+docking/vina_engine.py:999: if molecule in mexr_by_molecule:
+docking/vina_engine.py:1001: "Doublon de molécule détecté dans les résultats MexR : "
+docking/vina_engine.py:1005: mexr_by_molecule[molecule] = result
+docking/vina_engine.py:1008: set(mexb_by_molecule)
+docking/vina_engine.py:1009: | set(mexr_by_molecule)
+docking/vina_engine.py:1050: mexb = mexb_by_molecule.get(
+docking/vina_engine.py:1054: mexr = mexr_by_molecule.get(
+docking/vina_engine.py:1059: mexb
+docking/vina_engine.py:1060: if mexb is not None
+docking/vina_engine.py:1061: else mexr
+docking/vina_engine.py:1073: mexb.groupe
+docking/vina_engine.py:1074: if mexb is not None
+docking/vina_engine.py:1078: mexr.groupe
+docking/vina_engine.py:1079: if mexr is not None
+docking/vina_engine.py:1085: mexb.status
+docking/vina_engine.py:1086: if mexb is not None
+docking/vina_engine.py:1090: mexb.best_affinity
+docking/vina_engine.py:1091: if mexb is not None
+docking/vina_engine.py:1095: mexb.best_mode
+docking/vina_engine.py:1096: if mexb is not None
+docking/vina_engine.py:1100: mexb.n_modes
+docking/vina_engine.py:1101: if mexb is not None
+docking/vina_engine.py:1105: mexb.output_pdbqt
+docking/vina_engine.py:1106: if mexb is not None
+docking/vina_engine.py:1110: mexb.log_file
+docking/vina_engine.py:1111: if mexb is not None
+docking/vina_engine.py:1115: mexb.error
+docking/vina_engine.py:1116: if mexb is not None
+docking/vina_engine.py:1117: else "Résultat MexB absent."
+docking/vina_engine.py:1120: mexb.duration_seconds
+docking/vina_engine.py:1121: if mexb is not None
+docking/vina_engine.py:1126: mexr.status
+docking/vina_engine.py:1127: if mexr is not None
+docking/vina_engine.py:1131: mexr.best_affinity
+docking/vina_engine.py:1132: if mexr is not None
+docking/vina_engine.py:1136: mexr.best_mode
+docking/vina_engine.py:1137: if mexr is not None
+docking/vina_engine.py:1141: mexr.n_modes
+docking/vina_engine.py:1142: if mexr is not None
+docking/vina_engine.py:1146: mexr.output_pdbqt
+docking/vina_engine.py:1147: if mexr is not None
+docking/vina_engine.py:1151: mexr.log_file
+docking/vina_engine.py:1152: if mexr is not None
+docking/vina_engine.py:1156: mexr.error
+docking/vina_engine.py:1157: if mexr is not None
+docking/vina_engine.py:1158: else "Résultat MexR absent."
+docking/vina_engine.py:1161: mexr.duration_seconds
+docking/vina_engine.py:1162: if mexr is not None
+docking/vina_engine.py:1181: Exécute une campagne successive MexB + MexR.
+docking/vina_engine.py:1185: 1. docking MexB
+docking/vina_engine.py:1186: 2. docking MexR
+docking/vina_engine.py:1190: - export CSV MexB ;
+docking/vina_engine.py:1191: - export CSV MexR ;
+docking/vina_engine.py:1199: Si None, les ligands du dossier préparé du profil MexB
+docking/vina_engine.py:1243: mexb_config = create_target_config(
+docking/vina_engine.py:1244: "MexB",
+docking/vina_engine.py:1248: mexr_config = create_target_config(
+docking/vina_engine.py:1249: "MexR",
+docking/vina_engine.py:1253: mexb_engine = VinaEngine(
+docking/vina_engine.py:1254: mexb_config
+docking/vina_engine.py:1257: mexr_engine = VinaEngine(
+docking/vina_engine.py:1258: mexr_config
+docking/vina_engine.py:1266: ligands = mexb_engine.discover_ligands()
+docking/vina_engine.py:1302: mexb_valid, mexb_errors = (
+docking/vina_engine.py:1303: mexb_engine.validate()
+docking/vina_engine.py:1306: if not mexb_valid:
+docking/vina_engine.py:1308: "Configuration MexB invalide.\n\n"
+docking/vina_engine.py:1310: mexb_errors
+docking/vina_engine.py:1314: mexr_valid, mexr_errors = (
+docking/vina_engine.py:1315: mexr_engine.validate()
+docking/vina_engine.py:1318: if not mexr_valid:
+docking/vina_engine.py:1320: "Configuration MexR invalide.\n\n"
+docking/vina_engine.py:1322: mexr_errors
+docking/vina_engine.py:1327: print("CAMPAGNE DOUBLE — MEXB + MEXR")
+docking/vina_engine.py:1335: f"MexB : "
+docking/vina_engine.py:1336: f"{mexb_config.receptor.name}"
+docking/vina_engine.py:1340: f"MexR : "
+docking/vina_engine.py:1341: f"{mexr_config.receptor.name}"
+docking/vina_engine.py:1350: mexb_results: list[VinaDockingResult] = []
+docking/vina_engine.py:1351: mexr_results: list[VinaDockingResult] = []
+docking/vina_engine.py:1375: # MEXB
+docking/vina_engine.py:1384: "MexB",
+docking/vina_engine.py:1391: f"MexB — {molecule}"
+docking/vina_engine.py:1394: mexb_result = mexb_engine.dock_ligand(
+docking/vina_engine.py:1398: mexb_result.groupe = group
+docking/vina_engine.py:1400: mexb_results.append(
+docking/vina_engine.py:1401: mexb_result
+docking/vina_engine.py:1405: # MEXR
+docking/vina_engine.py:1414: "MexR",
+docking/vina_engine.py:1421: f"MexR — {molecule}"
+docking/vina_engine.py:1424: mexr_result = mexr_engine.dock_ligand(
+docking/vina_engine.py:1428: mexr_result.groupe = group
+docking/vina_engine.py:1430: mexr_results.append(
+docking/vina_engine.py:1431: mexr_result
+docking/vina_engine.py:1438: mexb_csv = mexb_engine.export_csv(
+docking/vina_engine.py:1439: mexb_results
+docking/vina_engine.py:1442: mexr_csv = mexr_engine.export_csv(
+docking/vina_engine.py:1443: mexr_results
+docking/vina_engine.py:1457: / "docking_results_MexB_MexR.csv"
+docking/vina_engine.py:1461: mexb_results,
+docking/vina_engine.py:1462: mexr_results,
+docking/vina_engine.py:1470: mexb_success = sum(
+docking/vina_engine.py:1472: for result in mexb_results
+docking/vina_engine.py:1475: mexr_success = sum(
+docking/vina_engine.py:1477: for result in mexr_results
+docking/vina_engine.py:1480: mexb_failed = (
+docking/vina_engine.py:1481: len(mexb_results)
+docking/vina_engine.py:1482: - mexb_success
+docking/vina_engine.py:1485: mexr_failed = (
+docking/vina_engine.py:1486: len(mexr_results)
+docking/vina_engine.py:1487: - mexr_success
+docking/vina_engine.py:1491: mexb.status == "OK"
+docking/vina_engine.py:1492: and mexr.status == "OK"
+docking/vina_engine.py:1493: for mexb, mexr in zip(
+docking/vina_engine.py:1494: mexb_results,
+docking/vina_engine.py:1495: mexr_results,
+docking/vina_engine.py:1505: f"MexB : "
+docking/vina_engine.py:1506: f"{mexb_success}/{len(mexb_results)} réussi(s) "
+docking/vina_engine.py:1507: f"| {mexb_failed} échec(s)"
+docking/vina_engine.py:1511: f"MexR : "
+docking/vina_engine.py:1512: f"{mexr_success}/{len(mexr_results)} réussi(s) "
+docking/vina_engine.py:1513: f"| {mexr_failed} échec(s)"
+docking/vina_engine.py:1523: f"CSV MexB : {mexb_csv}"
+docking/vina_engine.py:1527: f"CSV MexR : {mexr_csv}"
+docking/vina_engine.py:1537: "mexb_results": mexb_results,
+docking/vina_engine.py:1538: "mexr_results": mexr_results,
+docking/vina_engine.py:1539: "mexb_csv": mexb_csv,
+docking/vina_engine.py:1540: "mexr_csv": mexr_csv,
+docking/vina_worker.py:22: - MexB
+docking/vina_worker.py:23: - MexR
+docking/vina_worker.py:24: - MexB + MexR
+docking/vina_worker.py:50: # n'importe quel couple et plus seulement a MexB/MexR.
+docking/vina_worker.py:103: # Résultats par moteur, quel que soit son nom (MexB, MexR,
+docking/vina_worker.py:105: # les anciennes listes mexb_results/mexr_results codées en
+docking/vina_worker.py:180: # aussi bien MexB seul, MexR seul, qu'un récepteur générique
+docking/vina_worker.py:196: # Le couple MexB/MexR reste un cas particulier de la regle
+docking/vina_worker.py:197: # generale : la pompe alimente les colonnes _mexb, le
+docking/vina_worker.py:198: # derepresseur les colonnes _mexr. Les noms de colonnes sont
+docking/vina_worker.py:267: # couple historique MexB/MexR. Pas encore de fusion
+docking/vina_worker.py:354: 3. le couple historique MexB / MexR.
+docking/vina_worker.py:396: if set(active) == {"MexB", "MexR"}:
+docking/vina_worker.py:397: return "MexB", "MexR"
+visualization/interaction_3d.py:308: print("MEXAB/MEXR ANALYZER — INTERACTION 3D")
+visualization/interaction_visualizer.py:328: print("MEXAB/MEXR ANALYZER — INTERACTION VISUALIZER")
+visualization/pose_manager.py:396: "MEXAB/MEXR ANALYZER — POSE MANAGER"
+
+==============================================================================
+4. SEUILS / REFERENCES / METHODES STATISTIQUES (moteur)
+==============================================================================
+plotting.py:4: scatter par famille, histogrammes SI, forest plot des corrélations,
+plotting.py:5: graphique d'influence leave-one-out.
+plotting.py:52: seuil = df_classified.attrs.get("seuil_risque_absolu")
+plotting.py:53: ax.set_xlabel("Indice de sélectivité SI = ΔG(MexR) − ΔG(MexB)")
+plotting.py:55: ax.set_title("Distribution de l'indice de sélectivité (SI)")
+plotting.py:86: "r_pearson",
+plotting.py:118: "les corrélations et leurs IC bootstrap.\n\n"
+plotting.py:169: "r_pearson"
+plotting.py:187: merged["r_pearson"]
+plotting.py:193: - merged["r_pearson"]
+plotting.py:197: merged["r_pearson"],
+plotting.py:225: "Coefficient de corrélation de Pearson (r) [IC 95%]"
+plotting.py:229: "Robustesse des corrélations par famille (bootstrap)"
+plotting.py:241: def fig_percentile_scatter(df_classified, si_col="SI_calc", pct_col="percentile_SI",
+plotting.py:249: ax.set_xlabel("Percentile SI")
+plotting.py:250: ax.set_ylabel("Indice de sélectivité (SI)")
+plotting.py:251: ax.set_title("Classement percentile et statut de risque")
+plotting.py:273: "l'analyse leave-one-out.",
+plotting.py:299: "Données leave-one-out\n"
+plotting.py:337: "Δr maximal (retrait d'un composé, leave-one-out)"
+scientific_fusion.py:12: reference_data/scores_fusionnes.csv
+scientific_fusion.py:13: reference_data/scores_fusionnes_global.csv
+scientific_fusion.py:178: out["indice_selectivite"] = (
+scientific_fusion.py:217: "indice_selectivite"
+analysis/hit_selector.py:10: - appliquer un seuil d'affinité ;
+analysis/hit_selector.py:141: # HITS PAR SEUIL
+analysis/hit_selector.py:144: def select_by_threshold(
+analysis/hit_selector.py:146: threshold: float = -8.0,
+analysis/hit_selector.py:150: est inférieur ou égal au seuil.
+analysis/hit_selector.py:164: if affinity <= threshold:
+analysis/hit_selector.py:368: # SEUIL
+analysis/hit_selector.py:371: threshold = -8.0
+analysis/hit_selector.py:373: hits = selector.select_by_threshold(
+analysis/hit_selector.py:374: threshold
+analysis/hit_selector.py:379: f"HITS ≤ {threshold:.1f} kcal/mol"
+analysis/interaction_analyzer.py:246: cutoff: float = 4.5,
+analysis/interaction_analyzer.py:264: if dist > cutoff:
+analysis/interaction_analyzer.py:553: cutoff=4.5,
+analysis/pocket_detector.py:94: camera / avoir un point de reference ; le rendu visuel utilise
+analysis/statistics_pipeline.py:22: bootstrap_ci_by_group,
+analysis/statistics_pipeline.py:23: leave_one_out,
+analysis/statistics_pipeline.py:88: "threshold_percentile": 50.0,
+analysis/statistics_pipeline.py:89: "threshold_mexr": -8.289,
+analysis/statistics_pipeline.py:102: result["bootstrap"] = (
+analysis/statistics_pipeline.py:103: bootstrap_ci_by_group(df, x_col=x_col, y_col=y_col)
+analysis/statistics_pipeline.py:113: result["leave_one_out"] = (
+analysis/statistics_pipeline.py:114: leave_one_out(df, x_col=x_col, y_col=y_col)
+analysis/statistics_pipeline.py:124: result["leave_one_out"] = None
+docking/docking_results.py:380: threshold: float,
+docking/docking_results.py:384: inférieure ou égale au seuil.
+docking/docking_results.py:387: threshold = -8.0
+docking/docking_results.py:400: and record.best_affinity <= threshold
+docking/receptor_profile.py:316: # La philosophie de VinaStudio est le filtre a DOUBLE selectivite :
+docking/receptor_profile.py:331: # chaine d'analyse existante (correlations, indice de selectivite,
+docking/vina_engine.py:1058: reference = (
+docking/vina_engine.py:1067: reference.ligand_file
+docking/vina_engine.py:1068: if reference is not None
+
+==============================================================================
+5. FONCTIONS ET CLASSES DU MOTEUR
+==============================================================================
+
+[plotting.py]
+  def _color_for(g)   (l.22)
+  def fig_scatter_corr(df, x_col=…, y_col=…, group_col=…)   (l.26)
+      "Nuage de points ΔG(MexB) vs ΔG(MexR), couleur par famille,"
+  def fig_histogram_si(df_classified, si_col=…, group_col=…)   (l.48)
+  def fig_histogram_si_by_group(df_classified, si_col=…, group_col=…)   (l.61)
+  def fig_forest_correlations(corr_df, boot_df)   (l.75)
+      "Forest plot robuste aux données insuffisantes."
+  def fig_percentile_scatter(df_classified, si_col=…, pct_col=…, status_col=…, name_col=…)   (l.241)
+  def fig_loo_influence(loo_df)   (l.261)
+  def fig_prediction_mode2(df_pred, x_col=…, y_pred_col=…, y_lo_col=…, y_hi_col=…)   (l.353)
+  def make_interaction_2d_figure(interactions)   (l.379)
+      "Génère une carte 2D schématique des interactions."
+
+[scientific_fusion.py]
+  def _target_slug(name)   (l.32)
+  def _find_affinity_columns(df, pair_roles=…)   (l.39)
+  def detect_groups(df, group_col=…)   (l.80)
+      "Détection des vrais groupes."
+  def create_scientific_scores(input_csv, output_dir=…, pair_roles=…)   (l.103)
+      cles produites : molecule, indice_selectivite, groupe
+
+[analysis/__init__.py]
+
+[analysis/analysis_controller.py]
+  def analyze_docking_csv(csv_path)   (l.20)
+      cles produites : source_docking, scientific_csv, global_csv
+
+[analysis/comparative_analysis.py]
+  def load_interactions(path)   (l.45)
+  def discover_files()   (l.91)
+  def compare(datasets)   (l.117)
+      cles produites : names, sets, all_residues, common_all, common_two, specific
+  def residue_label(residue)   (l.180)
+  def export_common(comparison)   (l.196)
+  def export_detailed(datasets)   (l.266)
+  def print_report(comparison)   (l.390)
+  def main()   (l.558)
+
+[analysis/hit_selector.py]
+  class Hit   (l.35)
+      def to_dict(self)   (l.48)
+          cles produites : rank, molecule, ligand_file, affinity, best_mode, n_modes, group, output_pdbqt, log_file
+  class HitSelector   (l.62)
+      def __init__(self, csv_path=…)   (l.65)
+      def load(self)   (l.74)
+      def _float(value)   (l.119)
+      def _int(value)   (l.130)
+      def select_by_threshold(self, threshold=…)   (l.144)
+      def select_top(self, n=…)   (l.209)
+      def export_hits(self, hits, output_path)   (l.285)
+  def main()   (l.336)
+
+[analysis/integrated_hit_report.py]
+  def read_csv(path)   (l.21)
+  def find_column(row, names)   (l.26)
+  def load_convergence()   (l.33)
+  def load_interactions(molecule)   (l.45)
+  def load_structural(molecule)   (l.57)
+  def classify_convergence(value)   (l.69)
+  def count_interaction_types(rows)   (l.84)
+  def calculate_robustness(row)   (l.119)
+      "Score indicatif de synthèse."
+  def main()   (l.185)
+      cles produites : robustness_score, integrated_rank
+
+[analysis/interaction_analyzer.py]
+  class Atom   (l.56)
+  class Contact   (l.72)
+  def parse_pdbqt(path)   (l.90)
+      "Lit les lignes ATOM/HETATM d'un PDBQT."
+  def distance(a, b)   (l.151)
+      "Distance euclidienne entre deux atomes."
+  def classify_interaction(ligand_atom, receptor_atom, dist)   (l.183)
+      "Classification géométrique simple."
+  def analyze_pose(ligand_path, receptor_atoms, cutoff=…)   (l.243)
+  def summarize_contacts(contacts)   (l.292)
+  def load_hits(csv_path)   (l.363)
+  def export_summary(molecule, summary, output_path)   (l.387)
+  def main()   (l.435)
+
+[analysis/interaction_summary.py]
+  def load_interactions(filename)   (l.32)
+  def classify_interaction(interaction_type)   (l.63)
+      cles produites : polar, hydrophobic, close_contact, contact
+  def calculate_summary(interactions)   (l.92)
+      cles produites : total_interactions, polar_hbond_candidates, hydrophobic_interactions, close_contacts, contacts, minimum_distance_A, maximum_distance_A, mean_distance_A, total_atom_contacts, closest_residues, strongest_contacts, recurrent_residues
+  def save_json(summary)   (l.209)
+  def save_csv(summary)   (l.230)
+  def print_summary(summary)   (l.292)
+  def main()   (l.378)
+
+[analysis/pocket_detector.py]
+  def _parse_info_txt(info_path)   (l.55)
+      "Parse <n>_info.txt produit par fpocket. Retourne"
+  def _pocket_geometry_from_atm_pdb(atm_pdb)   (l.90)
+      "Calcule le centre (centroide des spheres alpha) et un rayon"
+  def detect_pockets(receptor_pdb, workdir, min_alpha_spheres=…)   (l.128)
+      "Lance fpocket sur `receptor_pdb` et retourne la liste des poches"
+
+[analysis/pose_convergence.py]
+  def load_hits()   (l.31)
+  def extract_scores(pdbqt_file)   (l.48)
+  def convergence_label(scores)   (l.64)
+  def main()   (l.90)
+
+[analysis/pose_validator.py]
+  def load_hits()   (l.33)
+  def parse_pose_file(path)   (l.52)
+  def distance_to_center(atoms)   (l.119)
+  def main()   (l.159)
+
+[analysis/statistics_pipeline.py]
+  def _infer_affinity_columns(df)   (l.32)
+  def run_statistics_pipeline(csv_path)   (l.45)
+      cles produites : classification, top_candidates, dual_filter, correlations, bootstrap, permutation, leave_one_out, homogeneity
+
+[analysis/structural_validator.py]
+  class Atom   (l.59)
+      def __init__(self, serial, name, residue, resnum, chain, x, y, z, element)   (l.60)
+  def read_pdbqt(path)   (l.87)
+  def distance(a, b)   (l.171)
+  def classify_interaction(ligand_atom, receptor_atom, d)   (l.213)
+  def analyze_ligand(receptor_atoms, ligand_atoms, ligand_name)   (l.249)
+  def summarize_residues(interactions)   (l.302)
+  def export_csv(path, rows)   (l.374)
+  def load_hits()   (l.404)
+  def main()   (l.427)
+
+[docking/__init__.py]
+
+[docking/config_manager.py]
+  class DockingConfig   (l.29)
+      def __post_init__(self)   (l.73)
+      def from_profile(cls, target, project_root, ligands_dir, results_dir, vina_path=…)   (l.86)
+      def validate(self)   (l.129)
+      def get_ligands(self)   (l.268)
+      def count_ligands(self)   (l.287)
+      def prepare_results_directory(self)   (l.296)
+      def vina_arguments(self)   (l.317)
+      def to_dict(self)   (l.367)
+      def display(self)   (l.387)
+  def create_default_config()   (l.437)
+      "Crée la configuration correspondant à l'architecture actuelle"
+  def main()   (l.478)
+      "Test du gestionnaire de configuration."
+
+[docking/docking_results.py]
+  class DockingRecord   (l.34)
+      def to_dict(self)   (l.54)
+  class DockingResults   (l.64)
+      def __init__(self, records=…)   (l.76)
+      def from_csv(cls, csv_path)   (l.87)
+      def _optional_float(value)   (l.188)
+      def _optional_int(value)   (l.206)
+      def successful(self)   (l.228)
+      def failed(self)   (l.239)
+      def rank(self)   (l.252)
+      def best(self)   (l.278)
+      def affinities(self)   (l.294)
+      def statistics(self)   (l.303)
+          cles produites : n_total, n_success, n_failed, minimum, maximum, mean, median
+      def assign_group(self, group, molecules=…)   (l.333)
+      def groups(self)   (l.363)
+      def filter_affinity(self, threshold)   (l.378)
+      def export_ranked_csv(self, output_path)   (l.408)
+      def report(self)   (l.488)
+  def main()   (l.598)
+
+[docking/fusion_results.py]
+  def fuse_docking_results(mexb_csv, mexr_csv, output_csv)   (l.11)
+
+[docking/ligand_manager.py]
+  class Ligand   (l.25)
+      def filename(self)   (l.34)
+      def molecule_name(self)   (l.38)
+      def to_dict(self)   (l.42)
+          cles produites : name, path, filename, group, selected
+  class LigandManager   (l.52)
+      def __init__(self, prepared_dir, recursive=…)   (l.67)
+      def scan(self)   (l.80)
+      def count(self)   (l.119)
+      def selected_count(self)   (l.123)
+      def get_all(self)   (l.127)
+      def get_selected(self)   (l.131)
+      def select_all(self)   (l.143)
+      def deselect_all(self)   (l.148)
+      def select(self, name)   (l.153)
+      def deselect(self, name)   (l.168)
+      def set_selected(self, names)   (l.179)
+      def assign_group(self, group, selected_only=…)   (l.199)
+      def clear_groups(self, selected_only=…)   (l.237)
+      def groups(self)   (l.248)
+      def get_group(self, group)   (l.263)
+      def search(self, text)   (l.278)
+      def validate_selection(self)   (l.299)
+      def to_records(self)   (l.350)
+      def save_selection(self, output_path)   (l.358)
+      def load_selection(self, input_path)   (l.395)
+      def _find(self, name)   (l.450)
+  def main()   (l.466)
+
+[docking/receptor_manager.py]
+  class ReceptorAtom   (l.32)
+  class ReceptorInfo   (l.48)
+      def to_dict(self)   (l.73)
+  def sanitize_receptor_pdbqt(path)   (l.99)
+      "Supprime d'un fichier PDBQT de recepteur toute ligne dont le tag"
+  class ReceptorManager   (l.162)
+      def __init__(self, receptor_path)   (l.165)
+      def exists(self)   (l.172)
+      def is_file(self)   (l.177)
+      def has_valid_extension(self)   (l.182)
+      def read_text(self)   (l.191)
+      def _parse_atom_line(line)   (l.204)
+      def parse_atoms(self)   (l.285)
+      def get_residues(self, atoms=…)   (l.310)
+      def validate(self)   (l.344)
+      def summary(self)   (l.505)
+  def main()   (l.559)
+      "Test du gestionnaire de récepteur."
+
+[docking/receptor_profile.py]
+  class GridBox   (l.46)
+      def from_dict(cls, data)   (l.51)
+  class ReceptorProfile   (l.59)
+      def from_dict(cls, data)   (l.97)
+      def to_dict(self)   (l.129)
+          cles produites : profile_id, display_name, profile_type, species, role, pdbqt_path, pdb_path_for_viewer, source_pdb, grid_box, docking_params, risk_calibration, validated, notes, partner_id, short_name, partner_ids
+  def list_profile_ids()   (l.150)
+  def load_profile(profile_id)   (l.156)
+  def resolve_target_profile(target)   (l.178)
+      "Résout un `target` (alias historique "MexB"/"MexR", ou un profile_id"
+  def save_user_profile(profile, user_profiles_dir=…)   (l.199)
+      "Sauvegarde un profil `user_defined` (Mode 2, import libre) en local."
+  def _user_grid_override_path(profile_id)   (l.238)
+  def get_user_grid_override(profile_id)   (l.242)
+      "Grid box personnalisee active pour ce profil, si l'utilisateur en a"
+  def has_user_grid_override(profile_id)   (l.258)
+  def save_user_grid_override(profile_id, grid_box)   (l.262)
+      "Enregistre une grid box personnalisee pour un recepteur DEJA present"
+  def clear_user_grid_override(profile_id)   (l.301)
+      "Supprime la configuration personnalisee de ce profil : au prochain"
+  def normalize_role(role)   (l.348)
+      "Ramene un role ecrit librement a "pump" ou "repressor"."
+  def short_label(profile)   (l.365)
+      "Nom court et lisible pour les menus : "MexB", "AcrB", "MexY"..."
+  def get_partner_ids(profile)   (l.394)
+      "Tous les partenaires declares d'un profil, fusion de l'ancien champ"
+  def make_pair_key(pump_id, repressor_id)   (l.413)
+  def is_pair_key(key)   (l.417)
+  def parse_pair_key(key)   (l.421)
+      ""<a> + <b>" -> ("<a>", "<b>")."
+  def list_pairs()   (l.432)
+      "Tous les couples declares, sous forme (pump_id, repressor_id)."
+  def resolve_pair(key)   (l.494)
+      ""<a> + <b>" -> (profil pompe, profil derepresseur), dans cet ordre,"
+  def link_pair(pump_id, repressor_id)   (l.514)
+      "Declare un couple : AJOUTE repressor_id aux partenaires de pump (et"
+  def set_short_name(profile_id, short)   (l.548)
+      "Fixe le nom court affiche dans les menus."
+  def _cli()   (l.561)
+
+[docking/receptor_viewer_pdb_prep.py]
+  class ChainMatch   (l.22)
+      def coverage_ratio(self)   (l.29)
+  def _extract_residue_signature_from_pdbqt(pdbqt_path)   (l.35)
+  def _extract_chains_from_pdb(pdb_path)   (l.57)
+  def detect_matching_chain(raw_pdb_path, pdbqt_path)   (l.82)
+  def extract_chain_for_viewer(raw_pdb_path, chain_id, output_path, keep_hetero=…)   (l.124)
+  def main()   (l.157)
+
+[docking/sdf_preparer.py]
+  def _safe_name(name, fallback)   (l.20)
+  def molecule_output_name(sdf_file, index, naming_mode=…, cleanup_text=…, source_name=…)   (l.40)
+      "Construit un nom sans transformer un nombre isolé en faux CID."
+  def _check_obabel()   (l.78)
+  def _collect_sdf_files(inputs)   (l.96)
+      "Collecte les fichiers SDF provenant :"
+  def _split_sdf(sdf_path, work_dir, prefix)   (l.165)
+      "Sépare un SDF multi-molécules en fichiers SDF individuels."
+  def _molecule_name_from_sdf(sdf_file, index, naming_mode=…, cleanup_text=…, source_name=…)   (l.218)
+  def _unique_output_path(output_dir, molecule_name)   (l.234)
+      "Évite d'écraser un ligand existant lorsque deux molécules"
+  def prepare_sdf(sdf_path, output_dir)   (l.266)
+      "Compatibilité avec l'ancien appel :"
+  def prepare_sdf_files(inputs, output_dir, naming_mode=…, cleanup_text=…)   (l.283)
+      "Convertit toutes les molécules provenant de plusieurs SDF"
+
+[docking/vina_engine.py]
+  def resolve_vina_executable()   (l.50)
+      "Determine le chemin de l'executable Vina a utiliser."
+  class VinaConfig   (l.82)
+  def create_target_config(target, results_root=…)   (l.137)
+      "Crée une configuration Vina correspondant à une cible biologique."
+  class VinaDockingResult   (l.211)
+      def to_dict(self)   (l.229)
+  class VinaEngine   (l.237)
+      def __init__(self, config=…)   (l.240)
+      def cancel_current_process(self)   (l.286)
+      def check_vina(self)   (l.326)
+      def validate(self)   (l.369)
+      def discover_ligands(self)   (l.436)
+      def build_command(self, ligand, output)   (l.449)
+      def write_config_file(self)   (l.523)
+      def dock_ligand(self, ligand)   (l.569)
+      def run_batch(self, ligands=…)   (l.749)
+      def export_csv(self, results)   (l.878)
+  def export_combined_csv(mexb_results, mexr_results, output_path, pump_name=…, repressor_name=…)   (l.933)
+      "Fusionne les résultats MexB et MexR par molécule."
+  def run_dual_batch(ligands=…, ligand_groups=…, results_root=…, progress_callback=…)   (l.1174)
+      "Exécute une campagne successive MexB + MexR."
+      cles produites : mexb_results, mexr_results, mexb_csv, mexr_csv, combined_csv
+  def main()   (l.1550)
+
+[docking/vina_worker.py]
+  class DockingWorker   (l.16)
+      def __init__(self, engines, ligands, results_root, ligand_groups=…, pair_roles=…)   (l.37)
+      def cancel(self)   (l.74)
+      def run(self)   (l.92)
+      def _slug(name)   (l.336)
+      def _resolve_pair(self, active)   (l.346)
+      def _get_group(self, ligand)   (l.401)
+      def _format_result(target, result)   (l.421)
+      def _emit_cancelled(self)   (l.447)
+
+[visualization/__init__.py]
+
+[visualization/interaction_3d.py]
+  def load_interactions(filename)   (l.38)
+  def interaction_color(interaction_type)   (l.64)
+  def clean_label_text(interaction_type)   (l.86)
+  def build_commands(interactions)   (l.127)
+  def launch_chimerax(commands)   (l.287)
+  def main()   (l.305)
+
+[visualization/interaction_visualizer.py]
+  class InteractionVisualizer   (l.40)
+      def __init__(self)   (l.56)
+      def _load_chimerax_path(self)   (l.64)
+      def load_interactions(self, csv_file)   (l.99)
+      def classify_interactions(self)   (l.125)
+      def get_residue_identifiers(self)   (l.159)
+      def build_chimerax_commands(self)   (l.192)
+      def launch(self)   (l.238)
+      def print_report(self)   (l.267)
+      def run_test(self)   (l.325)
+  def main()   (l.400)
+
+[visualization/plip_runner.py]
+  def _pdb_atom_serial(line)   (l.6)
+  def _renumber_pdb_block(lines, offset)   (l.15)
+  def _merge_pdb_files(receptor_path, ligand_path, output_path)   (l.41)
+  class PLIPRunner   (l.63)
+      def __init__(self, workdir=…)   (l.66)
+      def extract_first_pose(self, pdbqt, output)   (l.75)
+      def convert_pdbqt_to_pdb(self, pdbqt, output)   (l.144)
+      def prepare_complex(self, receptor, pose, ligand_id)   (l.211)
+      def run(self, receptor, pose, ligand_id)   (l.275)
+          cles produites : complex, xml
+
+[visualization/pose_manager.py]
+  class PoseManager   (l.29)
+      def __init__(self)   (l.31)
+      def _load_chimerax_path(self)   (l.41)
+      def load_poses(self)   (l.87)
+      def get_pose(self, pose_number)   (l.155)
+      def best_pose(self)   (l.171)
+      def extract_pose(self, pose_number)   (l.194)
+      def visualize_pose(self, pose_number)   (l.303)
+          cles produites : pid, pose, score, file
+      def summary(self)   (l.368)
+          cles produites : number_of_poses, best_pose, best_score
+  def main()   (l.392)
+
+[visualization/visualization_manager.py]
+  class VisualizationManager   (l.6)
+      def __init__(self, output_dir=…)   (l.9)
+      def scan(self)   (l.15)
+          cles produites : xml
+      def read_plip(self, xml)   (l.70)
+
+==============================================================================
+6. OU LES CSV SONT ECRITS / COLONNES CONSTRUITES (moteur)
+==============================================================================
+plotting.py:26: def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
+plotting.py:101: set(corr_df.columns)
+plotting.py:104: set(boot_df.columns)
+plotting.py:295: if not required.issubset(set(loo_df.columns)):
+plotting.py:353: def fig_prediction_mode2(df_pred, x_col="dg_mexb", y_pred_col="dg_mexr_predit",
+plotting.py:354: y_lo_col="dg_mexr_IC95_bas", y_hi_col="dg_mexr_IC95_haut"):
+scientific_fusion.py:39: def _find_affinity_columns(df, pair_roles=None):
+scientific_fusion.py:40: columns = list(df.columns)
+scientific_fusion.py:41: if "dg_mexb" in columns and "dg_mexr" in columns:
+scientific_fusion.py:42: return "dg_mexb", "dg_mexr", "MexB", "MexR"
+scientific_fusion.py:44: role_names = pair_roles or {}
+scientific_fusion.py:45: pump_name = role_names.get("pump")
+scientific_fusion.py:46: repressor_name = role_names.get("repressor")
+scientific_fusion.py:86: if group_col not in df.columns:
+scientific_fusion.py:106: pair_roles=None,
+scientific_fusion.py:131: df, pair_roles=pair_roles
+scientific_fusion.py:161: pump_output_col = "dg_mexb" if pump_name == "MexB" else "dg_pump"
+scientific_fusion.py:162: repressor_output_col = "dg_mexr" if repressor_name == "MexR" else "dg_repressor"
+scientific_fusion.py:202: out.to_csv(
+scientific_fusion.py:228: global_out.to_csv(
+analysis/comparative_analysis.py:212: fieldnames = [
+analysis/comparative_analysis.py:227: writer.writerow(
+analysis/comparative_analysis.py:228: fieldnames
+analysis/comparative_analysis.py:257: writer.writerow(row)
+analysis/comparative_analysis.py:282: fieldnames = [
+analysis/comparative_analysis.py:290: fieldnames.extend(
+analysis/comparative_analysis.py:312: writer = csv.DictWriter(
+analysis/comparative_analysis.py:314: fieldnames=fieldnames,
+analysis/comparative_analysis.py:381: writer.writerow(row)
+analysis/hit_selector.py:90: if not reader.fieldnames:
+analysis/hit_selector.py:99: "best_affinity",
+analysis/hit_selector.py:104: missing = required - set(reader.fieldnames)
+analysis/hit_selector.py:158: row.get("best_affinity")
+analysis/hit_selector.py:225: row.get("best_affinity")
+analysis/hit_selector.py:299: fieldnames = [
+analysis/hit_selector.py:317: writer = csv.DictWriter(
+analysis/hit_selector.py:319: fieldnames=fieldnames,
+analysis/hit_selector.py:325: writer.writerow(
+analysis/integrated_hit_report.py:322: writer = csv.DictWriter(
+analysis/integrated_hit_report.py:324: fieldnames=fields
+analysis/integrated_hit_report.py:328: writer.writerows(results)
+analysis/interaction_analyzer.py:398: fieldnames = [
+analysis/interaction_analyzer.py:414: writer = csv.DictWriter(
+analysis/interaction_analyzer.py:416: fieldnames=fieldnames,
+analysis/interaction_analyzer.py:423: writer.writerow(
+analysis/interaction_summary.py:289: writer.writerows(rows)
+analysis/pose_convergence.py:230: writer = csv.DictWriter(
+analysis/pose_convergence.py:232: fieldnames=fields
+analysis/pose_convergence.py:236: writer.writerows(results)
+analysis/statistics_pipeline.py:33: if "dg_mexb" in df.columns and "dg_mexr" in df.columns:
+analysis/statistics_pipeline.py:34: return "dg_mexb", "dg_mexr"
+analysis/statistics_pipeline.py:35: if "dg_pump" in df.columns and "dg_repressor" in df.columns:
+analysis/statistics_pipeline.py:37: candidates = [column for column in df.columns if str(column).startswith("dg_")]
+analysis/statistics_pipeline.py:61: "affinity_columns": {"pump": x_col, "repressor": y_col},
+analysis/statistics_pipeline.py:89: "threshold_mexr": -8.289,
+analysis/structural_validator.py:382: fieldnames = list(rows[0].keys())
+analysis/structural_validator.py:390: writer = csv.DictWriter(
+analysis/structural_validator.py:392: fieldnames=fieldnames,
+analysis/structural_validator.py:397: writer.writerows(rows)
+docking/docking_results.py:41: best_affinity: Optional[float] = None
+docking/docking_results.py:71: "best_affinity",
+docking/docking_results.py:112: if reader.fieldnames is None:
+docking/docking_results.py:117: columns = set(reader.fieldnames)
+docking/docking_results.py:132: row.get("best_affinity")
+docking/docking_results.py:157: best_affinity=affinity,
+docking/docking_results.py:235: and record.best_affinity is not None
+docking/docking_results.py:263: key=lambda record: record.best_affinity,
+docking/docking_results.py:298: record.best_affinity
+docking/docking_results.py:300: if record.best_affinity is not None
+docking/docking_results.py:399: record.best_affinity is not None
+docking/docking_results.py:400: and record.best_affinity <= threshold
+docking/docking_results.py:423: fieldnames = [
+docking/docking_results.py:429: "best_affinity",
+docking/docking_results.py:444: writer = csv.DictWriter(
+docking/docking_results.py:446: fieldnames=fieldnames,
+docking/docking_results.py:452: writer.writerow(
+docking/docking_results.py:459: "best_affinity": (
+docking/docking_results.py:460: record.best_affinity
+docking/docking_results.py:563: f"{record.best_affinity:8.3f} "
+docking/docking_results.py:682: f"{best.best_affinity:.3f} kcal/mol"
+docking/docking_results.py:739: f"{record.best_affinity:8.3f} kcal/mol"
+docking/fusion_results.py:26: "best_affinity",
+docking/fusion_results.py:30: "best_affinity":
+docking/fusion_results.py:31: "best_affinity_mexb"
+docking/fusion_results.py:39: "best_affinity",
+docking/fusion_results.py:43: "best_affinity":
+docking/fusion_results.py:44: "best_affinity_mexr"
+docking/fusion_results.py:63: merged.to_csv(
+docking/ligand_manager.py:377: writer = csv.DictWriter(
+docking/ligand_manager.py:379: fieldnames=[
+docking/ligand_manager.py:391: writer.writerow(ligand.to_dict())
+docking/receptor_profile.py:324: # role = "pump" -> pompe d'efflux (ex. MexB, AcrB, MexY, AdeB)
+docking/receptor_profile.py:325: # role = "repressor" -> regulateur/derepresseur (ex. MexR, AcrR)
+docking/receptor_profile.py:329: # c'est lui qui determine quelle cible recoit les colonnes "_mexb" et
+docking/receptor_profile.py:330: # laquelle recoit "_mexr" dans le CSV fusionne, de sorte que toute la
+docking/receptor_profile.py:337: PUMP_ROLES = {"pump", "pompe", "efflux", "efflux_pump", "transporter"}
+docking/receptor_profile.py:339: "repressor",
+docking/receptor_profile.py:349: """Ramene un role ecrit librement a "pump" ou "repressor"."""
+docking/receptor_profile.py:357: return "pump"
+docking/receptor_profile.py:360: return "repressor"
+docking/receptor_profile.py:478: if role == "pump":
+docking/receptor_profile.py:508: if first_role == "repressor" and second_role == "pump":
+docking/receptor_profile.py:521: Force les roles a "pump" / "repressor". Aucune autre donnee du
+docking/receptor_profile.py:528: pump.role = "pump"
+docking/receptor_profile.py:534: repressor.role = "repressor"
+docking/vina_engine.py:219: best_affinity: Optional[float] = None
+docking/vina_engine.py:713: best_affinity=parsed.best_affinity,
+docking/vina_engine.py:893: fieldnames = [
+docking/vina_engine.py:898: "best_affinity",
+docking/vina_engine.py:913: writer = csv.DictWriter(
+docking/vina_engine.py:915: fieldnames=fieldnames,
+docking/vina_engine.py:922: writer.writerow(
+docking/vina_engine.py:1012: fieldnames = [
+docking/vina_engine.py:1018: f"best_affinity_{pump_suffix}",
+docking/vina_engine.py:1027: f"best_affinity_{repressor_suffix}",
+docking/vina_engine.py:1041: writer = csv.DictWriter(
+docking/vina_engine.py:1043: fieldnames=fieldnames,
+docking/vina_engine.py:1089: f"best_affinity_{pump_suffix}": (
+docking/vina_engine.py:1090: mexb.best_affinity
+docking/vina_engine.py:1130: f"best_affinity_{repressor_suffix}": (
+docking/vina_engine.py:1131: mexr.best_affinity
+docking/vina_engine.py:1167: writer.writerow(
+docking/vina_worker.py:43: pair_roles: dict[str, str] | None = None,
+docking/vina_worker.py:47: # pair_roles decrit le couple pompe/derepresseur de la campagne :
+docking/vina_worker.py:48: # {"pump": "<nom du moteur>", "repressor": "<nom du moteur>"}
+docking/vina_worker.py:51: self.pair_roles = dict(pair_roles or {})
+docking/vina_worker.py:197: # generale : la pompe alimente les colonnes _mexb, le
+docking/vina_worker.py:198: # derepresseur les colonnes _mexr. Les noms de colonnes sont
+docking/vina_worker.py:279: fieldnames = [
+docking/vina_worker.py:285: "best_affinity",
+docking/vina_worker.py:298: writer = _csv.DictWriter(
+docking/vina_worker.py:299: handle, fieldnames=fieldnames
+docking/vina_worker.py:307: writer.writerow(row)
+docking/vina_worker.py:352: 1. pair_roles transmis par l'interface (source privilegiee) ;
+docking/vina_worker.py:364: pump = self.pair_roles.get("pump")
+docking/vina_worker.py:365: repressor = self.pair_roles.get("repressor")
+docking/vina_worker.py:386: pumps = [n for n, r in roles.items() if r == "pump"]
+docking/vina_worker.py:387: repressors = [n for n, r in roles.items() if r == "repressor"]
+docking/vina_worker.py:436: f"{result.best_affinity:.3f}"
+docking/vina_worker.py:437: if result.best_affinity is not None
+
+==============================================================================
+7. FICHIERS CSV TROUVES (regroupes par structure de colonnes)
+==============================================================================
+26 fichier(s) CSV trouve(s), 14 structure(s) differente(s).
+
+--- STRUCTURE (5 fichier(s)) ---
+Colonnes : molecule | groupe | dg_mexb | dg_mexr | indice_selectivite
+  >> colonnes liees a une cible precise : dg_mexb, dg_mexr
+  ex: dist/VinaStudio/_internal/reference_data/scores_fusionnes_test.csv  (1 ligne(s))
+  ex: dist/VinaStudio/_internal/reference_data/scores_fusionnes.csv  (7 ligne(s))
+  ex: src/dist/VinaStudio/_internal/reference_data/scores_fusionnes_test.csv  (1 ligne(s))
+  ex: src/dist/VinaStudio/_internal/reference_data/scores_fusionnes.csv  (7 ligne(s))
+  ... +1 autre(s)
+  echantillon : 16362 | SANS_GROUPE | -12.24 | -9.768 | 2.4719999999999995
+
+--- STRUCTURE (5 fichier(s)) ---
+Colonnes : molecule | dg_mexb | dg_mexr | indice_selectivite
+  >> colonnes liees a une cible precise : dg_mexb, dg_mexr
+  ex: dist/VinaStudio/_internal/reference_data/scores_fusionnes_global_test.csv  (1 ligne(s))
+  ex: dist/VinaStudio/_internal/reference_data/scores_fusionnes_global.csv  (7 ligne(s))
+  ex: src/dist/VinaStudio/_internal/reference_data/scores_fusionnes_global_test.csv  (1 ligne(s))
+  ex: src/dist/VinaStudio/_internal/reference_data/scores_fusionnes_global.csv  (7 ligne(s))
+  ... +1 autre(s)
+  echantillon : 16362 | -12.24 | -9.768 | 2.4719999999999995
+
+--- STRUCTURE (2 fichier(s)) ---
+Colonnes : molecule | ligand_file | groupe | status_acrb_site2_ecoli | best_affinity_acrb_site2_ecoli | best_mode_acrb_site2_ecoli | n_modes_acrb_site2_ecoli | output_pdbqt_acrb_site2_ecoli | log_file_acrb_site2_ecoli | error_acrb_site2_ecoli | duration_seconds_acrb_site2_ecoli | status_acrr_e67_ecoli | best_affinity_acrr_e67_ecoli | best_mode_acrr_e67_ecoli | n_modes_acrr_e67_ecoli | output_pdbqt_acrr_e67_ecoli | log_file_acrr_e67_ecoli | error_acrr_e67_ecoli | duration_seconds_acrr_e67_ecoli
+  ex: docking_results_combined_acrb_site2_ecoli_acrr_e67_ecoli.csv  (21 ligne(s))
+  ex: docking_results_combined.csv  (21 ligne(s))
+  echantillon : -_-Chlorpheniramine_CID2725 | -_-Chlorpheniramine_CID2725… |  | OK | -6.537 | 1 | 4 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 35.79736948598293 | OK | -6.216 | 1 | 6 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 40.86701840601745
+  echantillon : Alcaftadine_CID19371515 | Alcaftadine_CID19371515.pdb… |  | OK | -9.601 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 15.110636022000108 | OK | -8.369 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 15.485794117994374
+
+--- STRUCTURE (2 fichier(s)) ---
+Colonnes : # Data source: https://finance.yahoo.com
+  ex: dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/Stocks.csv  (525 ligne(s))
+  ex: src/dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/Stocks.csv  (525 ligne(s))
+  echantillon : Date | IBM | AAPL | MSFT | XRX | AMZN | DELL | GOOGL | ADBE | ^GSPC | ^IXIC
+  echantillon : 1990-01-01 | 10.970438003540039 | 0.24251236021518707 | 0.40375930070877075 | 11.202081680297852 |  |  |  | 1.379060983657837 | 329.0799865722656 | 415.79998779296875
+
+--- STRUCTURE (2 fichier(s)) ---
+Colonnes :  0   0    0
+  ex: dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/data_x_x2_x3.csv  (10 ligne(s))
+  ex: src/dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/data_x_x2_x3.csv  (10 ligne(s))
+  echantillon : 1 1 1
+  echantillon : 2 4 8
+
+--- STRUCTURE (2 fichier(s)) ---
+Colonnes : Date | Open | High | Low | Close | Volume | Adj. Close*
+  ex: dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/msft.csv  (65 ligne(s))
+  ex: src/dist/VinaStudio/_internal/matplotlib/mpl-data/sample_data/msft.csv  (65 ligne(s))
+  echantillon : 19-Sep-03 | 29.76 | 29.97 | 29.52 | 29.96 | 92433800 | 29.79
+  echantillon : 18-Sep-03 | 28.49 | 29.51 | 28.42 | 29.50 | 67268096 | 29.34
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : molecule | ligand_file | groupe | status_mexb | dg_mexb | best_mode_mexb | n_modes_mexb | output_pdbqt_mexb | log_file_mexb | error_mexb | duration_seconds_mexb | status_mexr | dg_mexr | best_mode_mexr | n_modes_mexr | output_pdbqt_mexr | log_file_mexr | error_mexr | duration_seconds_mexr
+  >> colonnes liees a une cible precise : status_mexb, dg_mexb, best_mode_mexb, n_modes_mexb, output_pdbqt_mexb, log_file_mexb, error_mexb, duration_seconds_mexb, status_mexr, dg_mexr, best_mode_mexr, n_modes_mexr, output_pdbqt_mexr, log_file_mexr, error_mexr, duration_seconds_mexr
+  ex: analysis_ready.csv  (7 ligne(s))
+  echantillon : 2081 | 2081.pdbqt |  | OK | -5.683 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 19.5598711950006 | OK | -5.897 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 28.05763555500016
+  echantillon : 2160 | 2160.pdbqt |  | OK | -7.297 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 16.435505417000968 | OK | -7.119 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 21.56820971801062
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : molecule | ligand_file | groupe | status_mexb | best_affinity_mexb | best_mode_mexb | n_modes_mexb | output_pdbqt_mexb | log_file_mexb | error_mexb | duration_seconds_mexb | status_mexr | best_affinity_mexr | best_mode_mexr | n_modes_mexr | output_pdbqt_mexr | log_file_mexr | error_mexr | duration_seconds_mexr
+  >> colonnes liees a une cible precise : status_mexb, best_affinity_mexb, best_mode_mexb, n_modes_mexb, output_pdbqt_mexb, log_file_mexb, error_mexb, duration_seconds_mexb, status_mexr, best_affinity_mexr, best_mode_mexr, n_modes_mexr, output_pdbqt_mexr, log_file_mexr, error_mexr, duration_seconds_mexr
+  ex: docking_results_combined_MexB_MexR.csv  (7 ligne(s))
+  echantillon : Agomelatine_CID_82148 | Agomelatine_CID_82148.pdbqt |  | OK | -9.271 | 1 | 8 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 17.200054932996863 | OK | -8.171 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 20.9481090560148
+  echantillon : Alaproclate_CID_2081 | Alaproclate_CID_2081.pdbqt |  | OK | -7.257 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 26.764767615997698 | OK | -6.855 | 1 | 9 | /home/stoni/MexAB_MexR_Anal… | /home/stoni/MexAB_MexR_Anal… |  | 27.87035373301478
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : nom | CID | MW | LogP
+  ex: ligands/antidepresseur/SDF_brute/MW_LogP_48molecules.csv  (50 ligne(s))
+  echantillon : Agomélatine | 82148 | 243.306 | 2.527
+  echantillon : Alaproclate | 2081 | 255.74500000000003 | 2.5515000000000008
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : nom | CID | MW | LogP | DeltaG_MexB | DeltaG_MexR
+  >> colonnes liees a une cible precise : DeltaG_MexB, DeltaG_MexR
+  ex: ligands/antidepresseur/SDF_brute/dataset_fusionne.csv  (48 ligne(s))
+  echantillon : Agomélatine | 82148 | 243.306 | 2.527 | -9.271 | -8.171
+  echantillon : Alaproclate | 2081 | 255.74500000000003 | 2.5515000000000008 | -7.257 | -6.796
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : CID | DeltaG_MexB | DeltaG_MexR
+  >> colonnes liees a une cible precise : DeltaG_MexB, DeltaG_MexR
+  ex: ligands/antidepresseur/SDF_brute/deltaG_48molecules.csv  (48 ligne(s))
+  echantillon : 6918314 | -11.14 | -10.17
+  echantillon : 68617 | -10.41 | -8.123
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : molecule | groupe | dg_pump | dg_repressor | indice_selectivite
+  ex: scientific_analysis/scores_fusionnes.csv  (21 ligne(s))
+  echantillon : -_-Chlorpheniramine_CID2725 | SANS_GROUPE | -6.537 | -6.216 | 0.32099999999999973
+  echantillon : Alcaftadine_CID19371515 | SANS_GROUPE | -9.601 | -8.369 | 1.232000000000001
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : molecule | dg_pump | dg_repressor | indice_selectivite
+  ex: scientific_analysis/scores_fusionnes_global.csv  (21 ligne(s))
+  echantillon : -_-Chlorpheniramine_CID2725 | -6.537 | -6.216 | 0.32099999999999973
+  echantillon : Alcaftadine_CID19371515 | -9.601 | -8.369 | 1.232000000000001
+
+--- STRUCTURE (1 fichier(s)) ---
+Colonnes : molecule | ligand_file | groupe | status | best_affinity | best_mode | n_modes | output_pdbqt | log_file | error | duration_seconds
+  ex: src/docking/results/batch_vina_engine/acrb_site2_ecoli/docking_results.csv  (1 ligne(s))
+  echantillon : aspirin_test | aspirin_test.pdbqt |  | FAILED |  |  | 0 | docking/results/batch_vina_… | docking/results/batch_vina_… | Vina code retour 1 | 0.00465138501022011
+
+==============================================================================
+8. FICHIERS DE PROFIL / CONFIG DE RECEPTEURS (json)
+==============================================================================
+(aucun)

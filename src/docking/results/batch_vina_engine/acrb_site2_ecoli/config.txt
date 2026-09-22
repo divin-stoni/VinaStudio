@@ -1,0 +1,16 @@
+receptor = /home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor/AcrB/1T9X.pdbqt
+ligand = /home/stoni/MexAB_MexR_Analyzer_BETA/docking/ligands/prepared
+
+center_x = 7.767
+center_y = 39.208
+center_z = 105.488
+
+size_x = 24.3
+size_y = 25.5
+size_z = 27.0
+
+exhaustiveness = 32
+num_modes = 9
+energy_range = 3.0
+
+seed = 2024

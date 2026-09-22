@@ -1,0 +1,13 @@
+{
+  "pump": {
+    "id": "MexB",
+    "label": "MexB",
+    "column": "dg_mexb"
+  },
+  "repressor": {
+    "id": "MexR",
+    "label": "MexR",
+    "column": "dg_mexr"
+  },
+  "source_csv": "/home/stoni/MexAB_MexR_Analyzer_BETA/docking_results_combined.csv"
+}

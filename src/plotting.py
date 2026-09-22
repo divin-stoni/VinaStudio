@@ -19,8 +19,22 @@ PALETTE = {
 }
 
 
+_DYNAMIC_CYCLE = [
+    "#E5A823", "#2A9D8F", "#E76F51", "#6A4C93", "#1D3557",
+    "#B5838D", "#588157", "#BC6C25", "#457B9D", "#9C89B8",
+]
+_DYNAMIC_COLORS = {}
+
+
 def _color_for(g):
-    return PALETTE.get(g, "#999999")
+    # patch-libelles : une couleur distincte par famille, meme a nom libre
+    if g in PALETTE:
+        return PALETTE[g]
+    if str(g).strip().lower() in ("sans_groupe", "sans famille"):
+        return "#999999"
+    if g not in _DYNAMIC_COLORS:
+        _DYNAMIC_COLORS[g] = _DYNAMIC_CYCLE[len(_DYNAMIC_COLORS) % len(_DYNAMIC_CYCLE)]
+    return _DYNAMIC_COLORS[g]
 
 
 def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
@@ -36,9 +50,12 @@ def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
             z = np.polyfit(sub[x_col], sub[y_col], 1)
             xs = np.linspace(sub[x_col].min(), sub[x_col].max(), 50)
             ax.plot(xs, np.polyval(z, xs), color=_color_for(g), linewidth=1.4, alpha=0.85)
-    ax.set_xlabel("ΔG(MexB) (kcal/mol)")
-    ax.set_ylabel("ΔG(MexR) (kcal/mol)")
-    ax.set_title("Corrélation ΔG(MexB) – ΔG(MexR) par famille")
+    # patch-libelles : scatter avec les noms des recepteurs
+    _xl = df.attrs.get("x_label", "MexB")
+    _yl = df.attrs.get("y_label", "MexR")
+    ax.set_xlabel("ΔG(" + _xl + ") (kcal/mol)")
+    ax.set_ylabel("ΔG(" + _yl + ") (kcal/mol)")
+    ax.set_title("Corrélation ΔG(" + _xl + ") – ΔG(" + _yl + ") par famille")
     ax.legend(fontsize=8, loc="best")
     ax.grid(alpha=0.25)
     fig.tight_layout()
@@ -50,7 +67,7 @@ def fig_histogram_si(df_classified, si_col="SI_calc", group_col="groupe"):
     ax = fig.add_subplot(111)
     ax.hist(df_classified[si_col], bins=25, color="#4C72B0", edgecolor="white", alpha=0.9)
     seuil = df_classified.attrs.get("seuil_risque_absolu")
-    ax.set_xlabel("Indice de sélectivité SI = ΔG(MexR) − ΔG(MexB)")
+    ax.set_xlabel("Indice de sélectivité SI = ΔG(" + df_classified.attrs.get("y_label", "MexR") + ") − ΔG(" + df_classified.attrs.get("x_label", "MexB") + ")")  # patch-libelles : SI
     ax.set_ylabel("Nombre de composés")
     ax.set_title("Distribution de l'indice de sélectivité (SI)")
     ax.grid(alpha=0.25, axis="y")

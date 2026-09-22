@@ -1,0 +1,66 @@
+
+        if current:
+            index = combo.findText(current)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+
+        combo.blockSignals(False)
+
+    def run_docking_analysis(self):
+
+        csv_path = getattr(
+            self,
+            "docking_results_csv",
+            None
+        )
+
+        # Repli : aucune campagne lancee dans cette session — on utilise
+        # celle selectionnee dans le menu « Campagne », si ses resultats
+        # existent sur le disque.
+        if not csv_path:
+            csv_path = self._campaign_csv_path(
+                self.analysis_campaign_combo.currentText()
+                if getattr(self, "analysis_campaign_combo", None)
+                else ""
+            )
+
+        if not csv_path:
+
+            QMessageBox.warning(
+                self,
+                "Analyse",
+                "Aucun résultat de docking disponible."
+            )
+
+            return
+
+
+        try:
+
+            gui_debug(
+                "LANCEMENT ANALYSE CSV : "
+                + str(csv_path)
+            )
+
+
+            from src.scientific_fusion import create_scientific_scores
+
+            grouped_csv, _ = create_scientific_scores(csv_path)
+            gui_debug("CSV SCIENTIFIQUE DYNAMIQUE : " + str(grouped_csv))
+
+            self.statistics_result = run_statistics_pipeline(grouped_csv)
+
+
+            gui_debug(
+                "MODE ANALYSE : "
+                + str(
+                    self.statistics_result.get(
+                        "mode"
+                    )
+                )
+            )
+
+
+            self.populate_statistics_results()
+
+            self.stack.setCurrentIndex(

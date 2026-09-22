@@ -1,0 +1,260 @@
+=============== 1. CLASSES DE main_window.py (lignes 1150-1500) ===============
+1162:def _runtime_results_tab_style():
+1173:def _inline_color_map():
+1187:def _rewrite_inline(css, mapping, ratio):
+1198:def _restyle_widget(widget, mapping=None, ratio=None):
+1218:def _apply_app_palette(app):
+1234:def apply_runtime_preferences():
+1256:class _PopupBackdrop(QObject):
+1413:class GlassPopupManager(QObject):
+1475:def install_glass_popup_manager(app=None):
+
+=============== 2. CODE COMPLET lignes 1380-1500 ===============
+        return QPixmap.fromImage(final)
+
+    def _paint_under(self, popup):
+        origin = popup.mapToGlobal(QPoint(0, 0))
+        P = GLASS_PREFERENCES
+        stamp = (
+            popup.width(), popup.height(), origin.x(), origin.y(),
+            P.get("popup_blur"), P.get("popup_radius"), P.get("popup_reflection"),
+            P.get("popup_tint"),
+        )
+        if stamp != self._stamp:
+            self._stamp = stamp
+            self._pixmap = self._capture(popup)
+        if self._pixmap is not None and not self._pixmap.isNull():
+            painter = QPainter(popup)
+            painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+            painter.drawPixmap(0, 0, self._pixmap)
+            painter.end()
+
+    def eventFilter(self, obj, event):
+        kind = event.type()
+        if kind == QEvent.Paint:
+            obj.event(event)          # le popup se peint d'abord : teinte, liseré, texte
+            try:
+                self._paint_under(obj)   # puis le flou est glissé DESSOUS
+            except Exception as exc:
+                _debug_once("flou popup", exc)
+            return True
+        if kind in (QEvent.Show, QEvent.Move, QEvent.Resize, QEvent.Hide):
+            self.invalidate()
+        return False
+
+
+class GlassPopupManager(QObject):
+    """Filtre d'application : rend translucides et floute les popups Qt."""
+
+    def __init__(self, app):
+        super().__init__(app)
+        app.installEventFilter(self)
+
+    @staticmethod
+    def _kind(obj):
+        try:
+            if not obj.isWidgetType():
+                return None
+            name = obj.metaObject().className()
+        except Exception:
+            return None
+        if name == "QComboBoxPrivateContainer":
+            return "combo"
+        if name == "QTipLabel":
+            return "tip"
+        if isinstance(obj, QMenu):
+            return "menu"
+        return None
+
+    @staticmethod
+    def _prepare(popup, kind):
+        if kind == "tip" and not GLASS_PREFERENCES.get("popup_tooltips", True):
+            return
+        if popup.property("_glass_prepared"):
+            return
+        popup.setProperty("_glass_prepared", True)
+        popup.setWindowFlags(
+            popup.windowFlags() | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint
+        )
+        popup.setAttribute(Qt.WA_TranslucentBackground, True)
+        if kind == "combo":
+            for view in popup.findChildren(QAbstractItemView):
+                view.setFrameShape(QFrame.NoFrame)
+                view.viewport().setAutoFillBackground(False)
+        _PopupBackdrop(popup)
+
+    def eventFilter(self, obj, event):
+        etype = event.type()
+        if etype == QEvent.Show:
+            try:
+                if _TEXT_OVERRIDES and obj.isWidgetType() and obj.isWindow():
+                    apply_text_overrides([obj] + obj.findChildren(QWidget))
+            except Exception as exc:
+                _debug_once("libellés (show)", exc)
+            return False
+        if etype != QEvent.Polish:
+            return False
+        try:
+            kind = self._kind(obj)
+            if kind is not None:
+                self._prepare(obj, kind)
+            elif obj.isWidgetType() and obj.styleSheet():
+                _restyle_widget(obj)
+        except Exception as exc:
+            _debug_once("popup", exc)
+        return False
+
+
+def install_glass_popup_manager(app=None):
+    """Installe (une seule fois) le gestionnaire de popups floutés."""
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    manager = getattr(app, "_glass_popup_manager", None)
+    if manager is None:
+        manager = GlassPopupManager(app)
+        app._glass_popup_manager = manager
+        _install_text_timer(app)
+    for widget in app.allWidgets():
+        if isinstance(widget, QComboBox):
+            try:
+                container = widget.view().window()
+                if container is not None and container is not widget.window():
+                    GlassPopupManager._prepare(container, "combo")
+            except Exception as exc:
+                _debug_once("liste déroulante", exc)
+    return manager
+
+
+
+
+
+# ============================================================================
+# LIBELLES — tous les textes de l'interface peuvent être remplacés
+
+=============== 3. CODE autour de la ligne 1264 (popup.installEventFilter) ===============
+    """Reconstruit la feuille de style vivante : tous les widgets suivent."""
+    _refresh_preference_palette()
+    app = QApplication.instance()
+    if app is None:
+        return
+    _apply_app_palette(app)
+    app.setStyleSheet(_build_app_style() + _runtime_preferences_style())
+    mapping = _inline_color_map()
+    ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
+    for widget in app.allWidgets():
+        _restyle_widget(widget, mapping, ratio)
+    apply_text_overrides()
+
+
+# ---------------------------------------------------------------------------
+# Popups (menus contextuels, listes déroulantes, info-bulles) : vrai flou.
+# Qt Widgets n'a pas de « backdrop-filter » : on photographie ce qui se trouve
+# réellement derrière le popup, on le floute (rayon réglable) et on le peint
+# SOUS la teinte translucide du popup.
+# ---------------------------------------------------------------------------
+
+class _PopupBackdrop(QObject):
+    """Peint, sous un popup, l'arrière-plan réellement flouté."""
+
+    def __init__(self, popup):
+        super().__init__(popup)
+        self.setObjectName("GlassPopupBackdrop")
+        self._pixmap = None
+        self._stamp = None
+        popup.installEventFilter(self)
+
+    def invalidate(self):
+        self._pixmap = None
+        self._stamp = None
+
+    @staticmethod
+    def _source_window(popup, point):
+        candidates = []
+        parent = popup.parentWidget()
+        if parent is not None:
+            candidates.append(parent.window())
+        active = QApplication.activeWindow()
+        if active is not None:
+            candidates.append(active)
+        candidates.extend(QApplication.topLevelWidgets())
+        for widget in candidates:
+            if widget is None or widget is popup or not widget.isVisible():
+                continue
+            if widget.windowType() in (Qt.Popup, Qt.ToolTip):
+                continue
+            if widget.frameGeometry().contains(point):
+                return widget
+        return None
+
+    @staticmethod
+    def _over_native_surface(source, local_point):
+
+=============== 4. OU SONT INSTANCIEES CES CLASSES ===============
+--- _PopupBackdrop ---
+1451:        _PopupBackdrop(popup)
+--- GlassPopupManager ---
+1482:        manager = GlassPopupManager(app)
+
+=============== 5. eventFilter ligne 2575-2620 ===============
+# largeur de la bordure. Le seul moyen fiable de vraiment DECOUPER le
+# contenu a la forme arrondie est un masque (QRegion) applique au
+# widget, recalcule a chaque redimensionnement.
+# ============================================================================
+
+class _RoundedClipFilter(QObject):
+
+    def __init__(self, widget, radius):
+        super().__init__(widget)
+        self.radius = radius
+        widget.installEventFilter(self)
+        self._apply(widget)
+
+    def eventFilter(self, obj, event):
+        if event.type() in (QEvent.Resize, QEvent.Show):
+            self._apply(obj)
+        return False
+
+    def _apply(self, widget):
+        if widget.width() <= 0 or widget.height() <= 0:
+            return
+        path = QPainterPath()
+        path.addRoundedRect(
+            QRectF(widget.rect()), self.radius, self.radius
+        )
+        widget.setMask(QRegion(path.toFillPolygon().toPolygon()))
+
+
+def apply_rounded_clip(widget, radius=14):
+    """
+    Force `widget` (et tout son contenu) a etre reellement decoupe en
+    rectangle a coins arrondis de rayon `radius`, quel que soit le
+    fond peint par ses enfants. A utiliser sur tout widget dont le
+    QSS declare deja un `border-radius` mais dont le contenu carre
+    depasse visuellement de l'arc (ex: QTabWidget::pane).
+    """
+    return _RoundedClipFilter(widget, radius)
+
+
+def configure_glass_table(table, visible_rows=10, maximum_rows=12):
+    """Applique une découpe arrondie et une hauteur stable aux tableaux."""
+    if table.property("glass_table"):
+        return table
+    table.setProperty("glass_table", True)
+    table.setAlternatingRowColors(True)
+    table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+    table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+    table.verticalHeader().setDefaultSectionSize(30)
+    table.verticalHeader().setMinimumSectionSize(30)
+    table.setMinimumHeight(42 + visible_rows * 30)
+    table.setMaximumHeight(42 + maximum_rows * 30)
+    apply_rounded_clip(table, radius=14)
+    return table
+
+
+# ============================================================================
+
+=============== 6. MINI-TEST C : filtre sur UN widget (pas sur l'app) ===============
+TITRE PAGE: CANAL_OK
+FIN NORMALE (filtre sur widget)
+>>> code de sortie C : 0 (0 = OK, 139 = segfault)

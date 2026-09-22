@@ -38,3 +38,7 @@ analysis_ready.csv
 
 # Donnees volumineuses generees (optionnel, a garder si tu veux les versionner)
 docking/results/
+credit_du_logiciel/
+
+# Sauvegarde ponctuelle d'un ancien build complet (1.7 Go, fichiers >100 Mo)
+_archive_backups/
