@@ -602,6 +602,132 @@ TR = {
     "menu_help": {
         "fr": "Aide", "en": "Help", "de": "Hilfe", "zh": "帮助", "ja": "ヘルプ",
     },
+
+    # --- Ajouts patch16 : onglet Phytomolécules, barre d'outils, menus
+    # deroulants et boite "A propos" (ne couvraient pas encore les 5 langues) ---
+    "nav_phytomolecules": {
+        "fr": "Phytomolécules", "en": "Phytomolecules",
+        "de": "Phytomoleküle", "zh": "植物分子", "ja": "植物分子",
+    },
+    "toolbar_theme": {
+        "fr": "Thème", "en": "Theme", "de": "Design", "zh": "主题", "ja": "テーマ",
+    },
+    "toolbar_tooltip_theme": {
+        "fr": "Changer l'image de thème", "en": "Change the theme image",
+        "de": "Themenbild ändern", "zh": "更改主题图片", "ja": "テーマ画像を変更",
+    },
+    "toolbar_preferences": {
+        "fr": "Paramètres", "en": "Settings", "de": "Einstellungen",
+        "zh": "设置", "ja": "設定",
+    },
+    "toolbar_tooltip_preferences": {
+        "fr": "Préférences du verre et de l'interface",
+        "en": "Glass and interface preferences",
+        "de": "Glas- und Oberflächeneinstellungen",
+        "zh": "玻璃与界面偏好设置",
+        "ja": "ガラス＆インターフェース設定",
+    },
+    "toolbar_tooltip_lang": {
+        "fr": "Changer la langue de l'interface",
+        "en": "Change the interface language",
+        "de": "Oberflächensprache ändern",
+        "zh": "更改界面语言",
+        "ja": "インターフェースの言語を変更",
+    },
+    "toolbar_load_csv": {
+        "fr": "Charger une analyse…", "en": "Load an analysis…",
+        "de": "Analyse laden…", "zh": "加载分析…", "ja": "分析を読み込む…",
+    },
+    "toolbar_tooltip_load_csv": {
+        "fr": "Charger une analyse CSV existante",
+        "en": "Load an existing CSV analysis",
+        "de": "Vorhandene CSV-Analyse laden",
+        "zh": "加载现有的 CSV 分析",
+        "ja": "既存のCSV分析を読み込む",
+    },
+    "toolbar_about": {
+        "fr": "À propos", "en": "About", "de": "Über",
+        "zh": "关于", "ja": "このアプリについて",
+    },
+    "menu_quit": {
+        "fr": "Quitter", "en": "Quit", "de": "Beenden", "zh": "退出", "ja": "終了",
+    },
+    "menu_prepare_ligands": {
+        "fr": "Préparer les ligands…", "en": "Prepare ligands…",
+        "de": "Liganden vorbereiten…", "zh": "准备配体…", "ja": "リガンドを準備…",
+    },
+    "menu_launch_docking": {
+        "fr": "Lancer une campagne de docking", "en": "Run a docking campaign",
+        "de": "Docking-Kampagne starten", "zh": "启动对接活动", "ja": "ドッキングキャンペーンを実行",
+    },
+    "menu_load_analysis_csv": {
+        "fr": "Charger une analyse CSV", "en": "Load a CSV analysis",
+        "de": "CSV-Analyse laden", "zh": "加载 CSV 分析", "ja": "CSV分析を読み込む",
+    },
+    "menu_view_results": {
+        "fr": "Voir les résultats", "en": "View results",
+        "de": "Ergebnisse anzeigen", "zh": "查看结果", "ja": "結果を表示",
+    },
+    "menu_open_visualization": {
+        "fr": "Ouvrir la visualisation", "en": "Open visualization",
+        "de": "Visualisierung öffnen", "zh": "打开可视化", "ja": "可視化を開く",
+    },
+    "menu_preferences_soon": {
+        "fr": "Préférences (bientôt disponible)", "en": "Preferences (coming soon)",
+        "de": "Einstellungen (demnächst verfügbar)", "zh": "偏好设置（即将推出）",
+        "ja": "環境設定（近日公開）",
+    },
+    "menu_about_vina": {
+        "fr": "À propos de VINA Studio", "en": "About VINA Studio",
+        "de": "Über VINA Studio", "zh": "关于 VINA Studio", "ja": "VINA Studioについて",
+    },
+    "about_pipeline_desc": {
+        "fr": "Pipeline complet : préparation des ligands, docking AutoDock Vina, "
+              "analyse statistique (MexB/MexR) et visualisation des interactions.",
+        "en": "Full pipeline: ligand preparation, AutoDock Vina docking, "
+              "statistical analysis (MexB/MexR) and interaction visualization.",
+        "de": "Komplette Pipeline: Ligandenvorbereitung, AutoDock-Vina-Docking, "
+              "statistische Analyse (MexB/MexR) und Interaktionsvisualisierung.",
+        "zh": "完整流程：配体准备、AutoDock Vina 对接、统计分析（MexB/MexR）和相互作用可视化。",
+        "ja": "完全なパイプライン：リガンド準備、AutoDock Vinaドッキング、統計解析（MexB/MexR）、"
+              "相互作用の可視化。",
+    },
+    "about_credits_link": {
+        "fr": "Crédits", "en": "Credits", "de": "Danksagung", "zh": "鸣谢", "ja": "クレジット",
+    },
+    "toolbar_theme_tooltip_applied": {
+        "fr": "Image de thème : {name}", "en": "Theme image: {name}",
+        "de": "Themenbild: {name}", "zh": "主题图片：{name}", "ja": "テーマ画像：{name}",
+    },
+    "status_theme_applied": {
+        "fr": "Thème appliqué : {name}", "en": "Theme applied: {name}",
+        "de": "Thema angewendet: {name}", "zh": "已应用主题：{name}", "ja": "テーマを適用しました：{name}",
+    },
+    "sdf_naming_preserve": {
+        "fr": "Conserver le nom du fichier", "en": "Keep the file name",
+        "de": "Dateinamen beibehalten", "zh": "保留文件名", "ja": "ファイル名を保持",
+    },
+    "sdf_naming_clean": {
+        "fr": "Nettoyer le nom", "en": "Clean up the name",
+        "de": "Namen bereinigen", "zh": "清理名称", "ja": "名前をクリーンアップ",
+    },
+    "sdf_naming_cid": {
+        "fr": "Détecter les identifiants CID", "en": "Detect CID identifiers",
+        "de": "CID-Kennungen erkennen", "zh": "检测 CID 标识符", "ja": "CID識別子を検出",
+    },
+    "status_workspace_active": {
+        "fr": "{name} — espace de travail actif", "en": "{name} — active workspace",
+        "de": "{name} — aktiver Arbeitsbereich", "zh": "{name} — 当前工作区", "ja": "{name} — アクティブなワークスペース",
+    },
+    "status_glass_prefs_saved": {
+        "fr": "Préférences du verre enregistrées", "en": "Glass preferences saved",
+        "de": "Glas-Einstellungen gespeichert", "zh": "玻璃偏好设置已保存", "ja": "ガラス設定を保存しました",
+    },
+    "status_glass_prefs_unchanged": {
+        "fr": "Préférences du verre inchangées", "en": "Glass preferences unchanged",
+        "de": "Glas-Einstellungen unverändert", "zh": "玻璃偏好设置未更改", "ja": "ガラス設定は変更されていません",
+    },
+
     "sdf_section_title": {
         "fr": "Préparation des ligands", "en": "Ligand preparation",
         "de": "Ligandenvorbereitung", "zh": "配体制备", "ja": "リガンド調製",
