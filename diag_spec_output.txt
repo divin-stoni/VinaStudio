@@ -1,0 +1,1026 @@
+========================================================
+ 1. Localisation du fichier .spec
+========================================================
+Fichier .spec utilisé : ./src/VinaStudio.spec
+
+========================================================
+ 2. Contenu complet du fichier .spec
+========================================================
+     1	# -*- mode: python ; coding: utf-8 -*-
+     2	
+     3	from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
+     4	
+     5	# Collecte complete du module Python openbabel (wheel autonome utilise
+     6	# par PLIP via "from openbabel import pybel") : plugins de formats
+     7	# (lib/openbabel/<version>/*.so) et donnees (share/openbabel/*), qui
+     8	# ne sont PAS suivis automatiquement par PyInstaller car charges
+     9	# dynamiquement a l'execution, pas via une dependance liee (ldd).
+    10	_openbabel_datas = collect_data_files('openbabel')
+    11	_openbabel_binaries = collect_dynamic_libs('openbabel')
+    12	
+    13	# Plugins du module Python openbabel (chargement dynamique via
+    14	# BABEL_LIBDIR, invisibles pour l'analyse automatique de PyInstaller
+    15	# car non lies directement). Copies manuellement dans
+    16	# openbabel_python_plugins/ puis places explicitement sous
+    17	# openbabel/lib/openbabel/3.2.1 dans le build, la ou
+    18	# plip_worker._fix_babel_datadir_for_python_bindings() les attend.
+    19	_openbabel_plugin_dir = '/home/stoni/MexAB_MexR_Analyzer_BETA/openbabel_python_plugins'
+    20	_openbabel_plugin_datas = [
+    21	    (_openbabel_plugin_dir, 'openbabel/lib/openbabel/3.2.1')
+    22	]
+    23	
+    24	
+    25	a = Analysis(
+    26	    ['../run_gui.py'],
+    27	    pathex=['/home/stoni/MexAB_MexR_Analyzer_BETA'],
+    28	    binaries=[
+    29	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina', 'docking/bin'),
+    30	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel', 'obabel_runtime/bin'),
+    31	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0', 'runtime_libs'),
+    32	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0', 'runtime_libs'),
+    33	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0', 'runtime_libs'),
+    34	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7', 'runtime_libs'),
+    35	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07', 'runtime_libs'),
+    36	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1', 'runtime_libs'),
+    37	    ] + _openbabel_binaries,
+    38	    datas=[
+    39	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data', 'reference_data'),
+    40	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n', 'i18n'),
+    41	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor', 'docking/receptor'),
+    42	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/lib/openbabel', 'obabel_runtime/lib/openbabel'),
+    43	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/share/openbabel', 'obabel_runtime/share/openbabel'),
+    44	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/assets/fonts', 'assets/fonts'),
+    45	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/image_theme', 'image_theme'),
+    46	        ('/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles', 'receptor_profiles'),
+    47	    ] + _openbabel_datas + _openbabel_plugin_datas,
+    48	    hiddenimports=[],
+    49	    hookspath=[],
+    50	    hooksconfig={},
+    51	    runtime_hooks=[],
+    52	    excludes=[],
+    53	    noarchive=False,
+    54	    optimize=0,
+    55	)
+    56	pyz = PYZ(a.pure)
+    57	
+    58	exe = EXE(
+    59	    pyz,
+    60	    a.scripts,
+    61	    [],
+    62	    exclude_binaries=True,
+    63	    name='VinaStudio',
+    64	    debug=False,
+    65	    bootloader_ignore_signals=False,
+    66	    strip=False,
+    67	    upx=True,
+    68	    console=False,
+    69	    disable_windowed_traceback=False,
+    70	    argv_emulation=False,
+    71	    target_arch=None,
+    72	    codesign_identity=None,
+    73	    entitlements_file=None,
+    74	    icon=['/home/stoni/MexAB_MexR_Analyzer_BETA/src/vinastudio_icon.png'],
+    75	)
+    76	coll = COLLECT(
+    77	    exe,
+    78	    a.binaries,
+    79	    a.datas,
+    80	    strip=False,
+    81	    upx=True,
+    82	    upx_exclude=[],
+    83	    name='VinaStudio',
+    84	)
+
+========================================================
+ 3. Modules Python (.py) dans src/ et à la racine
+========================================================
+-- Fichiers .py présents dans le projet (hors venv, backups, archives) --
+./audit_paquets_python.py
+./diagnostic_csv_campagnes.py
+./diagnostic_phytomolecules.py
+./extraire_gui.py
+./extraire_session.py
+./fix_receptor_pdbqt.py
+./fix_viewer_perf_color_slider.py
+./fix_viewer_rendering.py
+./ligands/antidepresseur/SDF_brute/convert_api_final.py
+./ligands/antidepresseur/SDF_brute/convert_final.py
+./ligands/antidepresseur/SDF_brute/convert_meeko.py
+./ligands/antidepresseur/SDF_brute/convert_tous_les_ligands.py
+./ligands/split_sdf_nomme.py
+./ligands/split_sdf_nomme_v2.py
+./ligands/split_sdf_nomme_v3.py
+./ligands/split_sdf_nomme_v4.py
+./patch16_phytomolecules_tab.py
+./patch17_phytomolecules_finish.py
+./patch18_phytomolecules_label_fix.py
+./patch19_switch_primary_fix.py
+./patch20_phyto_search_fixes.py
+./patch21_phyto_fixes.py
+./patch22_phyto_ui_image_sdf.py
+./patch_build_credits_data.py
+./patch_build_windows.py
+./patch_campagne.py
+./patch_credits_about.py
+./patch_credits_stop_video.py
+./patch_entetes.py
+./patch_familles.py
+./patch_fpocket_et_suppression_chimerax.py
+./patch_libelles.py
+./patch_multi_recepteurs_visu.py
+./patch_phyto_table_ux.py
+./patch_reference_data_windows.py
+./patch_session_entete.py
+./patch_table_dynamique.py
+./run_gui.py
+./src/analysis/analysis_controller.py
+./src/analysis/comparative_analysis.py
+./src/analysis/hit_selector.py
+./src/analysis/__init__.py
+./src/analysis/integrated_hit_report.py
+./src/analysis/interaction_analyzer.py
+./src/analysis/interaction_summary.py
+./src/analysis/pocket_detector.py
+./src/analysis/pose_convergence.py
+./src/analysis/pose_validator.py
+./src/analysis/statistics_pipeline.py
+./src/analysis/structural_validator.py
+./src/campaign_table.py
+./src/column_matcher.py
+./src/diag_dark_zones.py
+./src/diagnose_docking_ui.py
+./src/diagnose_generic_docking_2.py
+./src/diagnose_generic_docking.py
+./src/diagnostic_analyse.py
+./src/docking/config_manager.py
+./src/docking/docking_results.py
+./src/docking/fusion_results.py
+./src/docking/__init__.py
+./src/docking/ligand_manager.py
+./src/docking_parser.py
+./src/docking/receptor_manager.py
+./src/docking/receptor_profile.py
+./src/docking/receptor_viewer_pdb_prep.py
+./src/docking/sdf_preparer.py
+./src/docking/vina_engine.py
+./src/docking/vina_worker.py
+./src/environment/environment_manager.py
+./src/environment/__init__.py
+./src/fetch_mw_logp.py
+./src/fix_receptor_pdbqt.py
+./src/folder_scanner.py
+./src/gui/credits_page.py
+./src/gui/__init__.py
+./src/gui/main_window.py
+./src/gui/patch_phyto_table_ux.py
+./src/gui/phyto_page.before_table_ux_20260921_225031.py
+./src/gui/phyto_page.py
+./src/gui/theme_manager.py
+./src/gui/viewer_template.py
+./src/gui/visualization_bridge.py
+./src/i18n/__init__.py
+./src/i18n/language_manager.py
+./src/main.py
+./src/patch_dark_zones.py
+./src/patch_glass_no_app_filter.py
+./src/patch_interaction3d.py
+./src/patch_theme_blur.py
+./src/phyto_api.py
+./src/plip_2d_diagram.py
+./src/plip_engine.py
+./src/plotting.py
+./src/regression_model.py
+./src/scientific_fusion.py
+./src/session_manager.py
+./src/session_runtime.py
+./src/statistics_pipeline.py
+./src/stats_engine.py
+./src/tools/__init__.py
+./src/tools/obabel_locator.py
+./src/tools/plip_worker.py
+./src/tools/runtime_env.py
+./src/tools/tool_manager.py
+./src/tools/vcredist_check.py
+./src/translations.py
+./src/visualization/__init__.py
+./src/visualization/plip_runner.py
+./src/visualization/visualization_manager.py
+./tests/test_analysis_pipeline_priority.py
+./tests/test_plip_complex_merge.py
+./tests/test_viewer_drag_repaint.py
+./visualization_bridge.py
+
+Nombre total de fichiers .py trouvés : 114
+
+========================================================
+ 4. Modules référencés dans le .spec (hiddenimports, Analysis)
+========================================================
+-- Bloc hiddenimports détecté --
+48:    hiddenimports=[],
+49-    hookspath=[],
+50-    hooksconfig={},
+51-    runtime_hooks=[],
+52-    excludes=[],
+53-    noarchive=False,
+54-    optimize=0,
+55-)
+56-pyz = PYZ(a.pure)
+57-
+58-exe = EXE(
+59-    pyz,
+60-    a.scripts,
+61-    [],
+62-    exclude_binaries=True,
+63-    name='VinaStudio',
+64-    debug=False,
+65-    bootloader_ignore_signals=False,
+66-    strip=False,
+67-    upx=True,
+68-    console=False,
+69-    disable_windowed_traceback=False,
+70-    argv_emulation=False,
+71-    target_arch=None,
+72-    codesign_identity=None,
+73-    entitlements_file=None,
+74-    icon=['/home/stoni/MexAB_MexR_Analyzer_BETA/src/vinastudio_icon.png'],
+75-)
+76-coll = COLLECT(
+77-    exe,
+78-    a.binaries,
+
+-- Chemins référencés dans Analysis(...) --
+25:a = Analysis(
+26-    ['../run_gui.py'],
+27-    pathex=['/home/stoni/MexAB_MexR_Analyzer_BETA'],
+28-    binaries=[
+29-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina', 'docking/bin'),
+30-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel', 'obabel_runtime/bin'),
+31-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0', 'runtime_libs'),
+32-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0', 'runtime_libs'),
+33-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0', 'runtime_libs'),
+34-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7', 'runtime_libs'),
+35-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07', 'runtime_libs'),
+36-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1', 'runtime_libs'),
+37-    ] + _openbabel_binaries,
+38-    datas=[
+39-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data', 'reference_data'),
+40-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n', 'i18n'),
+
+========================================================
+ 5. Fichiers .py qui semblent ABSENTS du .spec
+========================================================
+(comparaison approximative : nom de fichier sans extension
+ cherché tel quel dans le texte du .spec)
+
+MANQUANT probable : ./audit_paquets_python.py
+MANQUANT probable : ./diagnostic_csv_campagnes.py
+MANQUANT probable : ./diagnostic_phytomolecules.py
+MANQUANT probable : ./extraire_gui.py
+MANQUANT probable : ./extraire_session.py
+MANQUANT probable : ./fix_receptor_pdbqt.py
+MANQUANT probable : ./fix_viewer_perf_color_slider.py
+MANQUANT probable : ./fix_viewer_rendering.py
+MANQUANT probable : ./ligands/antidepresseur/SDF_brute/convert_api_final.py
+MANQUANT probable : ./ligands/antidepresseur/SDF_brute/convert_final.py
+MANQUANT probable : ./ligands/antidepresseur/SDF_brute/convert_meeko.py
+MANQUANT probable : ./ligands/antidepresseur/SDF_brute/convert_tous_les_ligands.py
+MANQUANT probable : ./ligands/split_sdf_nomme.py
+MANQUANT probable : ./ligands/split_sdf_nomme_v2.py
+MANQUANT probable : ./ligands/split_sdf_nomme_v3.py
+MANQUANT probable : ./ligands/split_sdf_nomme_v4.py
+MANQUANT probable : ./patch16_phytomolecules_tab.py
+MANQUANT probable : ./patch17_phytomolecules_finish.py
+MANQUANT probable : ./patch18_phytomolecules_label_fix.py
+MANQUANT probable : ./patch19_switch_primary_fix.py
+MANQUANT probable : ./patch20_phyto_search_fixes.py
+MANQUANT probable : ./patch21_phyto_fixes.py
+MANQUANT probable : ./patch22_phyto_ui_image_sdf.py
+MANQUANT probable : ./patch_build_credits_data.py
+MANQUANT probable : ./patch_build_windows.py
+MANQUANT probable : ./patch_campagne.py
+MANQUANT probable : ./patch_credits_about.py
+MANQUANT probable : ./patch_credits_stop_video.py
+MANQUANT probable : ./patch_entetes.py
+MANQUANT probable : ./patch_familles.py
+MANQUANT probable : ./patch_fpocket_et_suppression_chimerax.py
+MANQUANT probable : ./patch_libelles.py
+MANQUANT probable : ./patch_multi_recepteurs_visu.py
+MANQUANT probable : ./patch_phyto_table_ux.py
+MANQUANT probable : ./patch_reference_data_windows.py
+MANQUANT probable : ./patch_session_entete.py
+MANQUANT probable : ./patch_table_dynamique.py
+MANQUANT probable : ./src/analysis/analysis_controller.py
+MANQUANT probable : ./src/analysis/comparative_analysis.py
+MANQUANT probable : ./src/analysis/hit_selector.py
+MANQUANT probable : ./src/analysis/__init__.py
+MANQUANT probable : ./src/analysis/integrated_hit_report.py
+MANQUANT probable : ./src/analysis/interaction_analyzer.py
+MANQUANT probable : ./src/analysis/interaction_summary.py
+MANQUANT probable : ./src/analysis/pocket_detector.py
+MANQUANT probable : ./src/analysis/pose_convergence.py
+MANQUANT probable : ./src/analysis/pose_validator.py
+MANQUANT probable : ./src/analysis/statistics_pipeline.py
+MANQUANT probable : ./src/analysis/structural_validator.py
+MANQUANT probable : ./src/campaign_table.py
+MANQUANT probable : ./src/column_matcher.py
+MANQUANT probable : ./src/diag_dark_zones.py
+MANQUANT probable : ./src/diagnose_docking_ui.py
+MANQUANT probable : ./src/diagnose_generic_docking_2.py
+MANQUANT probable : ./src/diagnose_generic_docking.py
+MANQUANT probable : ./src/diagnostic_analyse.py
+MANQUANT probable : ./src/docking/config_manager.py
+MANQUANT probable : ./src/docking/docking_results.py
+MANQUANT probable : ./src/docking/fusion_results.py
+MANQUANT probable : ./src/docking/__init__.py
+MANQUANT probable : ./src/docking/ligand_manager.py
+MANQUANT probable : ./src/docking_parser.py
+MANQUANT probable : ./src/docking/receptor_manager.py
+MANQUANT probable : ./src/docking/receptor_viewer_pdb_prep.py
+MANQUANT probable : ./src/docking/sdf_preparer.py
+MANQUANT probable : ./src/docking/vina_engine.py
+MANQUANT probable : ./src/docking/vina_worker.py
+MANQUANT probable : ./src/environment/environment_manager.py
+MANQUANT probable : ./src/environment/__init__.py
+MANQUANT probable : ./src/fetch_mw_logp.py
+MANQUANT probable : ./src/fix_receptor_pdbqt.py
+MANQUANT probable : ./src/folder_scanner.py
+MANQUANT probable : ./src/gui/credits_page.py
+MANQUANT probable : ./src/gui/__init__.py
+MANQUANT probable : ./src/gui/main_window.py
+MANQUANT probable : ./src/gui/patch_phyto_table_ux.py
+MANQUANT probable : ./src/gui/phyto_page.before_table_ux_20260921_225031.py
+MANQUANT probable : ./src/gui/phyto_page.py
+MANQUANT probable : ./src/gui/theme_manager.py
+MANQUANT probable : ./src/gui/viewer_template.py
+MANQUANT probable : ./src/gui/visualization_bridge.py
+MANQUANT probable : ./src/i18n/__init__.py
+MANQUANT probable : ./src/i18n/language_manager.py
+MANQUANT probable : ./src/main.py
+MANQUANT probable : ./src/patch_dark_zones.py
+MANQUANT probable : ./src/patch_glass_no_app_filter.py
+MANQUANT probable : ./src/patch_interaction3d.py
+MANQUANT probable : ./src/patch_theme_blur.py
+MANQUANT probable : ./src/phyto_api.py
+MANQUANT probable : ./src/plip_2d_diagram.py
+MANQUANT probable : ./src/plip_engine.py
+MANQUANT probable : ./src/plotting.py
+MANQUANT probable : ./src/regression_model.py
+MANQUANT probable : ./src/scientific_fusion.py
+MANQUANT probable : ./src/session_manager.py
+MANQUANT probable : ./src/session_runtime.py
+MANQUANT probable : ./src/statistics_pipeline.py
+MANQUANT probable : ./src/stats_engine.py
+MANQUANT probable : ./src/tools/__init__.py
+MANQUANT probable : ./src/tools/obabel_locator.py
+MANQUANT probable : ./src/tools/runtime_env.py
+MANQUANT probable : ./src/tools/tool_manager.py
+MANQUANT probable : ./src/tools/vcredist_check.py
+MANQUANT probable : ./src/translations.py
+MANQUANT probable : ./src/visualization/__init__.py
+MANQUANT probable : ./src/visualization/plip_runner.py
+MANQUANT probable : ./src/visualization/visualization_manager.py
+MANQUANT probable : ./tests/test_analysis_pipeline_priority.py
+MANQUANT probable : ./tests/test_plip_complex_merge.py
+MANQUANT probable : ./tests/test_viewer_drag_repaint.py
+MANQUANT probable : ./visualization_bridge.py
+
+========================================================
+ 6. Bloc 'datas' du .spec (ressources embarquées)
+========================================================
+10:_openbabel_datas = collect_data_files('openbabel')
+11-_openbabel_binaries = collect_dynamic_libs('openbabel')
+12-
+13-# Plugins du module Python openbabel (chargement dynamique via
+14-# BABEL_LIBDIR, invisibles pour l'analyse automatique de PyInstaller
+15-# car non lies directement). Copies manuellement dans
+16-# openbabel_python_plugins/ puis places explicitement sous
+17-# openbabel/lib/openbabel/3.2.1 dans le build, la ou
+18-# plip_worker._fix_babel_datadir_for_python_bindings() les attend.
+19-_openbabel_plugin_dir = '/home/stoni/MexAB_MexR_Analyzer_BETA/openbabel_python_plugins'
+20:_openbabel_plugin_datas = [
+21-    (_openbabel_plugin_dir, 'openbabel/lib/openbabel/3.2.1')
+22-]
+23-
+24-
+25-a = Analysis(
+26-    ['../run_gui.py'],
+27-    pathex=['/home/stoni/MexAB_MexR_Analyzer_BETA'],
+28-    binaries=[
+29-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/bin/vina', 'docking/bin'),
+30-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/bin/obabel', 'obabel_runtime/bin'),
+31-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_thread.so.1.88.0', 'runtime_libs'),
+32-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_filesystem.so.1.88.0', 'runtime_libs'),
+33-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libboost_program_options.so.1.88.0', 'runtime_libs'),
+34-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libopenbabel.so.7', 'runtime_libs'),
+35-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libinchi.so.1.07', 'runtime_libs'),
+36-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/runtime_libs/libmaeparser.so.1', 'runtime_libs'),
+37-    ] + _openbabel_binaries,
+38:    datas=[
+39-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/reference_data', 'reference_data'),
+40-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/i18n', 'i18n'),
+41-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/docking/receptor', 'docking/receptor'),
+42-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/lib/openbabel', 'obabel_runtime/lib/openbabel'),
+43-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/obabel_runtime/share/openbabel', 'obabel_runtime/share/openbabel'),
+44-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/src/assets/fonts', 'assets/fonts'),
+45-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/image_theme', 'image_theme'),
+46-        ('/home/stoni/MexAB_MexR_Analyzer_BETA/receptor_profiles', 'receptor_profiles'),
+47:    ] + _openbabel_datas + _openbabel_plugin_datas,
+48-    hiddenimports=[],
+49-    hookspath=[],
+50-    hooksconfig={},
+51-    runtime_hooks=[],
+52-    excludes=[],
+53-    noarchive=False,
+54-    optimize=0,
+55-)
+56-pyz = PYZ(a.pure)
+57-
+58-exe = EXE(
+59-    pyz,
+60-    a.scripts,
+61-    [],
+62-    exclude_binaries=True,
+63-    name='VinaStudio',
+64-    debug=False,
+65-    bootloader_ignore_signals=False,
+66-    strip=False,
+67-    upx=True,
+68-    console=False,
+69-    disable_windowed_traceback=False,
+
+========================================================
+ 7. Ressources réelles (images, icônes, fichiers non .py)
+     dans les dossiers de ressources probables
+========================================================
+-- Dossier : image_theme --
+image_theme/2014-05-20.jpg
+image_theme/a-c-NqXqLPhdbvU-unsplash.jpg
+image_theme/alex-shuper-iUy-W6TL7yw-unsplash.jpg
+image_theme/anders-jilden-GjwsHRIcQjU-unsplash.jpg
+image_theme/anna-wangler-_GqwoiT7QY8-unsplash.jpg
+image_theme/asif-aether-L3n_CsmKSR4-unsplash.jpg
+image_theme/daniel-deiev-AQhIKR0YKlk-unsplash.jpg
+image_theme/darcy-liu-k6zJD-DEdng-unsplash.jpg
+image_theme/edewaa-foster-aWkpMIIC5aY-unsplash.jpg
+image_theme/faded_gallery-V3gOc5dbq9c-unsplash.jpg
+image_theme/geranimo-bKhETeDV1WM-unsplash.jpg
+image_theme/giulio-casagrande-rnpYkwn7bJw-unsplash.jpg
+image_theme/greg-rakozy-0LU4vO5iFpM-unsplash.jpg
+image_theme/greg-rakozy-oMpAz-DN-9I-unsplash.jpg
+image_theme/ian-dooley-DuBNA1QMpPA-unsplash.jpg
+image_theme/image_2da1bd1b.jpg
+image_theme/jms-kFHz9Xh3PPU-unsplash.jpg
+image_theme/jonatan-pie-h8nxGssjQXs-unsplash.jpg
+image_theme/martin-martz-xA4v5VqLATs-unsplash.jpg
+image_theme/nasa-V4ZksNimxLk-unsplash.jpg
+image_theme/patrick-fore-850jTF12RSQ-unsplash.jpg
+image_theme/pavel-s-HzZs7r8Z9Hc-unsplash.jpg
+image_theme/pexels-doubleseven-1035364.jpg
+image_theme/pexels-fatih-2160365314-36683914.jpg
+image_theme/pexels-fayette-reynolds-m-s-181007507-11198500.jpg
+image_theme/pexels-googledeepmind-25626509.jpg
+image_theme/pexels-jeff-burkholder-219258325-11899950.jpg
+image_theme/pexels-luisfe-5191961.jpg
+image_theme/pexels-luisfe-5191975.jpg
+image_theme/pexels-magda-ehlers-pexels-5322711.jpg
+image_theme/pexels-marek-piwnicki-3907296-6107989.jpg
+image_theme/pexels-mikhail-nilov-8851079.jpg
+image_theme/pexels-muhammed-mahsum-tunc-859110584-35102257.jpg
+image_theme/pexels-nicola-narracci-157460431-35967917.jpg
+image_theme/pexels-solyartphotos-8584226.jpg
+image_theme/pexels-steve-30630118.jpg
+image_theme/pexels-tara-winstead-7722923.jpg
+image_theme/pexels-thales13-39353297.jpg
+image_theme/pexels-turek3024-8741786.jpg
+image_theme/pexels-valeria-drozdova-2148646707-35324889.jpg
+image_theme/plufow-le-studio-EoLAWkskAIc-unsplash.jpg
+image_theme/qingbao-meng-01_igFr7hd4-unsplash.jpg
+image_theme/sean-fahrenbruch-_07FxAO8oG0-unsplash.jpg
+image_theme/sean-fahrenbruch-Ir2dJmcJpys-unsplash.jpg
+image_theme/sebastian-svenson-d2w-_1LJioQ-unsplash.jpg
+image_theme/siora-photography-R1JvvBHh3v8-unsplash.jpg
+image_theme/stefan-stefancik-TPv9dh822VA-unsplash.jpg
+image_theme/steve-a-johnson-3pFy7N6louU-unsplash.jpg
+image_theme/steve-a-johnson-5dFfx_aASpI-unsplash.jpg
+image_theme/steve-a-johnson-Asyq14c-KtQ-unsplash.jpg
+image_theme/steve-a-johnson-hgOpejiYhvU-unsplash.jpg
+image_theme/steve-a-johnson-PyOuwV2_dyA-unsplash.jpg
+image_theme/Um6ss_logo.png
+image_theme/umng.png
+image_theme/urban-vintage-78A265wPiO4-unsplash.jpg
+image_theme/vincent-guth-62V7ntlKgL8-unsplash.jpg
+image_theme/wade-meng-LgCj9qcrfhI-unsplash.jpg
+
+-- Dossier : docs --
+docs/technical_notes/article_mexab_mexr_analyzer.md
+docs/technical_notes/chemrxiv.15007681_v1.pdf
+
+-- Dossier : credit_du_logiciel --
+credit_du_logiciel/captions.json
+credit_du_logiciel/stage_ollombo/photo_1_2026-09-20_17-35-04.jpg
+credit_du_logiciel/stage_ollombo/photo_2_2026-09-20_17-35-04.jpg
+credit_du_logiciel/stage_pointe_noire/photo_1_2026-09-19_18-11-16.jpg
+credit_du_logiciel/stage_pointe_noire/photo_21_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_22_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_24_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_26_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_27_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_28_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_33_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_35_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_36_2026-09-19_18-12-58.jpg
+credit_du_logiciel/stage_pointe_noire/photo_5_2026-09-19_18-11-16.jpg
+credit_du_logiciel/stage_pointe_noire/photo_62_2026-09-19_18-10-03.jpg
+credit_du_logiciel/stage_pointe_noire/photo_8_2026-09-19_18-11-16.jpg
+credit_du_logiciel/stage_pointe_noire/photo_91_2026-09-19_18-10-03.jpg
+credit_du_logiciel/stage_pointe_noire/VID_20251026_211730.mp4
+credit_du_logiciel/stage_pointe_noire/VID-20251026-WA0007.mp4
+credit_du_logiciel/stage_pointe_noire/VID_20251029_162411.mp4
+credit_du_logiciel/um6ss/photo_19_2026-09-19_18-12-01.jpg
+credit_du_logiciel/um6ss/photo_68_2026-09-19_18-11-16.jpg
+credit_du_logiciel/um6ss/photo_73_2026-09-19_18-11-16.jpg
+credit_du_logiciel/um6ss/photo_82_2026-09-19_18-12-01.jpg
+credit_du_logiciel/um6ss/photo_85_2026-09-19_18-12-01.jpg
+
+-- Dossier : receptor_profiles --
+receptor_profiles/2v50_clean_acd.json
+receptor_profiles/2v50_clean_b_2.json
+receptor_profiles/2v50_clean_b_3.json
+receptor_profiles/2v50_clean_b.json
+receptor_profiles/7o9w_clean_a.json
+receptor_profiles/7o9w_clean_b.json
+receptor_profiles/acrb_1t9x_viewer.pdb
+receptor_profiles/acrb_site2_ecoli.json
+receptor_profiles/acrr_2qop_viewer.pdb
+receptor_profiles/acrr_e67_ecoli.json
+receptor_profiles/adeb_7kgg_viewer.pdb
+receptor_profiles/adeb_ethidium_abaumannii.json
+receptor_profiles/cmeb_8gjk_viewer.pdb
+receptor_profiles/cmeb_ampicillin_cjejuni.json
+receptor_profiles/cmer_3qps_viewer.pdb
+receptor_profiles/cmer_3qqa_viewer.pdb
+receptor_profiles/cmer_cholate_cjejuni.json
+receptor_profiles/cmer_taurocholate_cjejuni.json
+receptor_profiles/mexb_paeruginosa.json
+receptor_profiles/mexb_viewer.pdb
+receptor_profiles/mexr_paeruginosa.json
+receptor_profiles/mexr_viewer.pdb
+receptor_profiles/mexy_9e9f_viewer.pdb
+receptor_profiles/mexy_entrance_paeruginosa.json
+
+-- Dossier : ligands --
+ligands/antidepresseur/SDF_brute/Agomélatine_CID_82148.pdb
+ligands/antidepresseur/SDF_brute/Agomélatine_CID_82148.sdf
+ligands/antidepresseur/SDF_brute/Alaproclate_CID_2081.pdb
+ligands/antidepresseur/SDF_brute/Alaproclate_CID_2081.sdf
+ligands/antidepresseur/SDF_brute/Amitriptyline_CID_2160.pdb
+ligands/antidepresseur/SDF_brute/Amitriptyline_CID_2160.sdf
+ligands/antidepresseur/SDF_brute/Amoxapine_CID_2170.pdb
+ligands/antidepresseur/SDF_brute/Amoxapine_CID_2170.sdf
+ligands/antidepresseur/SDF_brute/Bupropion_CID_444.pdb
+ligands/antidepresseur/SDF_brute/Bupropion_CID_444.sdf
+ligands/antidepresseur/SDF_brute/Citalopram_CID_2771.pdb
+ligands/antidepresseur/SDF_brute/Citalopram_CID_2771.sdf
+ligands/antidepresseur/SDF_brute/Clomipramine_CID_2801.pdb
+ligands/antidepresseur/SDF_brute/Clomipramine_CID_2801.sdf
+ligands/antidepresseur/SDF_brute/convert_api_final.py
+ligands/antidepresseur/SDF_brute/convert_final.py
+ligands/antidepresseur/SDF_brute/convert_meeko.py
+ligands/antidepresseur/SDF_brute/convert_tous_les_ligands.py
+ligands/antidepresseur/SDF_brute/Dapoxétine_CID_71353.pdb
+ligands/antidepresseur/SDF_brute/Dapoxétine_CID_71353.sdf
+ligands/antidepresseur/SDF_brute/dataset_fusionne.csv
+ligands/antidepresseur/SDF_brute/deltaG_48molecules.csv
+ligands/antidepresseur/SDF_brute/Désipramine_CID_2995.pdb
+ligands/antidepresseur/SDF_brute/Désipramine_CID_2995.sdf
+ligands/antidepresseur/SDF_brute/Desvenlafaxine_CID_125017.pdb
+ligands/antidepresseur/SDF_brute/Desvenlafaxine_CID_125017.sdf
+ligands/antidepresseur/SDF_brute/Dosulépine_CID_5284550.pdb
+ligands/antidepresseur/SDF_brute/Dosulépine_CID_5284550.sdf
+ligands/antidepresseur/SDF_brute/Doxépine_CID_667477.pdb
+ligands/antidepresseur/SDF_brute/Doxépine_CID_667477.sdf
+ligands/antidepresseur/SDF_brute/Duloxétine_CID_60835.pdb
+ligands/antidepresseur/SDF_brute/Duloxétine_CID_60835.sdf
+ligands/antidepresseur/SDF_brute/Escitalopram_CID_146570.pdb
+ligands/antidepresseur/SDF_brute/Escitalopram_CID_146570.sdf
+ligands/antidepresseur/SDF_brute/Fluoxétine_CID_3386.pdb
+ligands/antidepresseur/SDF_brute/Fluoxétine_CID_3386.sdf
+ligands/antidepresseur/SDF_brute/Fluvoxamine_CID_5324346.pdb
+ligands/antidepresseur/SDF_brute/Fluvoxamine_CID_5324346.sdf
+ligands/antidepresseur/SDF_brute/Imipramine_CID_3696.pdb
+ligands/antidepresseur/SDF_brute/Imipramine_CID_3696.sdf
+ligands/antidepresseur/SDF_brute/Indalpine_CID_44668.pdb
+ligands/antidepresseur/SDF_brute/Indalpine_CID_44668.sdf
+ligands/antidepresseur/SDF_brute/Iproclozide_CID_19063.pdb
+ligands/antidepresseur/SDF_brute/Iproclozide_CID_19063.sdf
+ligands/antidepresseur/SDF_brute/Iproniazide_CID_3748.pdb
+ligands/antidepresseur/SDF_brute/Iproniazide_CID_3748.sdf
+ligands/antidepresseur/SDF_brute/Isocarboxazide_CID_3759.pdb
+ligands/antidepresseur/SDF_brute/Isocarboxazide_CID_3759.sdf
+ligands/antidepresseur/SDF_brute/Kétamine_CID_3821.pdb
+ligands/antidepresseur/SDF_brute/Kétamine_CID_3821.sdf
+ligands/antidepresseur/SDF_brute/Lévomilnacipran_CID_6917779.pdb
+ligands/antidepresseur/SDF_brute/Lévomilnacipran_CID_6917779.sdf
+ligands/antidepresseur/SDF_brute/Maprotiline_CID_4011.pdb
+ligands/antidepresseur/SDF_brute/Maprotiline_CID_4011.sdf
+ligands/antidepresseur/SDF_brute/Medifoxamine_CID_36109.pdb
+ligands/antidepresseur/SDF_brute/Medifoxamine_CID_36109.sdf
+ligands/antidepresseur/SDF_brute/Miansérine_CID_4184.pdb
+ligands/antidepresseur/SDF_brute/Miansérine_CID_4184.sdf
+ligands/antidepresseur/SDF_brute/Milnacipran_CID_65833.pdb
+ligands/antidepresseur/SDF_brute/Milnacipran_CID_65833.sdf
+ligands/antidepresseur/SDF_brute/Mirtazapine_CID_4205.pdb
+ligands/antidepresseur/SDF_brute/Mirtazapine_CID_4205.sdf
+ligands/antidepresseur/SDF_brute/Moclobémide_CID_4235.pdb
+ligands/antidepresseur/SDF_brute/Moclobémide_CID_4235.sdf
+ligands/antidepresseur/SDF_brute/MW_LogP_48molecules.csv
+ligands/antidepresseur/SDF_brute/Néfazodone_CID_4449.pdb
+ligands/antidepresseur/SDF_brute/Néfazodone_CID_4449.sdf
+ligands/antidepresseur/SDF_brute/Nomifensine_CID_4528.pdb
+ligands/antidepresseur/SDF_brute/Nomifensine_CID_4528.sdf
+ligands/antidepresseur/SDF_brute/Nortriptyline_CID_4543.pdb
+ligands/antidepresseur/SDF_brute/Nortriptyline_CID_4543.sdf
+ligands/antidepresseur/SDF_brute/Opipramol_CID_9417.pdb
+ligands/antidepresseur/SDF_brute/Opipramol_CID_9417.sdf
+ligands/antidepresseur/SDF_brute/Oxaflozane_CID_432824.pdb
+ligands/antidepresseur/SDF_brute/Oxaflozane_CID_432824.sdf
+ligands/antidepresseur/SDF_brute/Paroxétine_CID_43815.pdb
+ligands/antidepresseur/SDF_brute/Paroxétine_CID_43815.sdf
+ligands/antidepresseur/SDF_brute/Phénelzine_CID_61100.pdb
+ligands/antidepresseur/SDF_brute/Phénelzine_CID_61100.sdf
+ligands/antidepresseur/SDF_brute/Pimozide_CID_16362.sdf
+ligands/antidepresseur/SDF_brute/Protriptyline_CID_4976.pdb
+ligands/antidepresseur/SDF_brute/Protriptyline_CID_4976.sdf
+ligands/antidepresseur/SDF_brute/Sélégiline_CID_26757.pdb
+ligands/antidepresseur/SDF_brute/Sélégiline_CID_26757.sdf
+ligands/antidepresseur/SDF_brute/Sertraline_CID_68617.pdb
+ligands/antidepresseur/SDF_brute/Sertraline_CID_68617.sdf
+ligands/antidepresseur/SDF_brute/Tianeptine_CID_68870.pdb
+ligands/antidepresseur/SDF_brute/Tianeptine_CID_68870.sdf
+ligands/antidepresseur/SDF_brute/Toloxatone_CID_34521.pdb
+ligands/antidepresseur/SDF_brute/Toloxatone_CID_34521.sdf
+ligands/antidepresseur/SDF_brute/Tranylcypromine_CID_5530.pdb
+ligands/antidepresseur/SDF_brute/Tranylcypromine_CID_5530.sdf
+ligands/antidepresseur/SDF_brute/Trazodone_CID_5533.pdb
+ligands/antidepresseur/SDF_brute/Trazodone_CID_5533.sdf
+ligands/antidepresseur/SDF_brute/Trimipramine_CID_5584.pdb
+ligands/antidepresseur/SDF_brute/Trimipramine_CID_5584.sdf
+ligands/antidepresseur/SDF_brute/Venlafaxine_CID_5656.pdb
+ligands/antidepresseur/SDF_brute/Venlafaxine_CID_5656.sdf
+ligands/antidepresseur/SDF_brute/Vilazodone_CID_6918314.pdb
+ligands/antidepresseur/SDF_brute/Vilazodone_CID_6918314.sdf
+ligands/antidepresseur/SDF_brute/Viloxazine_CID_5666.pdb
+ligands/antidepresseur/SDF_brute/Viloxazine_CID_5666.sdf
+ligands/antidepresseur/SDF_brute/Vortioxétine_CID_9966051.pdb
+ligands/antidepresseur/SDF_brute/Vortioxétine_CID_9966051.sdf
+ligands/antidepresseur/SDF_brute/Zimélidine_CID_5365247.pdb
+ligands/antidepresseur/SDF_brute/Zimélidine_CID_5365247.sdf
+ligands/antihistaminiques_individuels/Alcaftadine_CID19371515.sdf
+ligands/antihistaminiques_individuels/Astemizole_CID2247.sdf
+ligands/antihistaminiques_individuels/Azelastine_CID2267.sdf
+ligands/antihistaminiques_individuels/Bilastine_CID185460.sdf
+ligands/antihistaminiques_individuels/Brompheniramine_CID6834.sdf
+ligands/antihistaminiques_individuels/Cetirizine_CID2678.sdf
+ligands/antihistaminiques_individuels/-_-Chlorpheniramine_CID2725.sdf
+ligands/antihistaminiques_individuels/Clemastine_CID26987.sdf
+ligands/antihistaminiques_individuels/Cyclizine_CID6726.sdf
+ligands/antihistaminiques_individuels/Cyproheptadine_CID2913.sdf
+ligands/antihistaminiques_individuels/Desloratadine_CID124087.sdf
+ligands/antihistaminiques_individuels/Dimenhydrinate_CID10660.sdf
+ligands/antihistaminiques_individuels/Diphenhydramine_CID3100.sdf
+ligands/antihistaminiques_individuels/Doxylamine_CID3162.sdf
+ligands/antihistaminiques_individuels/Ebastine_CID3191.sdf
+ligands/antihistaminiques_individuels/Emedastine_CID3219.sdf
+ligands/antihistaminiques_individuels/Fexofenadine_CID3348.sdf
+ligands/antihistaminiques_individuels/Hydroxyzine_CID3658.sdf
+ligands/antihistaminiques_individuels/Ketotifen_CID3827.sdf
+ligands/antihistaminiques_individuels/Levocetirizine_CID1549000.sdf
+ligands/antihistaminiques_individuels/Loratadine_CID3957.sdf
+ligands/antihistaminiques_individuels/Meclizine_CID4034.sdf
+ligands/antihistaminiques_individuels/Mizolastine_CID65906.sdf
+ligands/antihistaminiques_individuels/Olopatadine_CID5281071.sdf
+ligands/antihistaminiques_individuels/Oxatomide_CID4615.sdf
+ligands/antihistaminiques_individuels/Rupatadine_CID133017.sdf
+ligands/antihistaminiques_individuels/Terfenadine_CID5405.sdf
+ligands/antihistaminiques_individuels/Triprolidine_CID5282443.sdf
+ligands/antihistaminiques.sdf
+ligands/antipsychotiques_individuels/Amisulpride_CID2159.sdf
+ligands/antipsychotiques_individuels/Aripiprazole_CID60795.sdf
+ligands/antipsychotiques_individuels/Asenapine_CID163091.sdf
+ligands/antipsychotiques_individuels/Brexpiprazole_CID11978813.sdf
+ligands/antipsychotiques_individuels/Cariprazine_CID11154555.sdf
+ligands/antipsychotiques_individuels/Chlorpromazine_CID2726.sdf
+ligands/antipsychotiques_individuels/Chlorprothixene_CID667467.sdf
+ligands/antipsychotiques_individuels/Clozapine_CID135398737.sdf
+ligands/antipsychotiques_individuels/Droperidol_CID3168.sdf
+ligands/antipsychotiques_individuels/Flupentixol_CID5281881.sdf
+ligands/antipsychotiques_individuels/Fluphenazine_CID3372.sdf
+ligands/antipsychotiques_individuels/Haloperidol_CID3559.sdf
+ligands/antipsychotiques_individuels/Iloperidone_CID71360.sdf
+ligands/antipsychotiques_individuels/Levomepromazine_CID72287.sdf
+ligands/antipsychotiques_individuels/Loxapine_CID3964.sdf
+ligands/antipsychotiques_individuels/Lurasidone_CID213046.sdf
+ligands/antipsychotiques_individuels/Molindone_CID23897.sdf
+ligands/antipsychotiques_individuels/Olanzapine_CID135398745.sdf
+ligands/antipsychotiques_individuels/Paliperidone_CID115237.sdf
+ligands/antipsychotiques_individuels/Perphenazine_CID4748.sdf
+ligands/antipsychotiques_individuels/Pimavanserin_CID10071196.sdf
+ligands/antipsychotiques_individuels/Promethazine_CID4927.sdf
+ligands/antipsychotiques_individuels/Quetiapine_CID5002.sdf
+ligands/antipsychotiques_individuels/Risperidone_CID5073.sdf
+ligands/antipsychotiques_individuels/Sulpiride_CID5355.sdf
+ligands/antipsychotiques_individuels/Thioridazine_CID5452.sdf
+ligands/antipsychotiques_individuels/Trifluoperazine_CID5566.sdf
+ligands/antipsychotiques_individuels/Ziprasidone_CID60854.sdf
+ligands/antipsychotiques_individuels/Zuclopenthixol_CID5311507.sdf
+ligands/antipsychotiques.sdf
+ligands/cid_nom_cache.json
+ligands/cid_nom_cache_v4.json
+ligands/download_sdf.sh
+ligands/pdbqt/antidepresseurs_pdbqt/Agomelatine_CID_82148.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Alaproclate_CID_2081.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Amitriptyline_CID_2160.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Amoxapine_CID_2170.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Bupropion_CID_444.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Citalopram_CID_2771.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Clomipramine_CID_2801.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Dapoxetine_CID_71353.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Desipramine_CID_2995.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Desvenlafaxine_CID_125017.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Dosulepine_CID_5284550.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Doxepine_CID_667477.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Duloxetine_CID_60835.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Escitalopram_CID_146570.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Fluoxetine_CID_3386.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Fluvoxamine_CID_5324346.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Imipramine_CID_3696.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Indalpine_CID_44668.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Iproclozide_CID_19063.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Iproniazide_CID_3748.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Isocarboxazide_CID_3759.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Ketamine_CID_3821.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Levomilnacipran_CID_6917779.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Maprotiline_CID_4011.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Medifoxamine_CID_36109.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Mianserine_CID_4184.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Milnacipran_CID_65833.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Mirtazapine_CID_4205.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Moclobemide_CID_4235.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Nefazodone_CID_4449.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Nomifensine_CID_4528.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Nortriptyline_CID_4543.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Opipramol_CID_9417.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Oxaflozane_CID_432824.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Paroxetine_CID_43815.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Protriptyline_CID_4976.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Selegiline_CID_26757.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Sertraline_CID_68617.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Tianeptine_CID_68870.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Toloxatone_CID_34521.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Tranylcypromine_CID_5530.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Trazodone_CID_5533.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Trimipramine_CID_5584.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Venlafaxine_CID_5656.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Vilazodone_CID_6918314.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Viloxazine_CID_5666.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Vortioxetine_CID_9966051.pdbqt
+ligands/pdbqt/antidepresseurs_pdbqt/Zimelidine_CID_5365247.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Alcaftadine_CID19371515.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Astemizole_CID2247.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Azelastine_CID2267.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Bilastine_CID185460.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Brompheniramine_CID6834.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Cetirizine_CID2678.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/-_-Chlorpheniramine_CID2725.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Clemastine_CID26987.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Cyclizine_CID6726.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Cyproheptadine_CID2913.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Desloratadine_CID124087.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Dimenhydrinate_CID10660.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Diphenhydramine_CID3100.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Doxylamine_CID3162.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Ebastine_CID3191.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/echecs_conversion.log
+ligands/pdbqt/antihistaminiques_pdbqt/Emedastine_CID3219.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Fexofenadine_CID3348.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Hydroxyzine_CID3658.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Ketotifen_CID3827.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Levocetirizine_CID1549000.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Loratadine_CID3957.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Meclizine_CID4034.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Mizolastine_CID65906.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Olopatadine_CID5281071.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Oxatomide_CID4615.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Rupatadine_CID133017.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Terfenadine_CID5405.pdbqt
+ligands/pdbqt/antihistaminiques_pdbqt/Triprolidine_CID5282443.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Amisulpride_CID2159.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Aripiprazole_CID60795.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Asenapine_CID163091.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Brexpiprazole_CID11978813.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Cariprazine_CID11154555.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Chlorpromazine_CID2726.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Chlorprothixene_CID667467.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Clozapine_CID135398737.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Droperidol_CID3168.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/echecs_conversion.log
+ligands/pdbqt/antipsychotiques_pdbqt/Flupentixol_CID5281881.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Fluphenazine_CID3372.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Haloperidol_CID3559.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Iloperidone_CID71360.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Levomepromazine_CID72287.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Loxapine_CID3964.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Lurasidone_CID213046.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Molindone_CID23897.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Olanzapine_CID135398745.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Paliperidone_CID115237.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Perphenazine_CID4748.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Pimavanserin_CID10071196.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Promethazine_CID4927.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Quetiapine_CID5002.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Risperidone_CID5073.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Sulpiride_CID5355.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Thioridazine_CID5452.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Trifluoperazine_CID5566.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Ziprasidone_CID60854.pdbqt
+ligands/pdbqt/antipsychotiques_pdbqt/Zuclopenthixol_CID5311507.pdbqt
+ligands/phytomolecules_individuels/Apigenin_CID5280443.sdf
+ligands/phytomolecules_individuels/Baicalein_CID5281605.sdf
+ligands/phytomolecules_individuels/Berberine_CID2353.sdf
+ligands/phytomolecules_individuels/Caffeic_Acid_CID689043.sdf
+ligands/phytomolecules_individuels/Carnosol_CID442009.sdf
+ligands/phytomolecules_individuels/Carvacrol_CID10364.sdf
+ligands/phytomolecules_individuels/Catechin_CID9064.sdf
+ligands/phytomolecules_individuels/Chlorogenic_Acid_CID1794427.sdf
+ligands/phytomolecules_individuels/Cinnamaldehyde_CID637511.sdf
+ligands/phytomolecules_individuels/Curcumin_CID969516.sdf
+ligands/phytomolecules_individuels/Daidzein_CID5281708.sdf
+ligands/phytomolecules_individuels/Diosmin_CID5281613.sdf
+ligands/phytomolecules_individuels/Ellagic_Acid_CID5281855.sdf
+ligands/phytomolecules_individuels/Epicatechin_CID72276.sdf
+ligands/phytomolecules_individuels/Eugenol_CID3314.sdf
+ligands/phytomolecules_individuels/Ferulic_Acid_CID445858.sdf
+ligands/phytomolecules_individuels/Fisetin_CID5281614.sdf
+ligands/phytomolecules_individuels/Gallic_Acid_CID370.sdf
+ligands/phytomolecules_individuels/Genistein_CID5280961.sdf
+ligands/phytomolecules_individuels/Hesperidin_CID10621.sdf
+ligands/phytomolecules_individuels/Kaempferol_CID5280863.sdf
+ligands/phytomolecules_individuels/Luteolin_CID5280445.sdf
+ligands/phytomolecules_individuels/Morin_CID5281670.sdf
+ligands/phytomolecules_individuels/Myricetin_CID5281672.sdf
+ligands/phytomolecules_individuels/Naringenin_CID439246.sdf
+ligands/phytomolecules_individuels/Quercetin_CID5280343.sdf
+ligands/phytomolecules_individuels/Resveratrol_CID445154.sdf
+ligands/phytomolecules_individuels/Rosmarinic_Acid_CID5281792.sdf
+ligands/phytomolecules_individuels/Rutin_CID5280805.sdf
+ligands/phytomolecules_individuels/Silibinin_CID31553.sdf
+ligands/phytomolecules_individuels/Thymol_CID6989.sdf
+ligands/phytomolecules.sdf
+ligands/sdf_vers_pdbqt.sh
+ligands/split_sdf_nomme.py
+ligands/split_sdf_nomme_v2.py
+ligands/split_sdf_nomme_v3.py
+ligands/split_sdf_nomme_v4.py
+
+-- Dossier : scripts --
+
+========================================================
+ 8. Dossiers de ressources NON mentionnés dans 'datas' du .spec
+========================================================
+MANQUANT probable dans datas : docs/
+MANQUANT probable dans datas : credit_du_logiciel/
+MANQUANT probable dans datas : ligands/
+MANQUANT probable dans datas : scientific_analysis/
+
+========================================================
+ 9. Fichiers .py modifiés récemment (dernières 72h)
+     -> probablement vos nouveaux onglets / options
+========================================================
+./audit_paquets_python.py
+./diagnostic_csv_campagnes.py
+./diagnostic_phytomolecules.py
+./extraire_gui.py
+./extraire_session.py
+./patch16_phytomolecules_tab.py
+./patch17_phytomolecules_finish.py
+./patch18_phytomolecules_label_fix.py
+./patch19_switch_primary_fix.py
+./patch20_phyto_search_fixes.py
+./patch21_phyto_fixes.py
+./patch22_phyto_ui_image_sdf.py
+./patch_build_credits_data.py
+./patch_build_windows.py
+./patch_campagne.py
+./patch_credits_about.py
+./patch_credits_stop_video.py
+./patch_entetes.py
+./patch_familles.py
+./patch_fpocket_et_suppression_chimerax.py
+./patch_libelles.py
+./patch_multi_recepteurs_visu.py
+./patch_phyto_table_ux.py
+./patch_reference_data_windows.py
+./patch_session_entete.py
+./patch_table_dynamique.py
+./src/analysis/statistics_pipeline.py
+./src/analysis/structural_validator.py
+./src/campaign_table.py
+./src/diag_dark_zones.py
+./src/diagnose_docking_ui.py
+./src/diagnostic_analyse.py
+./src/dist/VinaStudio/_internal/i18n/__init__.py
+./src/dist/VinaStudio/_internal/i18n/language_manager.py
+./src/environment/environment_manager.py
+./src/gui/credits_page.py
+./src/gui/main_window.py
+./src/gui/patch_phyto_table_ux.py
+./src/gui/phyto_page.before_table_ux_20260921_225031.py
+./src/gui/phyto_page.py
+./src/gui/visualization_bridge.py
+./src/main.py
+./src/patch_dark_zones.py
+./src/patch_glass_no_app_filter.py
+./src/patch_interaction3d.py
+./src/patch_theme_blur.py
+./src/phyto_api.py
+./src/plotting.py
+./src/scientific_fusion.py
+./src/stats_engine.py
+./src/tools/tool_manager.py
+./src/translations.py
+
+========================================================
+ 10. requirements.txt vs venv actif (nouvelles dépendances ?)
+========================================================
+-- requirements.txt --
+PySide6==6.11.2
+PySide6-Essentials==6.11.2
+PySide6-Addons==6.11.2
+shiboken6==6.11.2
+numpy==2.5.2
+pandas==3.0.5
+scipy==1.18.1
+scikit-learn==1.9.0
+statsmodels==0.14.6
+patsy==1.0.2
+matplotlib==3.11.1
+contourpy==1.3.3
+cycler==0.12.1
+kiwisolver==1.5.0
+fonttools==4.63.0
+pyparsing==3.3.2
+pillow==12.3.0
+lxml==6.1.2
+rdkit==2026.3.5
+plip==3.0.1
+openbabel==3.2.1
+joblib==1.5.3
+threadpoolctl==3.6.0
+python-dateutil==2.9.0.post0
+six==1.17.0
+narwhals==2.25.0
+packaging==26.3
+requests>=2.31
+
+-- Packages installés dans venv (pip freeze) --
+altgraph==0.17.5
+certifi==2026.7.22
+charset-normalizer==3.5.1
+contourpy==1.3.3
+cycler==0.12.1
+fonttools==4.63.0
+idna==3.20
+joblib==1.5.3
+kiwisolver==1.5.0
+lxml==6.1.2
+matplotlib==3.11.1
+narwhals==2.25.0
+numpy==2.5.2
+openbabel==3.2.1
+packaging==26.3
+pandas==3.0.5
+patsy==1.0.2
+pillow==12.3.0
+plip==3.0.1
+pyinstaller==6.22.2
+pyinstaller-hooks-contrib==2026.7
+pyparsing==3.3.2
+PySide6==6.11.2
+PySide6_Addons==6.11.2
+PySide6_Essentials==6.11.2
+python-dateutil==2.9.0.post0
+rdkit==2026.3.5
+requests==2.34.2
+scikit-learn==1.9.0
+scipy==1.18.1
+setuptools==84.0.0
+shiboken6==6.11.2
+six==1.17.0
+statsmodels==0.14.6
+threadpoolctl==3.6.0
+urllib3==2.8.0
+
+========================================================
+ TERMINÉ. Copiez-collez toute cette sortie pour qu'on
+ mette à jour le .spec ensemble, ligne par ligne.
+========================================================
