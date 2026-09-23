@@ -1,0 +1,107 @@
+========================================================================
+PAQUETS TIERS IMPORTES DANS LE PROJET
+========================================================================
+
+PySide6  (paquet pip probable: pyside6)
+    Windows : present   |   Linux : present
+    Utilise dans : src/docking/vina_worker.py, src/gui/credits_page.py, src/gui/main_window.py, src/i18n/language_manager.py, tests/test_viewer_drag_repaint.py ...
+
+column_matcher  (paquet pip probable: column_matcher)
+    Windows : ABSENT   |   Linux : absent
+    Utilise dans : src/folder_scanner.py
+
+matplotlib  (paquet pip probable: matplotlib)
+    Windows : present   |   Linux : present
+    Utilise dans : src/gui/main_window.py, src/plotting.py
+
+meeko  (paquet pip probable: meeko)
+    Windows : ABSENT   |   Linux : absent
+    Utilise dans : ligands/antidepresseur/SDF_brute/convert_api_final.py
+
+numpy  (paquet pip probable: numpy)
+    Windows : present   |   Linux : present
+    Utilise dans : src/plotting.py, src/regression_model.py, src/stats_engine.py
+
+openbabel  (paquet pip probable: openbabel)
+    Windows : ABSENT   |   Linux : present
+    Utilise dans : src/tools/plip_worker.py
+
+pandas  (paquet pip probable: pandas)
+    Windows : present   |   Linux : present
+    Utilise dans : diagnostic_csv_campagnes.py, src/campaign_table.py, src/fetch_mw_logp.py, src/folder_scanner.py, src/scientific_fusion.py ...
+
+plip  (paquet pip probable: plip)
+    Windows : present   |   Linux : present
+    Utilise dans : src/tools/plip_worker.py, src/visualization/plip_runner.py
+
+rdkit  (paquet pip probable: rdkit)
+    Windows : present   |   Linux : present
+    Utilise dans : ligands/antidepresseur/SDF_brute/convert_api_final.py, ligands/split_sdf_nomme.py, ligands/split_sdf_nomme_v2.py, ligands/split_sdf_nomme_v3.py, src/plip_2d_diagram.py ...
+
+requests  (paquet pip probable: requests)
+    Windows : ABSENT   |   Linux : absent
+    Utilise dans : src/fetch_mw_logp.py, src/phyto_api.py
+
+scipy  (paquet pip probable: scipy)
+    Windows : present   |   Linux : present
+    Utilise dans : src/stats_engine.py
+
+shiboken6  (paquet pip probable: shiboken6)
+    Windows : present   |   Linux : present
+    Utilise dans : src/gui/main_window.py
+
+statsmodels  (paquet pip probable: statsmodels)
+    Windows : present   |   Linux : present
+    Utilise dans : src/regression_model.py, src/stats_engine.py
+
+yaml  (paquet pip probable: pyyaml)
+    Windows : ABSENT   |   Linux : absent
+    Utilise dans : patch_build_windows.py, patch_reference_data_windows.py
+
+========================================================================
+RESUME
+========================================================================
+5 paquet(s) importe(s) mais ABSENT(S) de requirements-windows.txt :
+
+  - column_matcher  (pip: column_matcher)
+      utilise dans : src/folder_scanner.py
+  - meeko  (pip: meeko)
+      utilise dans : ligands/antidepresseur/SDF_brute/convert_api_final.py
+  - openbabel  (pip: openbabel)
+      utilise dans : src/tools/plip_worker.py
+  - requests  (pip: requests)
+      utilise dans : src/fetch_mw_logp.py
+      utilise dans : src/phyto_api.py
+  - yaml  (pip: pyyaml)
+      utilise dans : patch_build_windows.py
+      utilise dans : patch_reference_data_windows.py
+
+Contenu actuel de requirements-windows.txt :
+PySide6==6.11.2
+PySide6-Essentials==6.11.2
+PySide6-Addons==6.11.2
+shiboken6==6.11.2
+numpy>=2.2
+pandas>=3.0
+scipy>=1.14
+scikit-learn>=1.5
+statsmodels>=0.14
+patsy>=1.0
+matplotlib>=3.9
+contourpy>=1.2
+cycler>=0.12
+kiwisolver>=1.4
+fonttools>=4.50
+pyparsing>=3.1
+pillow>=11.0
+lxml>=5.0
+rdkit>=2024.9.1
+plip>=2.3
+openbabel-wheel
+joblib>=1.4
+threadpoolctl>=3.5
+python-dateutil>=2.9
+six>=1.16
+narwhals>=1.0
+packaging>=24
+

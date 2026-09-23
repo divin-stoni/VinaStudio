@@ -1,0 +1,129 @@
+======================================================================
+1) receptor_profile.py existe-t-il localement, et est-il suivi par git ?
+======================================================================
+-rw-rw-r-- 1 stoni stoni 20538 Sep 15 20:28 src/docking/receptor_profile.py
+
+src/docking/receptor_profile.py
+
+======================================================================
+2) Est-il present sur origin/main (l'etat reel sur GitHub) ?
+======================================================================
+src/docking/config_manager.py
+src/docking/docking_results.py
+src/docking/fusion_results.py
+src/docking/__init__.py
+src/docking/ligand_manager.py
+src/docking/receptor_manager.py
+src/docking/receptor_profile.py
+src/docking/receptor_viewer_pdb_prep.py
+src/docking/results/batch_vina_engine/acrb_site2_ecoli/config.txt
+src/docking/results/batch_vina_engine/acrb_site2_ecoli/docking_results.csv
+src/docking/results/batch_vina_engine/acrb_site2_ecoli/logs/aspirin_test.log
+src/docking/sdf_preparer.py
+src/docking/vina_engine.py
+src/docking/vina_worker.py
+
+======================================================================
+3) Comparaison complete src/docking/ : local HEAD vs origin/main
+======================================================================
+
+======================================================================
+4) Y a-t-il des modifications non commitees dans src/docking/ ?
+======================================================================
+
+======================================================================
+5) Historique de receptor_profile.py (renommages eventuels detectes par git)
+======================================================================
+160cf32 Add missing receptor_profile module
+
+======================================================================
+6) receptor_profile.py est-il ignore par un .gitignore ?
+======================================================================
+(pas ignore)
+
+======================================================================
+7) Ligne exacte de l'import dans vina_engine.py (autour de la ligne 43)
+======================================================================
+     1	# -*- coding: utf-8 -*-
+     2	"""
+     3	vina_engine.py
+     4	
+     5	Moteur d'exécution AutoDock Vina 1.2.x.
+     6	
+     7	Fonctions :
+     8	- validation de l'environnement ;
+     9	- découverte des ligands PDBQT ;
+    10	- exécution de Vina ligand par ligand ;
+    11	- génération des PDBQT de sortie ;
+    12	- génération des logs ;
+    13	- parsing automatique des logs ;
+    14	- export du CSV complet des résultats.
+    15	
+    16	Aucune dépendance externe à part Python + AutoDock Vina.
+    17	"""
+    18	
+    19	from __future__ import annotations
+    20	
+    21	from dataclasses import dataclass, asdict, field
+    22	from pathlib import Path
+    23	from typing import Optional
+    24	import csv
+    25	import shutil
+    26	import subprocess
+    27	import time
+    28	import sys
+    29	
+    30	
+    31	# ============================================================================
+    32	# CHEMINS DU PROJET
+    33	# ============================================================================
+    34	
+    35	PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    36	
+    37	if str(PROJECT_ROOT) not in sys.path:
+    38	    sys.path.insert(0, str(PROJECT_ROOT))
+    39	
+    40	# docking_parser.py est à la racine du projet
+    41	from ..docking_parser import parse_vina_log
+    42	from src.session_runtime import reset_before_docking
+    43	from .receptor_profile import resolve_target_profile, TARGET_ALIASES
+    44	
+    45	
+    46	# ============================================================================
+    47	# RESOLUTION DE L'EXECUTABLE VINA (PATCH WINDOWS PACKAGE)
+    48	# ============================================================================
+    49	
+    50	def resolve_vina_executable() -> str:
+
+======================================================================
+8) Tous les fichiers de src/docking/ actuellement, local vs suivi par git
+======================================================================
+--- Sur disque ---
+src/docking/config_manager.py
+src/docking/docking_results.py
+src/docking/fusion_results.py
+src/docking/__init__.py
+src/docking/ligand_manager.py
+src/docking/receptor_manager.py
+src/docking/receptor_profile.py
+src/docking/receptor_viewer_pdb_prep.py
+src/docking/sdf_preparer.py
+src/docking/vina_engine.py
+src/docking/vina_worker.py
+
+--- Suivis par git (HEAD) ---
+src/docking/config_manager.py
+src/docking/docking_results.py
+src/docking/fusion_results.py
+src/docking/__init__.py
+src/docking/ligand_manager.py
+src/docking/receptor_manager.py
+src/docking/receptor_profile.py
+src/docking/receptor_viewer_pdb_prep.py
+src/docking/sdf_preparer.py
+src/docking/vina_engine.py
+src/docking/vina_worker.py
+
+======================================================================
+FIN
+======================================================================
