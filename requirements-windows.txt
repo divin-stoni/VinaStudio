@@ -25,3 +25,4 @@ python-dateutil>=2.9
 six>=1.16
 narwhals>=1.0
 packaging>=24
+requests>=2.31
