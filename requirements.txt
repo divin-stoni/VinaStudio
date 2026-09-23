@@ -25,3 +25,4 @@ python-dateutil==2.9.0.post0
 six==1.17.0
 narwhals==2.25.0
 packaging==26.3
+requests>=2.31
