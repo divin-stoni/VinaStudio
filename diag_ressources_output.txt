@@ -1,0 +1,649 @@
+========================================================
+ 1. Comment les chemins de ressources sont resolus
+    (recherche de sys._MEIPASS / resource_path / getattr)
+========================================================
+src/diag_segfault2_20260920_161443.log:82:        _font_path = Path(sys._MEIPASS) / "assets" / "fonts" / "DejaVuSans.ttf"
+src/main.py:81:        _font_path = Path(sys._MEIPASS) / "assets" / "fonts" / "DejaVuSans.ttf"
+src/tools/vcredist_check.py:45:    bundled = Path(sys._MEIPASS) / "vcredist" / "vc_redist.x64.exe"
+src/tools/plip_worker.py:24:    sys._MEIPASS/openbabel/share/openbabel. Doit etre positionne
+src/tools/plip_worker.py:30:    data_dir = Path(sys._MEIPASS) / "openbabel" / "share" / "openbabel"
+
+========================================================
+ 2. Références au dossier 'credit_du_logiciel' dans le code
+========================================================
+src/diagnostic_analyse.py:38:    "site-packages", "credit_du_logiciel", ".mypy_cache", ".pytest_cache",
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:4:``credit_du_logiciel/`` (photos + vidéos souvenirs classées par
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:52:racine du dossier credit_du_logiciel). Une fois à False, les
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:226:    """Racine du dossier credit_du_logiciel, cote du dossier src/."""
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:234:        candidate = base / "credit_du_logiciel"
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:685:            else "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:757:                "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py.bak_frozenpath_20260921_162345:791:                "Aucune photo ni vidéo trouvée dans « credit_du_logiciel »."
+src/gui/main_window.py.bak_20260921_233022:10775:            # Le scan du dossier credit_du_logiciel (photos + videos)
+src/gui/main_window.py.bak_20260921_233255:10803:            # Le scan du dossier credit_du_logiciel (photos + videos)
+src/gui/credits_page.py:4:``credit_du_logiciel/`` (photos + vidéos souvenirs classées par
+src/gui/credits_page.py:52:racine du dossier credit_du_logiciel). Une fois à False, les
+src/gui/credits_page.py:226:    """Racine du dossier credit_du_logiciel, cote du dossier src/ (ou de l'executable en mode compile)."""
+src/gui/credits_page.py:238:        candidate = base / "credit_du_logiciel"
+src/gui/credits_page.py:689:            else "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py:760:                "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py:792:                "Aucune photo ni vidéo trouvée dans « credit_du_logiciel »."
+src/gui/main_window.py.bak_20260922_001317:10809:            # Le scan du dossier credit_du_logiciel (photos + videos)
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:10806:            # Le scan du dossier credit_du_logiciel (photos + videos)
+src/gui/main_window.py:10852:            # Le scan du dossier credit_du_logiciel (photos + videos)
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:4:``credit_du_logiciel/`` (photos + vidéos souvenirs classées par
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:52:racine du dossier credit_du_logiciel). Une fois à False, les
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:226:    """Racine du dossier credit_du_logiciel, cote du dossier src/ (ou de l'executable en mode compile)."""
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:237:        candidate = base / "credit_du_logiciel"
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:688:            else "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:760:                "Dossier « credit_du_logiciel » introuvable à côté du projet."
+src/gui/credits_page.py.bak_frozenpath2_20260921_162446:794:                "Aucune photo ni vidéo trouvée dans « credit_du_logiciel »."
+patch_build_credits_data.py:4:Patch build_and_package_v2.sh : ajoute credit_du_logiciel au build.
+patch_build_credits_data.py:7:credit_du_logiciel A COTE de l'executable (sys.executable.parent),
+patch_build_credits_data.py:14:     copie credit_du_logiciel a cote de lui dans src/dist/VinaStudio/
+patch_build_credits_data.py:18:     _internal : copie credit_du_logiciel a cote de l'executable dans
+patch_build_credits_data.py:20:     copie l'executable et _internal explicitement, donc credit_du_logiciel
+patch_build_credits_data.py:58:        'echo "=== 3bis. Copie de credit_du_logiciel (a cote de l\'executable, requis par _credits_root()) ==="\n'
+patch_build_credits_data.py:59:        'CREDITS_SRC="$PROJ/credit_du_logiciel"\n'
+patch_build_credits_data.py:60:        'CREDITS_DEST="$PROJ/src/dist/VinaStudio/credit_du_logiciel"\n'
+patch_build_credits_data.py:67:        'echo "OK : credit_du_logiciel copie dans $CREDITS_DEST"\n',
+patch_build_credits_data.py:75:        'echo "Copie de credit_du_logiciel (a cote de l\'executable dans le paquet, requis par _credits_root())..."\n'
+patch_build_credits_data.py:76:        'cp -r "$PROJ/src/dist/VinaStudio/credit_du_logiciel" "$DEB_ROOT/opt/$PKGNAME/credit_du_logiciel"\n',
+patch_build_credits_data.py:94:        'if [ ! -d "$DEB_ROOT/opt/$PKGNAME/credit_du_logiciel" ]; then\n'
+patch_build_credits_data.py:95:        '    echo "ERREUR FATALE : credit_du_logiciel absent du paquet. Abandon."\n'
+patch_build_credits_data.py:98:        'echo "OK : credit_du_logiciel present dans $DEB_ROOT/opt/$PKGNAME/credit_du_logiciel"\n',
+
+========================================================
+ 3. Références au dossier 'ligands' dans le code
+     (hors scripts de conversion ponctuels)
+========================================================
+src/diagnose_generic_docking_2.py:175:        candidate = c / "docking" / "ligands" / "prepared"
+src/docking/config_manager.py:376:            "ligands_dir",
+src/docking/config_manager.py:459:            / "ligands"
+src/docking/vina_engine.py:179:            / "ligands"
+src/docking/ligand_manager.py:473:        / "ligands"
+src/session_runtime.py:47:    PROJECT_ROOT / "docking" / "ligands" / "prepared",
+src/gui/main_window.py.bak_20260921_233022:3987:                / "ligands"
+src/gui/main_window.py.bak_20260921_233022:4551:            / "ligands"
+src/gui/main_window.py.bak_20260921_233022:4768:            / "ligands"
+src/gui/main_window.py.bak_20260921_233022:4810:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py.bak_20260921_233255:3987:                / "ligands"
+src/gui/main_window.py.bak_20260921_233255:4551:            / "ligands"
+src/gui/main_window.py.bak_20260921_233255:4768:            / "ligands"
+src/gui/main_window.py.bak_20260921_233255:4810:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py.backup_20260920_161000:2687:                / "ligands"
+src/gui/main_window.py.backup_20260920_161000:3251:            / "ligands"
+src/gui/main_window.py.backup_20260920_161000:3468:            / "ligands"
+src/gui/main_window.py.backup_20260920_161000:3510:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py.bak_20260922_001317:3987:                / "ligands"
+src/gui/main_window.py.bak_20260922_001317:4551:            / "ligands"
+src/gui/main_window.py.bak_20260922_001317:4768:            / "ligands"
+src/gui/main_window.py.bak_20260922_001317:4810:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:3987:                / "ligands"
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:4551:            / "ligands"
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:4768:            / "ligands"
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:4810:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py:3998:                / "ligands"
+src/gui/main_window.py:4562:            / "ligands"
+src/gui/main_window.py:4779:            / "ligands"
+src/gui/main_window.py:4821:        destination = self.project_root / "docking" / "ligands" / "prepared"
+src/gui/main_window.py.backup_test_no_scroll_20260917_182935:2687:                / "ligands"
+src/gui/main_window.py.backup_test_no_scroll_20260917_182935:3251:            / "ligands"
+src/gui/main_window.py.backup_test_no_scroll_20260917_182935:3468:            / "ligands"
+src/gui/main_window.py.backup_test_no_scroll_20260917_182935:3510:        destination = self.project_root / "docking" / "ligands" / "prepared"
+
+========================================================
+ 4. Références à 'phytomolecules' (sdf/individuels) dans le code
+========================================================
+src/phyto_api.py.bak_avant_patch23:3:# --- patch16 phytomolecules tab ---
+src/phyto_api.py:3:# --- patch16 phytomolecules tab ---
+src/translations.py:608:    "nav_phytomolecules": {
+src/gui/phyto_page.before_table_ux_20260921_225031.py:3:# --- patch16 phytomolecules tab ---
+src/gui/main_window.py.bak_20260921_233022:52:from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
+src/gui/phyto_page.py.bak_avant_patch23:3:# --- patch16 phytomolecules tab ---
+src/gui/main_window.py.bak_20260921_233255:52:from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
+src/gui/main_window.py.bak_20260922_001317:52:from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
+src/gui/main_window.py.bak_chimerax_removal_20260922_114834:52:from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
+src/gui/main_window.py:52:from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
+src/gui/main_window.py:10230:                t("nav_phytomolecules"),
+src/gui/main_window.py:10591:            self.lang_mgr.t("nav_phytomolecules"),
+src/gui/main_window.py:10839:            self.lang_mgr.t("nav_phytomolecules"),
+src/gui/phyto_page.py:3:# --- patch16 phytomolecules tab ---
+patch16_phytomolecules_tab.py:3:patch16_phytomolecules_tab.py
+patch16_phytomolecules_tab.py:25:    python3 patch16_phytomolecules_tab.py [chemin_racine_projet]
+patch16_phytomolecules_tab.py:37:MARKER = "# --- patch16 phytomolecules tab ---"
+patch16_phytomolecules_tab.py:46:# --- patch16 phytomolecules tab ---
+patch16_phytomolecules_tab.py:164:# --- patch16 phytomolecules tab ---
+patch17_phytomolecules_finish.py:3:patch17_phytomolecules_finish.py
+patch17_phytomolecules_finish.py:15:    python3 patch17_phytomolecules_finish.py [chemin_racine_projet]
+patch18_phytomolecules_label_fix.py:3:patch18_phytomolecules_label_fix.py
+patch18_phytomolecules_label_fix.py:11:    python3 patch18_phytomolecules_label_fix.py [chemin_racine_projet]
+patch20_phyto_search_fixes.py:31:PHYTO_API_CONTENT = '"""\nphyto_api.py\n# --- patch16 phytomolecules tab ---\n# --- patch20 : repli nom vernaculaire + requete LOTUS par ID GBIF ---\n\nAppels reseau pour l\'onglet Phytomolecules :\n- GBIF : confirmation du nom scientifique OU vernaculaire d\'une plante,\n  + photo de reference\n- LOTUS (donnees hebergees sur Wikidata) : molecules naturelles d\'une\n  espece, regroupees par famille chimique. Interrogation via l\'identifiant\n  GBIF (wdt:P846), plus fiable qu\'une recherche par nom en toutes lettres ;\n  repli sur le nom si l\'item Wikidata n\'a pas cet identifiant renseigne.\n- PubChem PUG REST : recherche de molecules organiques non phytochimiques\n  par nom, et telechargement groupe de SDF par lot de CID\n\nNOTE : la couverture LOTUS/Wikidata est heterogene selon les especes et la\nclassification chimique est parfois absente pour certains composes.\n"""\n\nimport time\nfrom pathlib import Path\nfrom urllib.parse import quote\n\nimport requests\n\nGBIF_MATCH_URL = "https://api.gbif.org/v1/species/match"\nGBIF_SEARCH_URL = "https://api.gbif.org/v1/species/search"\nGBIF_OCCURRENCE_URL = "https://api.gbif.org/v1/occurrence/search"\nWIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"\nPUBCHEM_CID_BY_NAME_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{name}/cids/JSON"\nPUBCHEM_SDF_BATCH_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cids}/SDF"\n\nREQUEST_TIMEOUT = 20\n\n\ndef gbif_match_species(name):\n    """Confirme le nom d\'une plante via GBIF.\n    1) essaie d\'abord le matcher flou sur nom scientifique (tolerant aux\n       fautes de frappe -- deja valide en conditions reelles) ;\n    2) si aucune correspondance, essaie une recherche texte libre qui\n       couvre aussi les noms vernaculaires (nom courant dans une langue)."""\n    resp = requests.get(GBIF_MATCH_URL, params={"name": name, "kingdom": "Plantae"},\n                         timeout=REQUEST_TIMEOUT)\n    resp.raise_for_status()\n    data = resp.json()\n    if data.get("matchType") != "NONE" and "usageKey" in data:\n        data["_lookup_mode"] = "scientific"\n        return data\n\n    resp2 = requests.get(GBIF_SEARCH_URL, params={"q": name, "rank": "SPECIES", "limit": 10},\n                          timeout=REQUEST_TIMEOUT)\n    resp2.raise_for_status()\n    results = resp2.json().get("results", [])\n    plant_results = [r for r in results if r.get("kingdom") == "Plantae"] or results\n    if plant_results:\n        r = plant_results[0]\n        return {\n            "canonicalName": r.get("canonicalName") or r.get("scientificName") or name,\n            "usageKey": r.get("key"),\n            "matchType": "VERNACULAR_SEARCH",\n            "_lookup_mode": "vernacular",\n        }\n    raise ValueError(\n        "Aucune correspondance GBIF (nom scientifique ou vernaculaire) pour \'" + name + "\'."\n    )\n\n\ndef gbif_reference_image(usage_key):\n    """Cherche une photo de reference via l\'API occurrence GBIF. None si rien trouve."""\n    resp = requests.get(GBIF_OCCURRENCE_URL, params={\n        "taxonKey": usage_key, "mediaType": "StillImage", "limit": 5,\n    }, timeout=REQUEST_TIMEOUT)\n    resp.raise_for_status()\n    for r in resp.json().get("results", []):\n        for media in r.get("media", []):\n            url = media.get("identifier")\n            if url:\n                return url\n    return None\n\n\ndef _run_sparql(query):\n    resp = requests.get(WIKIDATA_SPARQL_URL, params={"query": query, "format": "json"},\n                         headers={"Accept": "application/sparql-results+json"},\n                         timeout=REQUEST_TIMEOUT * 2)\n    resp.raise_for_status()\n    bindings = resp.json().get("results", {}).get("bindings", [])\n    out = []\n    for b in bindings:\n        out.append({\n            "name": b.get("compoundLabel", {}).get("value", "?"),\n            "pubchem_cid": b.get("cid", {}).get("value"),\n            "chemical_class": b.get("classLabel", {}).get("value", "Non classe"),\n        })\n    return out\n\n\ndef _lotus_query_by_gbif_id(usage_key):\n    query = (\n        "SELECT ?compound ?compoundLabel ?cid ?classLabel WHERE {\\n"\n        + \'  ?taxon wdt:P846 "\' + str(usage_key) + \'".\\n\'\n        + "  ?compound wdt:P703 ?taxon.\\n"\n        + "  OPTIONAL { ?compound wdt:P662 ?cid. }\\n"\n        + "  OPTIONAL { ?compound wdt:P31 ?class. }\\n"\n        + \'  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }\\n\'\n        + "}\\n"\n        + "LIMIT 500"\n    )\n    return _run_sparql(query)\n\n\ndef _lotus_query_by_label(scientific_name):\n    query = (\n        "SELECT ?compound ?compoundLabel ?cid ?classLabel WHERE {\\n"\n        + \'  ?taxon rdfs:label "\' + scientific_name + \'"@en.\\n\'\n        + "  ?compound wdt:P703 ?taxon.\\n"\n        + "  OPTIONAL { ?compound wdt:P662 ?cid. }\\n"\n        + "  OPTIONAL { ?compound wdt:P31 ?class. }\\n"\n        + \'  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }\\n\'\n        + "}\\n"\n        + "LIMIT 500"\n    )\n    return _run_sparql(query)\n\n\ndef lotus_compounds_for_taxon(usage_key, scientific_name=None):\n    """Composes LOTUS/Wikidata pour un taxon.\n    Priorite a l\'identifiant GBIF (wdt:P846) -- beaucoup plus fiable qu\'un\n    nom en toutes lettres. Repli sur une recherche par label si l\'item\n    Wikidata n\'a pas cet identifiant renseigne."""\n    compounds = []\n    if usage_key:\n        compounds = _lotus_query_by_gbif_id(usage_key)\n    if not compounds and scientific_name:\n        compounds = _lotus_query_by_label(scientific_name)\n    return compounds\n\n\ndef group_by_family(compounds):\n    families = {}\n    for c in compounds:\n        fam = c.get("chemical_class") or "Non classe"\n        families.setdefault(fam, []).append(c)\n    return families\n\n\ndef pubchem_search_by_name(name):\n    """Mode \'Autres molecules organiques\' : recherche directe PubChem par nom."""\n    url = PUBCHEM_CID_BY_NAME_URL.format(name=quote(name))\n    resp = requests.get(url, timeout=REQUEST_TIMEOUT)\n    resp.raise_for_status()\n    return resp.json().get("IdentifierList", {}).get("CID", [])\n\n\ndef pubchem_download_sdf_batch(cids, out_file, batch_size=100):\n    """Telecharge en lot les SDF PubChem et les concatene dans out_file,\n    pret pour extraction via src/docking/sdf_preparer.py::_split_sdf."""\n    out_file = Path(out_file)\n    with out_file.open("w", encoding="utf-8") as fh:\n        for i in range(0, len(cids), batch_size):\n            batch = cids[i:i + batch_size]\n            url = PUBCHEM_SDF_BATCH_URL.format(cids=",".join(str(c) for c in batch))\n            resp = requests.get(url, timeout=REQUEST_TIMEOUT * 3)\n            resp.raise_for_status()\n            fh.write(resp.text)\n            time.sleep(0.3)\n    return out_file\n'
+patch20_phyto_search_fixes.py:33:PHYTO_PAGE_CONTENT = '"""\nphyto_page.py\n# --- patch16 phytomolecules tab ---\n# --- patch20 : image agrandie, tableau resserre, LOTUS via ID GBIF ---\n\nOnglet "Phytomolecules" de VinaStudio.\nPattern suivi : credits_page.py (QWidget autonome, reseau en arriere-plan\nvia QThread, styles herites de l\'app, traductions via lang_mgr.t() avec\nrepli defensif comme le patch12).\n"""\n\nimport inspect\nfrom pathlib import Path\n\nfrom PySide6.QtCore import Qt, QThread, Signal\nfrom PySide6.QtGui import QPixmap\nfrom PySide6.QtWidgets import (\n    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel,\n    QTreeWidget, QTreeWidgetItem, QMessageBox, QFileDialog, QStackedWidget,\n    QHeaderView,\n)\n\nfrom src import phyto_api\nfrom src.docking.sdf_preparer import _split_sdf\n\nLIGAND_DIR = Path("docking/ligands/prepared")\nIMAGE_SIZE = 260\nTREE_MAX_WIDTH = 480\n\n\ndef _t_resolve(lang_mgr, key, fallback):\n    try:\n        text = lang_mgr.t(key)\n    except Exception:\n        text = ""\n    if not text or text == key:\n        return fallback\n    return text\n\n\nclass _NetworkWorker(QThread):\n    finished_ok = Signal(object)\n    failed = Signal(str)\n\n    def __init__(self, fn, *args, **kwargs):\n        super().__init__()\n        self._fn = fn\n        self._args = args\n        self._kwargs = kwargs\n\n    def run(self):\n        try:\n            result = self._fn(*self._args, **self._kwargs)\n            self.finished_ok.emit(result)\n        except Exception as exc:\n            self.failed.emit(str(exc))\n\n\nclass PhytoPage(QWidget):\n    def __init__(self, lang_mgr=None, parent=None):\n        super().__init__(parent)\n        self.lang_mgr = lang_mgr\n        self._current_families = {}\n        self._current_usage_key = None\n        self._workers = []\n        self._build_ui()\n\n    def _t(self, key, fallback):\n        if self.lang_mgr is None:\n            return fallback\n        return _t_resolve(self.lang_mgr, key, fallback)\n\n    def _build_ui(self):\n        root = QVBoxLayout(self)\n\n        mode_row = QHBoxLayout()\n        self.btn_mode_phyto = QPushButton(self._t("phyto_mode_plant", "Phytomolecules"))\n        self.btn_mode_other = QPushButton(self._t("phyto_mode_other", "Autres molecules organiques"))\n        self.btn_mode_phyto.setObjectName("PrimaryButton")\n        self.btn_mode_phyto.setCheckable(True)\n        self.btn_mode_other.setCheckable(True)\n        self.btn_mode_phyto.setChecked(True)\n        self.btn_mode_phyto.clicked.connect(lambda: self._switch_mode(0))\n        self.btn_mode_other.clicked.connect(lambda: self._switch_mode(1))\n        mode_row.addWidget(self.btn_mode_phyto)\n        mode_row.addWidget(self.btn_mode_other)\n        mode_row.addStretch(1)\n        root.addLayout(mode_row)\n\n        self.stack = QStackedWidget()\n        root.addWidget(self.stack)\n        self.stack.addWidget(self._build_plant_panel())\n        self.stack.addWidget(self._build_other_panel())\n\n    def _switch_mode(self, index):\n        self.btn_mode_phyto.setChecked(index == 0)\n        self.btn_mode_other.setChecked(index == 1)\n        self.stack.setCurrentIndex(index)\n\n    def _build_plant_panel(self):\n        panel = QWidget()\n        layout = QVBoxLayout(panel)\n\n        search_row = QHBoxLayout()\n        self.plant_input = QLineEdit()\n        self.plant_input.setPlaceholderText(\n            self._t("phyto_plant_placeholder", "Nom de la plante (scientifique ou courant)..."))\n        self.btn_search_plant = QPushButton(self._t("phyto_search_btn", "Rechercher"))\n        self.btn_search_plant.setObjectName("PrimaryButton")\n        self.btn_search_plant.clicked.connect(self._on_search_plant)\n        search_row.addWidget(self.plant_input)\n        search_row.addWidget(self.btn_search_plant)\n        layout.addLayout(search_row)\n\n        verif_row = QHBoxLayout()\n        self.plant_image_label = QLabel()\n        self.plant_image_label.setFixedSize(IMAGE_SIZE, IMAGE_SIZE)\n        self.plant_image_label.setAlignment(Qt.AlignCenter)\n        self.plant_image_label.setStyleSheet("border: 1px solid rgba(255,255,255,60);")\n        self.plant_name_label = QLabel(self._t("phyto_no_plant", "Aucune plante confirmee."))\n        self.plant_name_label.setWordWrap(True)\n        verif_row.addWidget(self.plant_image_label)\n        verif_row.addWidget(self.plant_name_label, 1, Qt.AlignTop)\n        layout.addLayout(verif_row)\n\n        self.family_tree = QTreeWidget()\n        self.family_tree.setHeaderLabels([\n            self._t("phyto_col_family", "Famille chimique"),\n            self._t("phyto_col_cid", "CID PubChem"),\n        ])\n        self.family_tree.setMaximumWidth(TREE_MAX_WIDTH)\n        header = self.family_tree.header()\n        header.setStretchLastSection(False)\n        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)\n        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)\n        self.family_tree.itemSelectionChanged.connect(self._on_family_selection_changed)\n\n        tree_row = QHBoxLayout()\n        tree_row.addWidget(self.family_tree)\n        tree_row.addStretch(1)\n        layout.addLayout(tree_row, 1)\n\n        self.btn_download_family = QPushButton(\n            self._t("phyto_download_family", "Telecharger cette famille depuis PubChem"))\n        self.btn_download_family.setObjectName("PrimaryButton")\n        self.btn_download_family.clicked.connect(self._on_download_selected_family)\n        self.btn_download_family.setEnabled(False)\n        layout.addWidget(self.btn_download_family)\n\n        return panel\n\n    def _build_other_panel(self):\n        panel = QWidget()\n        layout = QVBoxLayout(panel)\n        row = QHBoxLayout()\n        self.other_input = QLineEdit()\n        self.other_input.setPlaceholderText(\n            self._t("phyto_other_placeholder", "Nom de la molecule (medicament, compose organique)..."))\n        self.btn_search_other = QPushButton(self._t("phyto_search_btn", "Rechercher"))\n        self.btn_search_other.setObjectName("PrimaryButton")\n        self.btn_search_other.clicked.connect(self._on_search_other)\n        row.addWidget(self.other_input)\n        row.addWidget(self.btn_search_other)\n        layout.addLayout(row)\n        self.other_result_label = QLabel("")\n        layout.addWidget(self.other_result_label)\n        layout.addStretch(1)\n        return panel\n\n    def _run_async(self, fn, on_ok, *args, **kwargs):\n        worker = _NetworkWorker(fn, *args, **kwargs)\n        worker.finished_ok.connect(on_ok)\n        worker.failed.connect(self._on_network_error)\n        self._workers.append(worker)\n        worker.start()\n\n    def _on_network_error(self, message):\n        QMessageBox.warning(self, self._t("phyto_error_title", "Erreur reseau"), message)\n\n    def _on_search_plant(self):\n        name = self.plant_input.text().strip()\n        if not name:\n            return\n        self.plant_name_label.setText(self._t("phyto_searching", "Recherche en cours..."))\n        self._run_async(phyto_api.gbif_match_species, self._on_gbif_matched, name)\n\n    def _on_gbif_matched(self, match):\n        canonical = match.get("canonicalName") or match.get("scientificName") or "?"\n        mode = match.get("_lookup_mode")\n        if mode == "vernacular":\n            prefix = self._t("phyto_confirmed_vernacular", "Confirme (nom courant reconnu) : ")\n        else:\n            prefix = self._t("phyto_confirmed_prefix", "Confirme : ")\n        self.plant_name_label.setText(prefix + canonical)\n        usage_key = match.get("usageKey")\n        self._current_usage_key = usage_key\n        if usage_key:\n            self._run_async(phyto_api.gbif_reference_image, self._on_gbif_image, usage_key)\n        self._run_async(\n            phyto_api.lotus_compounds_for_taxon, self._on_lotus_compounds,\n            usage_key, canonical,\n        )\n\n    def _on_gbif_image(self, url):\n        if not url:\n            return\n        try:\n            import requests\n            data = requests.get(url, timeout=15).content\n            pix = QPixmap()\n            pix.loadFromData(data)\n            self.plant_image_label.setPixmap(\n                pix.scaled(IMAGE_SIZE, IMAGE_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))\n        except Exception:\n            pass\n\n    def _on_lotus_compounds(self, compounds):\n        self._current_families = phyto_api.group_by_family(compounds)\n        self.family_tree.clear()\n        if not compounds:\n            QMessageBox.information(\n                self, self._t("phyto_info_title", "Information"),\n                self._t("phyto_no_compounds",\n                        "Aucune molecule trouvee dans LOTUS/Wikidata pour cette espece."))\n            return\n        for family, mols in self._current_families.items():\n            fam_item = QTreeWidgetItem([family + " (" + str(len(mols)) + ")", ""])\n            for m in mols:\n                QTreeWidgetItem(fam_item, [m.get("name", "?"), str(m.get("pubchem_cid") or "")])\n            self.family_tree.addTopLevelItem(fam_item)\n        self.family_tree.expandAll()\n\n    def _on_family_selection_changed(self):\n        items = self.family_tree.selectedItems()\n        self.btn_download_family.setEnabled(bool(items) and items[0].parent() is None)\n\n    def _on_download_selected_family(self):\n        items = self.family_tree.selectedItems()\n        if not items or items[0].parent() is not None:\n            return\n        family_label = items[0].text(0)\n        family_name = family_label.rsplit(" (", 1)[0]\n        mols = self._current_families.get(family_name, [])\n        cids = [int(m["pubchem_cid"]) for m in mols if m.get("pubchem_cid")]\n        if not cids:\n            QMessageBox.information(\n                self, self._t("phyto_info_title", "Information"),\n                self._t("phyto_no_cid", "Aucun CID PubChem disponible pour cette famille."))\n            return\n        chosen = QFileDialog.getExistingDirectory(\n            self, self._t("phyto_choose_dir", "Dossier de destination"), str(LIGAND_DIR))\n        if not chosen:\n            return\n        out_dir = Path(chosen)\n        out_file = out_dir / (family_name.replace(" ", "_") + "_batch.sdf")\n        self._run_async(\n            phyto_api.pubchem_download_sdf_batch,\n            lambda path: self._on_family_downloaded(path, out_dir),\n            cids, out_file,\n        )\n\n    def _on_family_downloaded(self, sdf_path, out_dir):\n        try:\n            sig = inspect.signature(_split_sdf)\n            kwargs = {}\n            if "sdf_path" in sig.parameters:\n                kwargs["sdf_path"] = sdf_path\n            if "work_dir" in sig.parameters:\n                kwargs["work_dir"] = out_dir\n            _split_sdf(**kwargs)\n            QMessageBox.information(\n                self, self._t("phyto_done_title", "Termine"),\n                self._t("phyto_done_msg", "Famille telechargee et extraite dans le dossier ligand."))\n        except TypeError as exc:\n            QMessageBox.warning(\n                self, self._t("phyto_error_title", "Erreur"),\n                "Signature de _split_sdf inattendue (" + str(exc) + "). "\n                "Fichier SDF groupe disponible ici : " + str(sdf_path))\n\n    def _on_search_other(self):\n        name = self.other_input.text().strip()\n        if not name:\n            return\n        self.other_result_label.setText(self._t("phyto_searching", "Recherche en cours..."))\n        self._run_async(phyto_api.pubchem_search_by_name, self._on_other_found, name)\n\n    def _on_other_found(self, cids):\n        if not cids:\n            self.other_result_label.setText(self._t("phyto_no_result", "Aucun resultat."))\n            return\n        self.other_result_label.setText(\n            self._t("phyto_cids_found", "CID PubChem trouves : ")\n            + ", ".join(str(c) for c in cids))\n\n    def shutdown(self):\n        for w in self._workers:\n            if w.isRunning():\n                w.wait(500)\n'
+patch21_phyto_fixes.py:39:# --- patch16 phytomolecules tab ---
+patch21_phyto_fixes.py:463:# --- patch16 phytomolecules tab ---
+patch22_phyto_ui_image_sdf.py:51:# --- patch16 phytomolecules tab ---
+patch22_phyto_ui_image_sdf.py:632:# --- patch16 phytomolecules tab ---
+
+========================================================
+ 5. Références au dossier 'docs' (technical_notes, pdf) dans le code
+========================================================
+
+========================================================
+ 6. Références au dossier 'scientific_analysis' dans le code
+========================================================
+src/diagnostic_analyse.txt:1060:  ex: scientific_analysis/scores_fusionnes.csv  (21 ligne(s))
+src/diagnostic_analyse.txt:1066:  ex: scientific_analysis/scores_fusionnes_global.csv  (21 ligne(s))
+src/scientific_fusion.py:130:        input_csv.parent / "scientific_analysis"
+
+========================================================
+ 7. Imports dynamiques potentiels (importlib, __import__)
+     -> nécessiteraient un ajout à hiddenimports
+========================================================
+src/diagnose_generic_docking_2.py:77:            mod = __import__(f"src.{modname}", fromlist=["_"])
+src/diagnose_generic_docking_2.py:80:                mod = __import__(modname, fromlist=["_"])
+src/diagnostic_analyse.py:31:from importlib import metadata
+src/tools/tool_manager.py.bak_chimerax_removal_20260922_114834:126:            "import importlib.util; "
+src/tools/tool_manager.py.bak_chimerax_removal_20260922_114834:127:            f"spec=importlib.util.find_spec('{module}'); "
+src/tools/tool_manager.py:121:            "import importlib.util; "
+src/tools/tool_manager.py:122:            f"spec=importlib.util.find_spec('{module}'); "
+src/build/VinaStudio/xref-VinaStudio.html:409: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:4500: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:4501: &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
+src/build/VinaStudio/xref-VinaStudio.html:4502: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:5306:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5307: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:5308: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:5372:  <a name="_frozen_importlib"></a>
+src/build/VinaStudio/xref-VinaStudio.html:5373:  <a target="code" href="" type="text/plain"><tt>_frozen_importlib</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:5376:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5377: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:5385:  <a name="_frozen_importlib_external"></a>
+src/build/VinaStudio/xref-VinaStudio.html:5386:  <a target="code" href="" type="text/plain"><tt>_frozen_importlib_external</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:5389:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5390: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:5391: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:5443:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5444: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:5445: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:5477:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:5816: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5901: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:5902: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:6844:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:6966: &#8226;   <a href="#importlib._abc">importlib._abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:6967: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:6968: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:6969: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:8530: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:8645: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:8761: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:9084: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:9085: &#8226;   <a href="#importlib.metadata._collections">importlib.metadata._collections</a>
+src/build/VinaStudio/xref-VinaStudio.html:9086: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:9637: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:9638: &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:9639: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:9640: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:10140:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:10275: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:10601: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:11218: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:11566: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:14621: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:14622: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:14623: &#8226;   <a href="#importlib.metadata._functools">importlib.metadata._functools</a>
+src/build/VinaStudio/xref-VinaStudio.html:14624: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15506:  <a name="importlib"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15507:  <a target="code" href="///usr/lib/python3.14/importlib/__init__.py" type="text/plain"><tt>importlib</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15510:    <a href="#_frozen_importlib">_frozen_importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15511: &#8226;   <a href="#_frozen_importlib_external">_frozen_importlib_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15513: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15514: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:15515: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15516: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:15528: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15529: &#8226;   <a href="#importlib._abc">importlib._abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15530: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:15531: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15532: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15533: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:15534: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15535: &#8226;   <a href="#importlib.readers">importlib.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:15536: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15537: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15538: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:15559: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15571:  <a name="importlib._abc"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15572:  <a target="code" href="///usr/lib/python3.14/importlib/_abc.py" type="text/plain"><tt>importlib._abc</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15576: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15577: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:15582:    <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15583: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:15590:  <a name="importlib._bootstrap"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15591:  <a target="code" href="///usr/lib/python3.14/importlib/_bootstrap.py" type="text/plain"><tt>importlib._bootstrap</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15594:    <a href="#_frozen_importlib_external">_frozen_importlib_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15595: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15600:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15601: &#8226;   <a href="#importlib._abc">importlib._abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15602: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:15603: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:15611:  <a name="importlib._bootstrap_external"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15612:  <a target="code" href="///usr/lib/python3.14/importlib/_bootstrap_external.py" type="text/plain"><tt>importlib._bootstrap_external</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15618: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15619: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15620: &#8226;   <a href="#importlib.readers">importlib.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:15631:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15632: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15633: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:15634: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:15643:  <a name="importlib.abc"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15644:  <a target="code" href="///usr/lib/python3.14/importlib/abc.py" type="text/plain"><tt>importlib.abc</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15647:    <a href="#_frozen_importlib">_frozen_importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15648: &#8226;   <a href="#_frozen_importlib_external">_frozen_importlib_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15650: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15651: &#8226;   <a href="#importlib._abc">importlib._abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15652: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15653: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:15660: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15667:  <a name="importlib.machinery"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15668:  <a target="code" href="///usr/lib/python3.14/importlib/machinery.py" type="text/plain"><tt>importlib.machinery</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15671:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15672: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:15673: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15681: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15682: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15699:  <a name="importlib.metadata"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15700:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/__init__.py" type="text/plain"><tt>importlib.metadata</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15710: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15711: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15712: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15713: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:15714: &#8226;   <a href="#importlib.metadata._collections">importlib.metadata._collections</a>
+src/build/VinaStudio/xref-VinaStudio.html:15715: &#8226;   <a href="#importlib.metadata._functools">importlib.metadata._functools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15716: &#8226;   <a href="#importlib.metadata._itertools">importlib.metadata._itertools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15717: &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
+src/build/VinaStudio/xref-VinaStudio.html:15736:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15737: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15738: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:15739: &#8226;   <a href="#importlib.metadata._collections">importlib.metadata._collections</a>
+src/build/VinaStudio/xref-VinaStudio.html:15740: &#8226;   <a href="#importlib.metadata._functools">importlib.metadata._functools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15741: &#8226;   <a href="#importlib.metadata._itertools">importlib.metadata._itertools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15742: &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
+src/build/VinaStudio/xref-VinaStudio.html:15743: &#8226;   <a href="#importlib.metadata._text">importlib.metadata._text</a>
+src/build/VinaStudio/xref-VinaStudio.html:15749: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15757:  <a name="importlib.metadata._adapters"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15758:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_adapters.py" type="text/plain"><tt>importlib.metadata._adapters</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15763: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15764: &#8226;   <a href="#importlib.metadata._text">importlib.metadata._text</a>
+src/build/VinaStudio/xref-VinaStudio.html:15772:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15779:  <a name="importlib.metadata._collections"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15780:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_collections.py" type="text/plain"><tt>importlib.metadata._collections</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15784: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15789:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15796:  <a name="importlib.metadata._functools"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15797:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_functools.py" type="text/plain"><tt>importlib.metadata._functools</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15801: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15807:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15808: &#8226;   <a href="#importlib.metadata._text">importlib.metadata._text</a>
+src/build/VinaStudio/xref-VinaStudio.html:15815:  <a name="importlib.metadata._itertools"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15816:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_itertools.py" type="text/plain"><tt>importlib.metadata._itertools</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15819:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15825:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15832:  <a name="importlib.metadata._meta"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15833:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_meta.py" type="text/plain"><tt>importlib.metadata._meta</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15837: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15844:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15851:  <a name="importlib.metadata._text"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15852:  <a target="code" href="///usr/lib/python3.14/importlib/metadata/_text.py" type="text/plain"><tt>importlib.metadata._text</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15855:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:15856: &#8226;   <a href="#importlib.metadata._functools">importlib.metadata._functools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15862:    <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:15869:  <a name="importlib.readers"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15870:  <a target="code" href="///usr/lib/python3.14/importlib/readers.py" type="text/plain"><tt>importlib.readers</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15873:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15874: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:15879:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:15887:  <a name="importlib.resources"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15888:  <a target="code" href="///usr/lib/python3.14/importlib/resources/__init__.py" type="text/plain"><tt>importlib.resources</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15891:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15892: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15893: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15894: &#8226;   <a href="#importlib.resources._functional">importlib.resources._functional</a>
+src/build/VinaStudio/xref-VinaStudio.html:15895: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15901: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15902: &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:15903: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15904: &#8226;   <a href="#importlib.resources._functional">importlib.resources._functional</a>
+src/build/VinaStudio/xref-VinaStudio.html:15905: &#8226;   <a href="#importlib.resources._itertools">importlib.resources._itertools</a>
+src/build/VinaStudio/xref-VinaStudio.html:15906: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15907: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:15910: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15921:  <a name="importlib.resources._adapters"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15922:  <a target="code" href="///usr/lib/python3.14/importlib/resources/_adapters.py" type="text/plain"><tt>importlib.resources._adapters</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15926: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15927: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15933:    <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15940:  <a name="importlib.resources._common"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15941:  <a target="code" href="///usr/lib/python3.14/importlib/resources/_common.py" type="text/plain"><tt>importlib.resources._common</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15946: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:15947: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15948: &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:15949: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:15962:    <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15963: &#8226;   <a href="#importlib.resources._functional">importlib.resources._functional</a>
+src/build/VinaStudio/xref-VinaStudio.html:15970:  <a name="importlib.resources._functional"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15971:  <a target="code" href="///usr/lib/python3.14/importlib/resources/_functional.py" type="text/plain"><tt>importlib.resources._functional</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15974:    <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15975: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:15981:    <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15988:  <a name="importlib.resources._itertools"></a>
+src/build/VinaStudio/xref-VinaStudio.html:15989:  <a target="code" href="///usr/lib/python3.14/importlib/resources/_itertools.py" type="text/plain"><tt>importlib.resources._itertools</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:15992:    <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:15997:    <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:16004:  <a name="importlib.resources.abc"></a>
+src/build/VinaStudio/xref-VinaStudio.html:16005:  <a target="code" href="///usr/lib/python3.14/importlib/resources/abc.py" type="text/plain"><tt>importlib.resources.abc</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:16009: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:16019:    <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:16020: &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:16021: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:16022: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:16029:  <a name="importlib.resources.readers"></a>
+src/build/VinaStudio/xref-VinaStudio.html:16030:  <a target="code" href="///usr/lib/python3.14/importlib/resources/readers.py" type="text/plain"><tt>importlib.resources.readers</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:16037: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:16038: &#8226;   <a href="#importlib.resources._itertools">importlib.resources._itertools</a>
+src/build/VinaStudio/xref-VinaStudio.html:16039: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:16050:    <a href="#importlib.readers">importlib.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:16057:  <a name="importlib.util"></a>
+src/build/VinaStudio/xref-VinaStudio.html:16058:  <a target="code" href="///usr/lib/python3.14/importlib/util.py" type="text/plain"><tt>importlib.util</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:16062: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:16063: &#8226;   <a href="#importlib._abc">importlib._abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:16064: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:16065: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:16093:  <a name="importlib_resources"></a>
+src/build/VinaStudio/xref-VinaStudio.html:16094:  <a target="code" href="" type="text/plain"><tt>importlib_resources</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:16118: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:16119: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:16147: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:16148: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:16298: &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:16299: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:16449: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:16450: &#8226;   <a href="#importlib.metadata._itertools">importlib.metadata._itertools</a>
+src/build/VinaStudio/xref-VinaStudio.html:16451: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:16452: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:16453: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:17404: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:17947: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:19049:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:19195: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:20313: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:20653: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:20654: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:20957: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:21868: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:21869: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:22118: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:23876: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:31365:    <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:31395: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:31396: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:31748: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:31749: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:31994: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:31995: &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
+src/build/VinaStudio/xref-VinaStudio.html:31996: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:31997: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:32640: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:35356: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:44683: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:44684: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:45662: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:45663: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:45664: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:45665: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:46688: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:46689: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:46690: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:47196: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:47225: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:47335: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:47336: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:47337: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:47405: &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
+src/build/VinaStudio/xref-VinaStudio.html:47406: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:47407: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:47408: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:47570:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:47571: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:48266: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:49085: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:49086: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:49087: &#8226;   <a href="#importlib.metadata._text">importlib.metadata._text</a>
+src/build/VinaStudio/xref-VinaStudio.html:49088: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:49668: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:50016:    <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:50017: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:50051:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:50408: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:51657:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:52672: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:52751: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:52915: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:56986: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:59911: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:60285:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:65932: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:66030:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:67294: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:67392: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:67414:    <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:67415: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:67431:  <a name="setuptools._importlib"></a>
+src/build/VinaStudio/xref-VinaStudio.html:67432:  <a target="code" href="///home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/setuptools/_importlib.py" type="text/plain"><tt>setuptools._importlib</tt></a>
+src/build/VinaStudio/xref-VinaStudio.html:67435:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:67436: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:67437: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:67812: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:67813: &#8226;   <a href="#importlib_resources">importlib_resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:68166: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:68587: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:68625: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:68795: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:68981: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:68982: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:69172: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:69297: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:69424: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:69492: &#8226;   <a href="#setuptools._importlib">setuptools._importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:69856: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:81098: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:81099: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:81100: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:81101: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:81397: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:81398: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:81399: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:81527: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:81588: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:81589: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:81687: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:81758: &#8226;   <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:81954: &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:82277: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:82278: &#8226;   <a href="#importlib.metadata._functools">importlib.metadata._functools</a>
+src/build/VinaStudio/xref-VinaStudio.html:82279: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:82280: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:82531: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:82532: &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
+src/build/VinaStudio/xref-VinaStudio.html:82533: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:82534: &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:83932: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:84161: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:84844: &#8226;   <a href="#importlib.abc">importlib.abc</a>
+src/build/VinaStudio/xref-VinaStudio.html:84845: &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+src/build/VinaStudio/xref-VinaStudio.html:84846: &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:84847: &#8226;   <a href="#importlib.metadata._adapters">importlib.metadata._adapters</a>
+src/build/VinaStudio/xref-VinaStudio.html:84848: &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
+src/build/VinaStudio/xref-VinaStudio.html:84849: &#8226;   <a href="#importlib.resources._functional">importlib.resources._functional</a>
+src/build/VinaStudio/xref-VinaStudio.html:84850: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:85390:    <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:85997: &#8226;   <a href="#importlib.util">importlib.util</a>
+src/build/VinaStudio/xref-VinaStudio.html:86015:    <a href="#importlib.metadata">importlib.metadata</a>
+src/build/VinaStudio/xref-VinaStudio.html:86016: &#8226;   <a href="#importlib.resources.readers">importlib.resources.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:86087:    <a href="#_frozen_importlib">_frozen_importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:86088: &#8226;   <a href="#_frozen_importlib_external">_frozen_importlib_external</a>
+src/build/VinaStudio/xref-VinaStudio.html:86091: &#8226;   <a href="#importlib.readers">importlib.readers</a>
+src/build/VinaStudio/xref-VinaStudio.html:86160:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:86161: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/xref-VinaStudio.html:86180:    <a href="#importlib">importlib</a>
+src/build/VinaStudio/xref-VinaStudio.html:86181: &#8226;   <a href="#importlib.resources">importlib.resources</a>
+src/build/VinaStudio/Analysis-00.toc:1915:  ('importlib', '/usr/lib/python3.14/importlib/__init__.py', 'PYMODULE'),
+src/build/VinaStudio/Analysis-00.toc:1916:  ('importlib._bootstrap_external',
+src/build/VinaStudio/Analysis-00.toc:1917:   '/usr/lib/python3.14/importlib/_bootstrap_external.py',
+src/build/VinaStudio/Analysis-00.toc:1919:  ('importlib.metadata',
+src/build/VinaStudio/Analysis-00.toc:1920:   '/usr/lib/python3.14/importlib/metadata/__init__.py',
+src/build/VinaStudio/Analysis-00.toc:1923:  ('importlib.metadata._adapters',
+src/build/VinaStudio/Analysis-00.toc:1924:   '/usr/lib/python3.14/importlib/metadata/_adapters.py',
+src/build/VinaStudio/Analysis-00.toc:1926:  ('importlib.metadata._text',
+src/build/VinaStudio/Analysis-00.toc:1927:   '/usr/lib/python3.14/importlib/metadata/_text.py',
+src/build/VinaStudio/Analysis-00.toc:1958:  ('importlib.abc', '/usr/lib/python3.14/importlib/abc.py', 'PYMODULE'),
+src/build/VinaStudio/Analysis-00.toc:1959:  ('importlib._abc', '/usr/lib/python3.14/importlib/_abc.py', 'PYMODULE'),
+src/build/VinaStudio/Analysis-00.toc:1960:  ('importlib.metadata._itertools',
+src/build/VinaStudio/Analysis-00.toc:1961:   '/usr/lib/python3.14/importlib/metadata/_itertools.py',
+src/build/VinaStudio/Analysis-00.toc:1963:  ('importlib.metadata._functools',
+src/build/VinaStudio/Analysis-00.toc:1964:   '/usr/lib/python3.14/importlib/metadata/_functools.py',
+src/build/VinaStudio/Analysis-00.toc:1966:  ('importlib.metadata._collections',
+src/build/VinaStudio/Analysis-00.toc:1967:   '/usr/lib/python3.14/importlib/metadata/_collections.py',
+src/build/VinaStudio/Analysis-00.toc:1969:  ('importlib.metadata._meta',
+src/build/VinaStudio/Analysis-00.toc:1970:   '/usr/lib/python3.14/importlib/metadata/_meta.py',
+src/build/VinaStudio/Analysis-00.toc:1980:  ('importlib.readers', '/usr/lib/python3.14/importlib/readers.py', 'PYMODULE'),
+src/build/VinaStudio/Analysis-00.toc:1981:  ('importlib.resources.readers',
+src/build/VinaStudio/Analysis-00.toc:1982:   '/usr/lib/python3.14/importlib/resources/readers.py',
+src/build/VinaStudio/Analysis-00.toc:1984:  ('importlib.resources._itertools',
+src/build/VinaStudio/Analysis-00.toc:1985:   '/usr/lib/python3.14/importlib/resources/_itertools.py',
+src/build/VinaStudio/Analysis-00.toc:1987:  ('importlib.resources.abc',
+src/build/VinaStudio/Analysis-00.toc:1988:   '/usr/lib/python3.14/importlib/resources/abc.py',
+src/build/VinaStudio/Analysis-00.toc:1990:  ('importlib.resources',
+src/build/VinaStudio/Analysis-00.toc:1991:   '/usr/lib/python3.14/importlib/resources/__init__.py',
+src/build/VinaStudio/Analysis-00.toc:1993:  ('importlib.resources._functional',
+src/build/VinaStudio/Analysis-00.toc:1994:   '/usr/lib/python3.14/importlib/resources/_functional.py',
+src/build/VinaStudio/Analysis-00.toc:1996:  ('importlib.resources._common',
+src/build/VinaStudio/Analysis-00.toc:1997:   '/usr/lib/python3.14/importlib/resources/_common.py',
+src/build/VinaStudio/Analysis-00.toc:1999:  ('importlib.resources._adapters',
+src/build/VinaStudio/Analysis-00.toc:2000:   '/usr/lib/python3.14/importlib/resources/_adapters.py',
+src/build/VinaStudio/Analysis-00.toc:2002:  ('importlib._bootstrap',
+src/build/VinaStudio/Analysis-00.toc:2003:   '/usr/lib/python3.14/importlib/_bootstrap.py',
+src/build/VinaStudio/Analysis-00.toc:2007:  ('importlib.machinery',
+src/build/VinaStudio/Analysis-00.toc:2008:   '/usr/lib/python3.14/importlib/machinery.py',
+src/build/VinaStudio/Analysis-00.toc:2030:  ('importlib.util', '/usr/lib/python3.14/importlib/util.py', 'PYMODULE'),
+src/build/VinaStudio/Analysis-00.toc:2478:  ('setuptools._importlib',
+src/build/VinaStudio/Analysis-00.toc:2479:   '/home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/setuptools/_importlib.py',
+src/build/VinaStudio/PYZ-00.toc:627:  ('importlib', '/usr/lib/python3.14/importlib/__init__.py', 'PYMODULE'),
+src/build/VinaStudio/PYZ-00.toc:628:  ('importlib._abc', '/usr/lib/python3.14/importlib/_abc.py', 'PYMODULE'),
+src/build/VinaStudio/PYZ-00.toc:629:  ('importlib._bootstrap',
+src/build/VinaStudio/PYZ-00.toc:630:   '/usr/lib/python3.14/importlib/_bootstrap.py',
+src/build/VinaStudio/PYZ-00.toc:632:  ('importlib._bootstrap_external',
+src/build/VinaStudio/PYZ-00.toc:633:   '/usr/lib/python3.14/importlib/_bootstrap_external.py',
+src/build/VinaStudio/PYZ-00.toc:635:  ('importlib.abc', '/usr/lib/python3.14/importlib/abc.py', 'PYMODULE'),
+src/build/VinaStudio/PYZ-00.toc:636:  ('importlib.machinery',
+src/build/VinaStudio/PYZ-00.toc:637:   '/usr/lib/python3.14/importlib/machinery.py',
+src/build/VinaStudio/PYZ-00.toc:639:  ('importlib.metadata',
+src/build/VinaStudio/PYZ-00.toc:640:   '/usr/lib/python3.14/importlib/metadata/__init__.py',
+src/build/VinaStudio/PYZ-00.toc:642:  ('importlib.metadata._adapters',
+src/build/VinaStudio/PYZ-00.toc:643:   '/usr/lib/python3.14/importlib/metadata/_adapters.py',
+src/build/VinaStudio/PYZ-00.toc:645:  ('importlib.metadata._collections',
+src/build/VinaStudio/PYZ-00.toc:646:   '/usr/lib/python3.14/importlib/metadata/_collections.py',
+src/build/VinaStudio/PYZ-00.toc:648:  ('importlib.metadata._functools',
+src/build/VinaStudio/PYZ-00.toc:649:   '/usr/lib/python3.14/importlib/metadata/_functools.py',
+src/build/VinaStudio/PYZ-00.toc:651:  ('importlib.metadata._itertools',
+src/build/VinaStudio/PYZ-00.toc:652:   '/usr/lib/python3.14/importlib/metadata/_itertools.py',
+src/build/VinaStudio/PYZ-00.toc:654:  ('importlib.metadata._meta',
+src/build/VinaStudio/PYZ-00.toc:655:   '/usr/lib/python3.14/importlib/metadata/_meta.py',
+src/build/VinaStudio/PYZ-00.toc:657:  ('importlib.metadata._text',
+src/build/VinaStudio/PYZ-00.toc:658:   '/usr/lib/python3.14/importlib/metadata/_text.py',
+src/build/VinaStudio/PYZ-00.toc:660:  ('importlib.readers', '/usr/lib/python3.14/importlib/readers.py', 'PYMODULE'),
+src/build/VinaStudio/PYZ-00.toc:661:  ('importlib.resources',
+src/build/VinaStudio/PYZ-00.toc:662:   '/usr/lib/python3.14/importlib/resources/__init__.py',
+src/build/VinaStudio/PYZ-00.toc:664:  ('importlib.resources._adapters',
+src/build/VinaStudio/PYZ-00.toc:665:   '/usr/lib/python3.14/importlib/resources/_adapters.py',
+src/build/VinaStudio/PYZ-00.toc:667:  ('importlib.resources._common',
+src/build/VinaStudio/PYZ-00.toc:668:   '/usr/lib/python3.14/importlib/resources/_common.py',
+src/build/VinaStudio/PYZ-00.toc:670:  ('importlib.resources._functional',
+src/build/VinaStudio/PYZ-00.toc:671:   '/usr/lib/python3.14/importlib/resources/_functional.py',
+src/build/VinaStudio/PYZ-00.toc:673:  ('importlib.resources._itertools',
+src/build/VinaStudio/PYZ-00.toc:674:   '/usr/lib/python3.14/importlib/resources/_itertools.py',
+src/build/VinaStudio/PYZ-00.toc:676:  ('importlib.resources.abc',
+src/build/VinaStudio/PYZ-00.toc:677:   '/usr/lib/python3.14/importlib/resources/abc.py',
+src/build/VinaStudio/PYZ-00.toc:679:  ('importlib.resources.readers',
+src/build/VinaStudio/PYZ-00.toc:680:   '/usr/lib/python3.14/importlib/resources/readers.py',
+src/build/VinaStudio/PYZ-00.toc:682:  ('importlib.util', '/usr/lib/python3.14/importlib/util.py', 'PYMODULE'),
+src/build/VinaStudio/PYZ-00.toc:4604:  ('setuptools._importlib',
+src/build/VinaStudio/PYZ-00.toc:4605:   '/home/stoni/MexAB_MexR_Analyzer_BETA/venv/lib/python3.14/site-packages/setuptools/_importlib.py',
+src/build/VinaStudio/warn-VinaStudio.txt:17:missing module named 'collections.abc' - imported by tracemalloc (top-level), typing (top-level), traceback (top-level), _colorize (top-level), selectors (top-level), logging (top-level), http.client (top-level), importlib.resources.readers (top-level), inspect (top-level), multiprocessing.managers (top-level), xml.etree.ElementTree (top-level), PIL.Image (top-level), PIL._typing (top-level), numpy._typing._array_like (top-level), numpy._typing._nested_sequence (conditional), numpy._typing._shape (top-level), numpy._typing._dtype_like (top-level), numpy.lib._function_base_impl (top-level), numpy.lib._npyio_impl (top-level), numpy.random._common (top-level), numpy.random._generator (top-level), numpy.random.bit_generator (top-level), numpy.random.mtrand (top-level), numpy.polynomial._polybase (top-level), asyncio.base_events (top-level), asyncio.coroutines (top-level), _pyrepl.types (top-level), PIL.TiffImagePlugin (top-level), PIL.ImageOps (top-level), PIL.ImagePalette (top-level), PIL.GimpGradientFile (conditional), PIL.ImageFilter (top-level), PIL.ImageQt (conditional), PIL.ImageMath (conditional), PIL.ImageSequence (conditional), PIL.PngImagePlugin (conditional), PySide6.QtCore (top-level), PySide6.QtNetwork (top-level), PySide6.QtGui (top-level), PySide6.QtWidgets (top-level), PySide6.QtPrintSupport (top-level), PySide6.QtWebEngineCore (top-level), PySide6.QtWebEngineWidgets (top-level), pandas._typing (top-level), pandas._libs.tslibs.offsets (top-level), pandas._libs.tslibs.timezones (top-level), pandas._libs.tslibs.tzconversion (top-level), pandas.util._exceptions (conditional), pandas._config.config (conditional), pandas._libs.lib (top-level), pandas._libs.properties (top-level), pandas.util.version (top-level), pandas.util._decorators (conditional), pandas._libs.hashtable (top-level), pandas.core.dtypes.inference (conditional), pandas.core.dtypes.common (conditional), scipy._lib._array_api (top-level), scipy._external.array_api_compat.common._helpers (top-level), scipy._external.array_api_compat.common._typing (top-level), scipy._external.array_api_compat._internal (top-level), scipy._external.array_api_compat.common._aliases (top-level), scipy._external.array_api_compat.torch._aliases (top-level), scipy._external.array_api_compat.dask.array._aliases (top-level), scipy._external.array_api_extra._delegation (top-level), scipy._external.array_api_extra._lib._funcs (top-level), scipy._external.array_api_extra._lib._at (top-level), scipy._external.array_api_extra._lib._utils._helpers (top-level), scipy._external.array_api_extra._lib._lazy (top-level), scipy._external.array_api_extra.testing (top-level), scipy._lib._docscrape (top-level), scipy.special._support_alternative_backends (top-level), scipy._external.pyprima (top-level), scipy.stats._stats_py (top-level), scipy.spatial.distance (top-level), matplotlib (top-level), matplotlib.cbook (top-level), matplotlib._path (top-level), matplotlib.colors (top-level), pyparsing.core (top-level), pyparsing.results (top-level), matplotlib.rcsetup (top-level), cycler (top-level), matplotlib.axes._base (top-level), matplotlib.text (top-level), matplotlib.markers (top-level), matplotlib._text_helpers (top-level), fontTools.misc.loggingTools (top-level), matplotlib._mathtext (conditional), matplotlib.spines (top-level), matplotlib.cm (top-level), matplotlib._style_helpers (top-level), matplotlib.pyplot (conditional), matplotlib.typing (top-level), scipy.spatial.transform._rotation (top-level), scipy.constants._codata (top-level), scipy.spatial.transform._rigid_transform (top-level), scipy._lib.doccer (top-level), scipy.integrate._quadrature (top-level), scipy.stats._continuous_distns (top-level), scipy.stats._resampling (top-level), scipy.stats._multicomp (top-level), scipy.stats._qmc (top-level), scipy.stats._sensitivity_analysis (top-level), scipy.ndimage._filters (top-level), scipy.ndimage._ni_support (top-level), scipy.linalg._decomp_cossin (top-level), pandas._libs.arrays (top-level), pandas.util._validators (top-level), pandas._libs.internals (top-level), pandas.core.common (top-level), pandas.core.col (top-level), pandas.core.construction (conditional), pandas.core.dtypes.concat (conditional), pandas._libs.ops (top-level), pandas.core.ops.invalid (conditional), pandas.core.ops.common (conditional), pandas.core.frame (top-level), pandas.core.nanops (conditional), pandas.core.accessor (conditional), pandas.core.indexes.extension (conditional), pandas.core.sorting (conditional), pandas.core.arrays.base (conditional), pandas.io.formats.format (top-level), pandas.core.base (conditional), pandas.core.array_algos.datetimelike_accumulations (conditional), pandas.core.arrays._arrow_string_mixins (conditional), pandas.core.array_algos.masked_accumulations (conditional), pandas.core.array_algos.masked_reductions (conditional), pandas.core.arrays.masked (conditional), pandas.core.groupby.generic (top-level), pandas.core.apply (top-level), pandas.core._numba.executor (conditional), pandas.core.util.numba_ (conditional), pandas.core.groupby.groupby (top-level), pandas.core.arrays.numeric (conditional), pandas.core.arrays.floating (conditional), pandas.core.arrays.integer (conditional), pandas.core.strings.object_array (conditional), pandas.core.arrays.string_arrow (conditional), pandas.core.groupby.base (conditional), pandas.core.groupby.numba_ (conditional), pandas.core.series (top-level), pandas.io.formats.printing (top-level), pandas.core.arrays.sparse.array (conditional), pandas.core.arrays.sparse.scipy_sparse (conditional), pandas.core.arrays.timedeltas (conditional), pandas.core.indexes.range (top-level), pandas.core.tools.timedeltas (conditional), pandas.core.indexes.datetimelike (conditional), pandas.core.indexes.multi (top-level), pandas.core.methods.selectn (top-level), pandas.core.reshape.concat (conditional), pandas.core.strings.accessor (conditional), pandas.core.tools.datetimes (conditional), pandas.io.formats.info (conditional), pandas.plotting._core (conditional), pandas.plotting._misc (conditional), pandas.core.groupby.grouper (conditional), pandas.core.groupby.ops (conditional), pandas.core.groupby.indexing (top-level), pandas.core.arrays.interval (conditional), pandas.core.indexes.interval (conditional), pandas.core.arrays.period (conditional), pandas.core.indexes.period (conditional), pandas._libs.window.aggregations (top-level), pandas.core.window.numba_ (conditional), pandas.core.window.rolling (conditional), pandas.core.window.expanding (conditional), pandas.core.resample (conditional), pandas.core.reshape.merge (top-level), pandas.core.reshape.tile (conditional), pandas.io._util (conditional), pandas.core.arrays.arrow.array (conditional), pandas.core.arrays.datetimelike (conditional), pandas.core.arrays.datetimes (conditional), pandas.core.indexes.datetimes (conditional), pandas.io.common (top-level), pandas.io.formats.html (conditional), pandas.io.formats.string (conditional), pandas.io.formats.csvs (top-level), pandas.io.formats.style_render (top-level), pandas.core.interchange.dataframe_protocol (conditional), pandas._libs.json (top-level), pandas.io.json._normalize (conditional), pandas._libs.parsers (top-level), pandas.io.parsers.base_parser (conditional), pandas.io.parsers.c_parser_wrapper (conditional), pandas.io.parsers.python_parser (conditional), pandas.io.parsers.readers (conditional), pandas.io.json._json (conditional), pandas.io.sas.sasreader (top-level), pandas.io.stata (conditional), pandas.io.formats.style (conditional), pandas.io.formats.excel (top-level), pandas.io.formats.css (conditional), pandas.io.excel._base (top-level), pandas.io.excel._util (top-level), pandas.core.arrays._mixins (conditional), pandas.core.indexes.category (conditional), pandas.core.indexing (conditional), pandas.core.methods.describe (conditional), pandas.core.generic (conditional), pandas.core.computation.parsing (conditional), pandas.compat.pickle_compat (conditional), pandas.core.computation.ops (conditional), pandas.core.computation.align (conditional), pandas.core.computation.expr (conditional), pandas.io.pytables (conditional), pandas.core.internals.managers (top-level), pandas.core.internals.ops (conditional), pandas.core.internals.construction (conditional), pandas.io.sql (conditional), sqlite3.dbapi2 (top-level), pandas.core.reshape.melt (conditional), pandas.core.interchange.dataframe (conditional), pandas.core.methods.to_dict (conditional), pandas.io.feather_format (conditional), pandas.io.xml (conditional), pandas.core.reshape.pivot (conditional), pandas.core.arrays.categorical (conditional), pandas.core.internals.blocks (conditional), pandas.core.internals.concat (conditional), pandas.core.indexes.base (conditional), pandas.core.arrays.numpy_ (conditional), pandas.core.dtypes.cast (conditional), pandas.core.missing (conditional), pandas.core.arrays.string_ (conditional), pandas.core.arrays.arrow.accessors (conditional), pandas.core.dtypes.dtypes (conditional), pandas.tseries.holiday (conditional), pandas.core.util.hashing (conditional), pandas.core.config_init (top-level), pandas.core.reshape.encoding (top-level), pandas._config.localization (conditional), pandas._testing._io (conditional), pandas._testing._warnings (conditional), pandas._libs.testing (top-level), pandas._testing.contexts (conditional), pandas._testing (conditional), pandas._version (top-level), pandas.io.html (conditional), lxml.html (top-level), lxml.html._setmixin (optional), pandas.io.spss (conditional), patsy.constraint (optional), statsmodels.tools.validation.validation (top-level), statsmodels.tools.typing (top-level), statsmodels.base.optimizer (top-level), statsmodels.regression.linear_model (top-level), scipy.signal._short_time_fft (top-level), statsmodels.stats.diagnostic (top-level), statsmodels.tools.docstring (top-level), statsmodels.gam.generalized_additive_model (top-level), statsmodels.stats.descriptivestats (top-level), statsmodels.tsa.ar_model (top-level), statsmodels.tsa.deterministic (top-level), statsmodels.tsa.ardl.model (top-level), statsmodels.tsa.stl.mstl (top-level), statsmodels.tsa.holtwinters.model (top-level), PySide6.QtMultimedia (top-level), setuptools (top-level), setuptools._distutils.filelist (top-level), setuptools._distutils.util (top-level), setuptools._vendor.jaraco.functools (top-level), setuptools._vendor.more_itertools.more (top-level), setuptools._distutils._modified (top-level), setuptools._distutils.compilers.platform.macos (top-level), setuptools._distutils.spawn (top-level), packaging.markers (top-level), packaging._parser (top-level), packaging._ranges (conditional), packaging.tags (top-level), packaging._manylinux (conditional), packaging._musllinux (conditional), packaging.specifiers (conditional), packaging.ranges (conditional), packaging._tokenizer (conditional), packaging.requirements (conditional), setuptools._reqs (top-level), setuptools._vendor.jaraco.context (top-level), setuptools.discovery (top-level), setuptools.dist (top-level), setuptools._distutils.command.bdist (top-level), setuptools._distutils.core (top-level), setuptools._distutils.cmd (top-level), setuptools._distutils.archive_util (top-level), setuptools._distutils.dist (top-level), setuptools._distutils.fancy_getopt (top-level), setuptools._distutils.extension (top-level), setuptools._distutils.compat.py310 (top-level), setuptools._distutils.compilers.C.base (top-level), setuptools._distutils.compilers._modified (top-level), setuptools._distutils.compilers.C.unix (top-level), setuptools._distutils.compilers.C.msvc (top-level), configparser (top-level), setuptools.config (top-level), setuptools.config.setupcfg (top-level), setuptools.config.expand (top-level), setuptools.config.pyprojecttoml (top-level), setuptools.config._apply_pyprojecttoml (top-level), setuptools.extension (top-level), tomllib._parser (conditional), setuptools._vendor.tomli._parser (conditional), setuptools.wheel (top-level), setuptools.command.egg_info (top-level), setuptools.command.bdist_egg (top-level), setuptools.command.sdist (top-level), setuptools._distutils.command.build (top-level), setuptools._distutils.command.sdist (top-level), setuptools.glob (top-level), setuptools.command._requirestxt (top-level), setuptools.command.bdist_wheel (top-level), setuptools._shutil (top-level), setuptools.compat.py311 (top-level), urllib3.util.retry (top-level), requests.compat (top-level), requests.models (top-level), requests._types (top-level), requests.cookies (top-level), requests.utils (top-level), requests.structures (top-level), requests.hooks (top-level), requests.sessions (top-level), PIL.Jpeg2KImagePlugin (conditional), setuptools._distutils.command.build_ext (top-level), _pyrepl.readline (top-level), PySide6.QtDBus (top-level), PySide6.QtPositioning (top-level), PySide6.QtOpenGL (top-level), PySide6.QtQml (top-level), PySide6.QtQuick (top-level), pandas.plotting._matplotlib.core (top-level), pandas.plotting._matplotlib.tools (conditional), pandas.plotting._matplotlib.converter (conditional), pandas.plotting._matplotlib.style (top-level), pandas.plotting._matplotlib.misc (conditional), pandas.plotting._matplotlib.groupby (conditional), pandas.plotting._matplotlib.boxplot (conditional), scipy._external.array_api_compat.common._fft (top-level)
+src/build/VinaStudio/warn-VinaStudio.txt:22:missing module named winreg - imported by importlib._bootstrap_external (conditional), mimetypes (optional), urllib.request (delayed, conditional, optional), platform (delayed, optional), matplotlib.font_manager (delayed), matplotlib (delayed, conditional), setuptools._distutils.compilers.C.msvc (top-level), requests.utils (delayed, conditional, optional), setuptools.msvc (conditional)
+src/build/VinaStudio/warn-VinaStudio.txt:23:missing module named _frozen_importlib_external - imported by importlib._bootstrap (delayed), importlib (optional), importlib.abc (optional), zipimport (top-level)
+src/build/VinaStudio/warn-VinaStudio.txt:24:excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional), zipimport (top-level)
+src/build/VinaStudio/warn-VinaStudio.txt:26:missing module named nt - imported by _colorize (delayed, conditional, optional), os (delayed, conditional, optional), ntpath (optional), shutil (conditional), importlib._bootstrap_external (conditional), ctypes (delayed, conditional), _pyrepl.windows_console (optional)
+src/build/VinaStudio/warn-VinaStudio.txt:36:missing module named importlib_resources - imported by setuptools._vendor.jaraco.text (optional)
+patch21_phyto_fixes.py:25:import importlib.util
+patch21_phyto_fixes.py:966:    spec = importlib.util.spec_from_file_location("phyto_api_live", str(api_file))
+patch21_phyto_fixes.py:967:    api = importlib.util.module_from_spec(spec)
+patch22_phyto_ui_image_sdf.py:31:import importlib.util
+patch22_phyto_ui_image_sdf.py:1351:    spec = importlib.util.spec_from_file_location("phyto_api_live", str(api_file))
+patch22_phyto_ui_image_sdf.py:1352:    api = importlib.util.module_from_spec(spec)
+
+========================================================
+ 8. Contenu de campaign_table.py / patch_campagne.py
+     (référence-t-il des fichiers externes au dossier docking/) ?
+========================================================
+src/campaign_table.py:220:        path = Path(source)
+src/campaign_table.py:221:        df = pd.read_csv(path)
+patch_campagne.py:29:TARGET = Path("src/gui/main_window.py")
+patch_campagne.py:59:OLD_EMPTY = '''if not csv_path or not Path(csv_path).exists():
+patch_campagne.py:63:NEW_EMPTY = '''if not csv_path or not Path(csv_path).exists():
+patch_campagne.py:209:    backup = Path(str(TARGET) + BACKUP_TAG + stamp)
+patch_campagne.py:227:    print("+ %s restaure depuis %s" % (TARGET.name, Path(backups[0]).name))
+
+========================================================
+ 9. Taille réelle des dossiers de ressources en question
+========================================================
+credit_du_logiciel : 180M
+ligands : 2.6M
+docs : 452K
+scientific_analysis : 16K
+image_theme : 153M
+receptor_profiles : 4.0M
+
+========================================================
+ 10. Contenu de gui/credits_page.py : quels fichiers exacts
+     sont ouverts / affichés (photos, captions.json, vidéos) ?
+========================================================
+51:écrite depuis l'interface (enregistrée dans captions.json à la
+67:    Qt, QObject, QThread, Signal, Slot, QSize, QTimer, QEvent, QRect, QRectF, QUrl,
+94:IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
+95:VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
+97:CAPTIONS_FILENAME = "captions.json"
+228:        here = Path(sys.executable).resolve()
+231:        here = Path(__file__).resolve()
+254:    finished = Signal(list, dict, str)  # albums, captions, erreur
+264:            captions = self._load_captions()
+265:            self.finished.emit(albums, captions, "")
+269:    def _load_captions(self) -> dict:
+270:        captions_path = self.root / CAPTIONS_FILENAME
+271:        if not captions_path.exists():
+274:            return json.loads(captions_path.read_text(encoding="utf-8"))
+468:        self._captions = {}
+778:    def _on_scan_finished(self, albums, captions, error):
+786:        self._captions = captions
+923:        self._current_caption = self._captions.get(caption_key, "")
+941:                self.media_player.setSource(QUrl.fromLocalFile(item["path"]))
+1223:            self._captions[key] = text
+1225:            self._captions.pop(key, None)
+1228:            captions_path = self._root / CAPTIONS_FILENAME
+1229:            captions_path.write_text(
+1230:                json.dumps(self._captions, ensure_ascii=False, indent=2),
+
+========================================================
+ TERMINÉ.
+========================================================
