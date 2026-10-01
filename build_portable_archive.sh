@@ -2,9 +2,10 @@
 set -e
 
 APP_NAME="VinaStudio"
+VERSION="1.0.3"
 INSTALL_DIR="$HOME/.local/share/${APP_NAME}"
 STAGING_DIR="$HOME/${APP_NAME}-Linux-x86_64"
-ARCHIVE_NAME="${APP_NAME}-Linux-x86_64.tar.gz"
+ARCHIVE_NAME="${APP_NAME}-Linux-x86_64-${VERSION}.tar.gz"
 OUTPUT_PATH="$HOME/Desktop/$ARCHIVE_NAME"
 
 echo "=================================================="
