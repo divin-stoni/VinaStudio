@@ -9915,6 +9915,12 @@ class VisualizationPage(QWidget):
         self.diagram_label.setText("")
         self.current_diagram_path = png_path
 
+    def _interaction_3d_script(self, pdb_text, interactions):
+        return (
+            f"loadComplex({json.dumps(pdb_text)}, "
+            f"{json.dumps(interactions, ensure_ascii=False)});"
+        )
+
     def _on_interaction_viewer_loaded(self, ok):
         self._interaction_viewer_loaded = bool(ok)
         if self._interaction_viewer_loaded:
@@ -9942,11 +9948,7 @@ class VisualizationPage(QWidget):
                 encoding="utf-8", errors="ignore"
             )
             interactions = data.get("interactions", {}).get("summary", [])
-            interactions_json = json.dumps(interactions, ensure_ascii=False)
-            script = (
-                f"loadComplex({json.dumps(pdb_text)}, "
-                f"{json.dumps(interactions_json)});"
-            )
+            script = self._interaction_3d_script(pdb_text, interactions)
             self.interaction_3d_viewer.page().runJavaScript(script)
         except (OSError, TypeError, ValueError):
             return

@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+
+title: "VinaStudio"
+abstract: >-
+  VinaStudio is a desktop Python/PySide6 application for virtual molecular docking,
+  dual-target selectivity analysis, interaction profiling, and session-based scientific
+  workflow management for MexAB/MexR-related drug-discovery studies.
+
+version: 0.1.0
+
+license: MIT
+
+authors:
+  - family-names: "MBANIMI"
+    given-names: "Divin Stoni"
+    affiliation: "UM6SS, M2 Biotechnology and Health"
+    role: "Author and lead developer"
+  - family-names: "YONDZA KOUMBA"
+    given-names: "Cyr Abraham"
+    affiliation: "UM6SS, M2 Biotechnology and Health"
+    role: "Contributor and tester on Windows 11"
+  - family-names: "N'TOLLAUD Challenge Providence"
+    given-names: ""
+    affiliation: "UM6SS, M2 Biotechnology and Health"
+    role: "Contributor and tester on Windows 10"
+
+repository-code: "https://github.com/divin-stoni/VinaStudio"
+url: "https://github.com/divin-stoni/VinaStudio"
+
+keywords:
+  - molecular docking
+  - virtual screening
+  - AutoDock Vina
+  - MexAB-MexR
+  - selectivity analysis
+  - PySide6
+  - bioinformatics
+
+preferred-citation:
+  type: software
+  title: "VinaStudio"
+  authors:
+    - family-names: "MBANIMI"
+      given-names: "Divin Stoni"
+      affiliation: "UM6SS, M2 Biotechnology and Health"
+      role: "Author and lead developer"
+    - family-names: "YONDZA KOUMBA"
+      given-names: "Cyr Abraham"
+      affiliation: "UM6SS, M2 Biotechnology and Health"
+      role: "Contributor and tester on Windows 11"
+    - family-names: "N'TOLLAUD Challenge Providence"
+      given-names: ""
+      affiliation: "UM6SS, M2 Biotechnology and Health"
+      role: "Contributor and tester on Windows 10"
+  version: 0.1.0
+  license: MIT
+  repository-code: "https://github.com/divin-stoni/VinaStudio"

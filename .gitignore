@@ -41,3 +41,9 @@ docking/results/
 
 # Sauvegarde ponctuelle d'un ancien build complet (1.7 Go, fichiers >100 Mo)
 _archive_backups/
+
+# Archives locales de nettoyage et fichiers temporaires de bureautique
+dev/archive_patchs_diagnostics/
+.~lock.*#
+DECLARATION_COAUTEUR_*.odt
+DECLARATION_COAUTEUR_*.pdf
