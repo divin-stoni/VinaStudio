@@ -496,6 +496,83 @@ TR = {
         "fr": "Cible active", "en": "Active target", "de": "Aktives Ziel",
         "zh": "当前靶点", "ja": "アクティブな標的",
     },
+    "phyto_mode_plant": {
+        "fr": "Phytomolécules", "en": "Phytomolecules", "de": "Phytomoleküle",
+        "zh": "植物分子", "ja": "植物由来分子",
+    },
+    "phyto_mode_other": {
+        "fr": "Autres molécules organiques", "en": "Other organic molecules",
+        "de": "Andere organische Moleküle", "zh": "其他有机分子", "ja": "その他の有機分子",
+    },
+    "phyto_back_photo": {
+        "fr": "← Photo de la plante", "en": "← Plant photo", "de": "← Pflanzenfoto",
+        "zh": "← 植物照片", "ja": "← 植物写真",
+    },
+    "phyto_back_results": {
+        "fr": "← Retour aux résultats", "en": "← Back to results", "de": "← Zurück zu den Ergebnissen",
+        "zh": "← 返回结果", "ja": "← 結果に戻る",
+    },
+    "phyto_plant_placeholder": {
+        "fr": "Nom de la plante (scientifique ou courant)...",
+        "en": "Plant name (scientific or common)...",
+        "de": "Pflanzenname (wissenschaftlich oder gebräuchlich)…",
+        "zh": "植物名称（学名或常用名）…", "ja": "植物名（学名または一般名）…",
+    },
+    "phyto_other_placeholder": {
+        "fr": "Nom de la molécule (médicament, composé organique)...",
+        "en": "Molecule name (drug, organic compound)...",
+        "de": "Molekülname (Arzneimittel, organische Verbindung)…",
+        "zh": "分子名称（药物、有机化合物）…", "ja": "分子名（医薬品・有機化合物）…",
+    },
+    "phyto_search_btn": {
+        "fr": "Rechercher", "en": "Search", "de": "Suchen", "zh": "搜索", "ja": "検索",
+    },
+    "phyto_rank_species": {
+        "fr": "Espèce", "en": "Species", "de": "Art", "zh": "物种", "ja": "種",
+    },
+    "phyto_no_image_yet": {
+        "fr": "Aucune image.", "en": "No image.", "de": "Kein Bild.", "zh": "暂无图片。", "ja": "画像なし。",
+    },
+    "phyto_col_family": {
+        "fr": "Famille chimique / molécule", "en": "Chemical family / molecule",
+        "de": "Chemische Familie / Molekül", "zh": "化学家族 / 分子", "ja": "化学ファミリー / 分子",
+    },
+    "phyto_col_cid": {
+        "fr": "CID PubChem", "en": "PubChem CID", "de": "PubChem-CID",
+        "zh": "PubChem CID", "ja": "PubChem CID",
+    },
+    "phyto_col_cid_short": {
+        "fr": "CID", "en": "CID", "de": "CID", "zh": "CID", "ja": "CID",
+    },
+    "phyto_download_family": {
+        "fr": "Télécharger cette famille depuis PubChem", "en": "Download this family from PubChem",
+        "de": "Diese Familie von PubChem herunterladen", "zh": "从 PubChem 下载此家族", "ja": "PubChemからこのファミリーをダウンロード",
+    },
+    "phyto_download_molecule": {
+        "fr": "Télécharger cette molécule depuis PubChem", "en": "Download this molecule from PubChem",
+        "de": "Dieses Molekül von PubChem herunterladen", "zh": "从 PubChem 下载此分子", "ja": "PubChemからこの分子をダウンロード",
+    },
+    "phyto_other_col_name": {
+        "fr": "Molécule", "en": "Molecule", "de": "Molekül", "zh": "分子", "ja": "分子",
+    },
+    "phyto_other_col_formula": {
+        "fr": "Formule", "en": "Formula", "de": "Formel", "zh": "分子式", "ja": "分子式",
+    },
+    "phyto_other_col_weight": {
+        "fr": "Masse (g/mol)", "en": "Mass (g/mol)", "de": "Masse (g/mol)", "zh": "质量（g/mol）", "ja": "質量（g/mol）",
+    },
+    "phyto_sugg_col_name": {
+        "fr": "Nom", "en": "Name", "de": "Name", "zh": "名称", "ja": "名前",
+    },
+    "phyto_sugg_col_rank": {
+        "fr": "Rang", "en": "Rank", "de": "Rang", "zh": "等级", "ja": "ランク",
+    },
+    "phyto_sugg_col_family": {
+        "fr": "Famille", "en": "Family", "de": "Familie", "zh": "科", "ja": "科",
+    },
+    "phyto_sugg_col_match": {
+        "fr": "Correspondance", "en": "Match", "de": "Übereinstimmung", "zh": "匹配", "ja": "一致",
+    },
     "credits_title": {
         "fr": "Crédits", "en": "Credits", "de": "Credits",
         "zh": "致谢", "ja": "クレジット",

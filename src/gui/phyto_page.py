@@ -293,6 +293,47 @@ class PhytoPage(QWidget):
             return fallback
         return _t_resolve(self.lang_mgr, key, fallback)
 
+    def retranslate(self):
+        """Refresh every persistent Phytomolecules control after a language change."""
+        self.btn_mode_phyto.setText(self._t("phyto_mode_plant", "Phytomolecules"))
+        self.btn_mode_other.setText(self._t("phyto_mode_other", "Other organic molecules"))
+        self.btn_back_photo.setText(self._t("phyto_back_photo", "← Plant photo"))
+        self.plant_input.setPlaceholderText(self._t(
+            "phyto_plant_placeholder", "Plant name (scientific or common)..."
+        ))
+        self.btn_search_plant.setText(self._t("phyto_search_btn", "Search"))
+        self.species_tab.setText(self._t("phyto_rank_species", "Species"))
+        self.plant_image.set_placeholder(self._t("phyto_no_image_yet", "No image."))
+        self.family_tree.setHeaderLabels([
+            self._t("phyto_col_family", "Chemical family / molecule"),
+            self._t("phyto_col_cid", "PubChem CID"),
+        ])
+        self.btn_download_family.setText(self._t(
+            "phyto_download_family", "Download this family from PubChem"
+        ))
+        self.other_input.setPlaceholderText(self._t(
+            "phyto_other_placeholder", "Molecule name (drug, organic compound)..."
+        ))
+        self.btn_search_other.setText(self._t("phyto_search_btn", "Search"))
+        self.other_table.setHorizontalHeaderLabels([
+            self._t("phyto_other_col_name", "Molecule"),
+            self._t("phyto_col_cid_short", "CID"),
+            self._t("phyto_other_col_formula", "Formula"),
+            self._t("phyto_other_col_weight", "Mass (g/mol)"),
+        ])
+        self.btn_other_back.setText(self._t("phyto_back_results", "← Back to results"))
+        self.btn_other_download.setText(self._t(
+            "phyto_download_molecule", "Download this molecule from PubChem"
+        ))
+        self.sugg_table.setHorizontalHeaderLabels([
+            self._t("phyto_sugg_col_name", "Name"),
+            self._t("phyto_sugg_col_rank", "Rank"),
+            self._t("phyto_sugg_col_family", "Family"),
+            self._t("phyto_sugg_col_match", "Match"),
+        ])
+        if self._sugg_selected_name is not None:
+            self._collapse_suggestions(self._sugg_selected_name)
+
     # ------------------------------------------------------------------ UI
 
     def _build_ui(self):
