@@ -10270,6 +10270,9 @@ class MainWindow(QMainWindow):
             if hasattr(self.visualization_page, "retranslate_subtabs"):
                 self.visualization_page.retranslate_subtabs()
 
+        if hasattr(self, "phyto_page") and hasattr(self.phyto_page, "retranslate"):
+            self.phyto_page.retranslate()
+
         if hasattr(self, "menu_file"):
             self.menu_file.setTitle(t("menu_file"))
         if hasattr(self, "menu_docking"):
