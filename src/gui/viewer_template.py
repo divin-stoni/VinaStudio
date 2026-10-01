@@ -98,6 +98,8 @@ VIEWER_HTML = """<!DOCTYPE html>
     let pocketVisible = {};  // pocket_id -> bool
     let pocketShapes = {};   // pocket_id -> shape (repli bulle affichee)
     let bridge = null;
+    let manualControlsEnabled = false;
+    let manualStep = 0;
 
     if (typeof qt !== "undefined" && qt.webChannelTransport) {
       new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -117,10 +119,25 @@ VIEWER_HTML = """<!DOCTYPE html>
         (resn || "?") + " " + (resi || "?");
     }
 
-    function refreshViewer() {
+    function refreshViewer(resizeFirst) {
       if (!viewer) return;
-      viewer.resize();
+      if (resizeFirst !== false) {
+        viewer.resize();
+      }
       viewer.render();
+    }
+
+    function applyWheelZoom(factor) {
+      if (!viewer || !factor) return;
+      viewer.zoom(factor);
+      viewer.render();
+    }
+
+    function setManualInteractionControls(enabled) {
+      manualControlsEnabled = !!enabled;
+      if (!manualControlsEnabled) {
+        manualStep = 0;
+      }
     }
 
     function loadReceptor(pdbData) {
@@ -184,6 +201,16 @@ VIEWER_HTML = """<!DOCTYPE html>
       viewer.zoomTo();
       viewer.render();
     }
+
+    document.addEventListener("wheel", function(event) {
+      if (!manualControlsEnabled) return;
+      event.preventDefault();
+      const delta = event.deltaY || event.wheelDelta || 0;
+      if (!delta) return;
+      const factor = delta > 0 ? 1.08 : 0.92;
+      manualStep = Math.min(manualStep + 1, 10);
+      applyWheelZoom(factor);
+    }, {passive: false});
 
     function loadComplex(pdbData, interactionsInput) {
       viewer.clear();
