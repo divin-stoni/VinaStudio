@@ -10298,6 +10298,12 @@ class MainWindow(QMainWindow):
         if hasattr(self, "about_action"):
             self.about_action.setText(t("toolbar_about"))
 
+        if hasattr(self, "header_target_caption"):
+            self.header_target_caption.setText(t("header_active_target"))
+
+        if hasattr(self, "credits_page") and hasattr(self.credits_page, "retranslate"):
+            self.credits_page.retranslate()
+
         if hasattr(self, "status"):
             self.status.showMessage(t("status_ready"))
 
@@ -10710,11 +10716,11 @@ class MainWindow(QMainWindow):
         header_layout.addLayout(branding)
         header_layout.addStretch()
 
-        target_label = make_label(
-            "Cible active"
+        self.header_target_caption = make_label(
+            self.lang_mgr.t("header_active_target")
         )
 
-        target_label.setStyleSheet(
+        self.header_target_caption.setStyleSheet(
             f"font-size: 10px; "
             f"color: {COLORS['text_muted']};"
         )
@@ -10728,9 +10734,7 @@ class MainWindow(QMainWindow):
             f"color: {COLORS['accent_dark']};"
         )
 
-        header_layout.addWidget(
-            target_label
-        )
+        header_layout.addWidget(self.header_target_caption)
 
         header_layout.addSpacing(8)
 
@@ -10798,7 +10802,7 @@ class MainWindow(QMainWindow):
 
         self.workspace.addWidget(self.phyto_page)
 
-        self.credits_page = CreditsPage()
+        self.credits_page = CreditsPage(lang_mgr=self.lang_mgr)
 
         self.workspace.addWidget(
             self.credits_page

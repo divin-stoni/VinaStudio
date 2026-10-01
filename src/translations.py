@@ -492,6 +492,98 @@ TR = {
         "zh": "分子对接与相互作用分析",
         "ja": "分子ドッキング＆相互作用解析",
     },
+    "header_active_target": {
+        "fr": "Cible active", "en": "Active target", "de": "Aktives Ziel",
+        "zh": "当前靶点", "ja": "アクティブな標的",
+    },
+    "credits_title": {
+        "fr": "Crédits", "en": "Credits", "de": "Credits",
+        "zh": "致谢", "ja": "クレジット",
+    },
+    "credits_no_video": {
+        "fr": "Lecture vidéo indisponible (QtMultimedia manquant).",
+        "en": "Video playback unavailable (QtMultimedia is missing).",
+        "de": "Videowiedergabe nicht verfügbar (QtMultimedia fehlt).",
+        "zh": "视频播放不可用（缺少 QtMultimedia）。",
+        "ja": "動画を再生できません（QtMultimedia がありません）。",
+    },
+    "credits_previous": {
+        "fr": "◀ Précédent", "en": "◀ Previous", "de": "◀ Zurück",
+        "zh": "◀ 上一个", "ja": "◀ 前へ",
+    },
+    "credits_pause": {
+        "fr": "⏸ Pause", "en": "⏸ Pause", "de": "⏸ Pause",
+        "zh": "⏸ 暂停", "ja": "⏸ 一時停止",
+    },
+    "credits_play": {
+        "fr": "▶ Lecture", "en": "▶ Play", "de": "▶ Wiedergabe",
+        "zh": "▶ 播放", "ja": "▶ 再生",
+    },
+    "credits_next": {
+        "fr": "Suivant ▶", "en": "Next ▶", "de": "Weiter ▶",
+        "zh": "下一个 ▶", "ja": "次へ ▶",
+    },
+    "credits_missing_folder": {
+        "fr": "Dossier « credit_du_logiciel » introuvable à côté du projet.",
+        "en": "Folder \"credit_du_logiciel\" was not found beside the project.",
+        "de": "Der Ordner « credit_du_logiciel » wurde neben dem Projekt nicht gefunden.",
+        "zh": "在项目旁未找到“credit_du_logiciel”文件夹。",
+        "ja": "プロジェクトの隣に「credit_du_logiciel」フォルダーが見つかりません。",
+    },
+    "credits_loading": {
+        "fr": "Chargement de la collection en arrière-plan…",
+        "en": "Loading collection in the background…",
+        "de": "Sammlung wird im Hintergrund geladen…",
+        "zh": "正在后台加载集合…",
+        "ja": "コレクションをバックグラウンドで読み込み中…",
+    },
+    "credits_load_error": {
+        "fr": "Erreur pendant le chargement : {error}",
+        "en": "Error while loading: {error}",
+        "de": "Fehler beim Laden: {error}",
+        "zh": "加载时出错：{error}",
+        "ja": "読み込み中にエラーが発生しました：{error}",
+    },
+    "credits_empty": {
+        "fr": "Aucune photo ni vidéo trouvée dans « credit_du_logiciel ».",
+        "en": "No photo or video found in \"credit_du_logiciel\".",
+        "de": "Keine Fotos oder Videos in « credit_du_logiciel » gefunden.",
+        "zh": "在“credit_du_logiciel”中未找到照片或视频。",
+        "ja": "「credit_du_logiciel」に写真や動画が見つかりません。",
+    },
+    "credits_count": {
+        "fr": "{albums} dossier(s) — {items} photo(s)/vidéo(s)",
+        "en": "{albums} folder(s) — {items} photo(s)/video(s)",
+        "de": "{albums} Ordner — {items} Foto(s)/Video(s)",
+        "zh": "{albums} 个文件夹 — {items} 张照片/视频",
+        "ja": "{albums}フォルダー — 写真・動画 {items}件",
+    },
+    "credits_loaded": {
+        "fr": "Collection chargée.", "en": "Collection loaded.",
+        "de": "Sammlung geladen.", "zh": "集合已加载。", "ja": "コレクションを読み込みました。",
+    },
+    "credits_open_tab": {
+        "fr": "Ouvre l'onglet Crédits pour charger la collection.",
+        "en": "Open the Credits tab to load the collection.",
+        "de": "Öffnen Sie den Credits-Tab, um die Sammlung zu laden.",
+        "zh": "打开“致谢”选项卡以加载集合。",
+        "ja": "クレジットタブを開いてコレクションを読み込みます。",
+    },
+    "credits_image_loading": {
+        "fr": "Chargement…", "en": "Loading…", "de": "Wird geladen…",
+        "zh": "加载中…", "ja": "読み込み中…",
+    },
+    "credits_image_error": {
+        "fr": "Impossible d'afficher ce fichier : {error}",
+        "en": "Unable to display this file: {error}",
+        "de": "Datei kann nicht angezeigt werden: {error}",
+        "zh": "无法显示此文件：{error}",
+        "ja": "このファイルを表示できません：{error}",
+    },
+    "credits_caption_saved": {
+        "fr": "Légende enregistrée.", "en": "Caption saved.",
+        "de": "Bildunterschrift gespeichert.", "zh": "说明已保存。", "ja": "キャプションを保存しました。",
+    },
     "nav_prepare_ligands": {
         "fr": "Préparer les ligands", "en": "Prepare ligands",
         "de": "Liganden vorbereiten", "zh": "准备配体", "ja": "リガンド準備",
