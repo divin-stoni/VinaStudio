@@ -459,8 +459,9 @@ class CreditsPage(QWidget):
 
     requestImageLoad = Signal(str, int, int, str)
 
-    def __init__(self, parent=None):
+    def __init__(self, lang_mgr=None, parent=None):
         super().__init__(parent)
+        self.lang_mgr = lang_mgr
         self.setFocusPolicy(Qt.StrongFocus)
 
         self._root = _credits_root()
@@ -501,6 +502,31 @@ class CreditsPage(QWidget):
         # Actif seulement une fois la page construite (voir changeEvent).
         self._theme_refresh_pending = False
 
+    def _t(self, key, fallback, **kwargs):
+        if self.lang_mgr is None:
+            return fallback.format(**kwargs) if kwargs else fallback
+        return self.lang_mgr.t(key, **kwargs)
+
+    def retranslate(self):
+        if hasattr(self, "title_label"):
+            self.title_label.setText(self._t("credits_title", "Credits"))
+        if hasattr(self, "no_video_label"):
+            self.no_video_label.setText(
+                self._t("credits_no_video", "Video playback unavailable.")
+            )
+        if hasattr(self, "prev_button"):
+            self.prev_button.setText(self._t("credits_previous", "◀ Previous"))
+        if hasattr(self, "next_button"):
+            self.next_button.setText(self._t("credits_next", "Next ▶"))
+        if hasattr(self, "play_button") and self.media_player is None:
+            self.play_button.setText(self._t("credits_play", "▶ Play"))
+        if hasattr(self, "status_label") and not self._albums and not self._scanning:
+            self.status_label.setText(
+                self._t("credits_open_tab", "Open the Credits tab to load the collection.")
+                if self._root
+                else self._t("credits_missing_folder", "Credits folder not found.")
+            )
+
     # ------------------------------------------------------------------
     # CONSTRUCTION DE L'INTERFACE
     # ------------------------------------------------------------------
@@ -516,9 +542,9 @@ class CreditsPage(QWidget):
         header = QHBoxLayout()
         header.setSpacing(14)
 
-        title = QLabel("Crédits")
-        title.setObjectName("SectionTitle")
-        header.addWidget(title)
+        self.title_label = QLabel(self._t("credits_title", "Credits"))
+        self.title_label.setObjectName("SectionTitle")
+        header.addWidget(self.title_label)
 
         self.subtitle_label = QLabel("")
         self.subtitle_label.setObjectName("SectionDescription")
@@ -598,11 +624,14 @@ class CreditsPage(QWidget):
         else:
             self.video_widget = None
             self.media_player = None
-            no_video = QLabel("Lecture vidéo indisponible (QtMultimedia manquant).")
+            no_video = QLabel(
+                self._t("credits_no_video", "Video playback unavailable.")
+            )
             no_video.setAlignment(Qt.AlignCenter)
             no_video.setWordWrap(True)
             no_video.setObjectName("SectionDescription")
             self._video_page = no_video
+            self.no_video_label = no_video
 
         self.media_stack.addWidget(self._video_page)
 
@@ -621,14 +650,16 @@ class CreditsPage(QWidget):
         nav_row.setSpacing(6)
         nav_row.addStretch()
 
-        self.prev_button = _glass_button("◀ Précédent")
+        self.prev_button = _glass_button(
+            self._t("credits_previous", "◀ Previous")
+        )
         self.prev_button.clicked.connect(self._go_prev)
 
-        self.play_button = _glass_button("⏸ Pause")
+        self.play_button = _glass_button(self._t("credits_pause", "⏸ Pause"))
         self.play_button.clicked.connect(self._toggle_video_playback)
         self.play_button.hide()
 
-        self.next_button = _glass_button("Suivant ▶")
+        self.next_button = _glass_button(self._t("credits_next", "Next ▶"))
         self.next_button.clicked.connect(self._go_next)
 
         nav_row.addWidget(self.prev_button)
@@ -685,8 +716,9 @@ class CreditsPage(QWidget):
 
         # --- Statut ---------------------------------------------------------
         self.status_label = QLabel(
-            "Ouvre l'onglet Crédits pour charger la collection." if self._root
-            else "Dossier « credit_du_logiciel » introuvable à côté du projet."
+            self._t("credits_open_tab", "Open the Credits tab to load the collection.")
+            if self._root
+            else self._t("credits_missing_folder", "Credits folder not found.")
         )
         self.status_label.setObjectName("SectionDescription")
         outer.addWidget(self.status_label)
@@ -756,15 +788,17 @@ class CreditsPage(QWidget):
 
     def _start_scan(self):
         if self._root is None:
-            self.status_label.setText(
-                "Dossier « credit_du_logiciel » introuvable à côté du projet."
-            )
+            self.status_label.setText(self._t(
+                "credits_missing_folder", "Credits folder not found."
+            ))
             return
         if self._scanning:
             return
 
         self._scanning = True
-        self.status_label.setText("Chargement de la collection en arrière-plan…")
+        self.status_label.setText(
+            self._t("credits_loading", "Loading collection in the background…")
+        )
 
         self._scan_thread = QThread(self)
         self._scan_worker = _AlbumScanWorker(self._root)
@@ -779,7 +813,9 @@ class CreditsPage(QWidget):
         self._scanning = False
 
         if error:
-            self.status_label.setText(f"Erreur pendant le chargement : {error}")
+            self.status_label.setText(self._t(
+                "credits_load_error", "Error while loading: {error}", error=error
+            ))
             return
 
         self._albums = albums
@@ -788,19 +824,20 @@ class CreditsPage(QWidget):
         self._ratio_cache.clear()
 
         if not albums:
-            self.status_label.setText(
-                "Aucune photo ni vidéo trouvée dans « credit_du_logiciel »."
-            )
+            self.status_label.setText(self._t(
+                "credits_empty", "No photo or video found."
+            ))
             self.subtitle_label.setText("")
             self.media_card.hide()
             self._set_nav_enabled(False)
             return
 
         n_items = sum(len(a["items"]) for a in albums)
-        self.subtitle_label.setText(
-            f"{len(albums)} dossier(s) — {n_items} photo(s)/vidéo(s)"
-        )
-        self.status_label.setText("Collection chargée.")
+        self.subtitle_label.setText(self._t(
+            "credits_count", "{albums} folder(s) — {items} media",
+            albums=len(albums), items=n_items,
+        ))
+        self.status_label.setText(self._t("credits_loaded", "Collection loaded."))
 
         self._build_tabs()
         self._set_nav_enabled(True)
@@ -951,7 +988,9 @@ class CreditsPage(QWidget):
             self._current_pixmap = None
             self._native_cap = None
             self.image_label.clear()
-            self.image_label.setText("Chargement…")
+            self.image_label.setText(
+                self._t("credits_image_loading", "Loading…")
+            )
             self._relayout_media()
             self._request_seq += 1
             self.requestImageLoad.emit(
@@ -1019,7 +1058,9 @@ class CreditsPage(QWidget):
         if is_current:
             self._current_pixmap = None
             self.image_label.clear()
-            self.image_label.setText(f"Impossible d'afficher ce fichier : {message}")
+            self.image_label.setText(self._t(
+                "credits_image_error", "Unable to display this file: {error}", error=message
+            ))
 
     def _display_pixmap(self, pixmap: QPixmap):
         self._current_pixmap = pixmap
@@ -1189,9 +1230,9 @@ class CreditsPage(QWidget):
 
     def _on_playback_state(self, state):
         if state == QMediaPlayer.PlayingState:
-            self.play_button.setText("⏸ Pause")
+            self.play_button.setText(self._t("credits_pause", "⏸ Pause"))
         else:
-            self.play_button.setText("▶ Lecture")
+            self.play_button.setText(self._t("credits_play", "▶ Play"))
 
     def _toggle_video_playback(self):
         if self.media_player is None:
@@ -1230,7 +1271,9 @@ class CreditsPage(QWidget):
                 json.dumps(self._captions, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
-            self.status_label.setText("Légende enregistrée.")
+            self.status_label.setText(
+                self._t("credits_caption_saved", "Caption saved.")
+            )
         except Exception as exc:
             self.status_label.setText(f"Échec de l'enregistrement de la légende : {exc}")
             return
