@@ -144,6 +144,45 @@ class _ChainSelectionDialog(QDialog):
         ]
 
 
+def _risk_threshold_text(result, classification):
+    # patch-seuil : ligne du seuil absolu, seulement si le couple en a un
+    attrs = getattr(classification, "attrs", None) or {}
+    seuil = attrs.get("seuil_risque_absolu")
+    if seuil is None:
+        return ""
+    ref = str(attrs.get("ref_name", "pyocyanine")).replace("pyocyanine", "piocyanine")
+    y = str((result.get("labels") or {}).get("y", "MexR"))
+    return "- ΔG " + y + " meilleur que le seuil " + ref + " (" + str(seuil) + " kcal/mol)"
+
+
+def _fmt_cell(value, df=None, col=None):
+    # patch-decimales : nombres a 3 decimales exactement, NaN -> vide,
+    # colonnes d'entiers conservees telles quelles (iterrows les convertit en float)
+    import math
+    import numbers
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return str(value)
+    if isinstance(value, numbers.Real) and not isinstance(value, numbers.Integral):
+        v = float(value)
+        if v != v:
+            return ""
+        if math.isinf(v):
+            return str(v)
+        try:
+            if df is not None and col in df.columns:
+                import pandas as _pd
+                if _pd.api.types.is_integer_dtype(df[col]):
+                    return str(int(round(v)))
+        except Exception:
+            pass
+        return "%.3f" % v
+    if isinstance(value, numbers.Integral):
+        return str(int(value))
+    return str(value)
+
+
 class _MoleculeFamilyDialog(QDialog):
     """Sélecteur compact de sept familles maximum, une famille par dossier."""
 
@@ -9174,9 +9213,7 @@ class AnalysisPage(QWidget):
                         table.setItem(
                             idx,
                             c,
-                            QTableWidgetItem(
-                                str(row.get(col, ""))
-                            )
+                            QTableWidgetItem(_fmt_cell(row.get(col, ""), classification, col))
                         )
 
 
@@ -9278,9 +9315,7 @@ class AnalysisPage(QWidget):
                             table.setItem(
                                 idx,
                                 c,
-                                QTableWidgetItem(
-                                    str(row.get(col, ""))
-                                )
+                                QTableWidgetItem(_fmt_cell(row.get(col, ""), dataframe, col))
                             )
 
 
@@ -9319,10 +9354,7 @@ class AnalysisPage(QWidget):
                 make_label(
                     "Critères :\n"
                     + "- SI percentile > " + ("%g" % dual.get("threshold_percentile", 50)) + "\n"
-                    + "- ΔG " + str((result.get("labels") or {}).get("y", "MexR"))
-                    + " meilleur que le seuil "
-                    + str((getattr(classification, "attrs", None) or {}).get("ref_name", "pyocyanine")).replace("pyocyanine", "piocyanine")
-                    + " (" + str((getattr(classification, "attrs", None) or {}).get("seuil_risque_absolu", -8.289)) + " kcal/mol)"  # patch-libelles-gui
+                    + _risk_threshold_text(result, classification)
                 )
             )
 
@@ -9350,10 +9382,11 @@ class AnalysisPage(QWidget):
             )
 
 
-            add_dual_table(
-                "Exclus seuil piocyanine",
-                excluded
-            )
+            if (getattr(classification, "attrs", None) or {}).get("seuil_risque_absolu") is not None:  # patch-seuil
+                add_dual_table(
+                    "Exclus seuil piocyanine",
+                    excluded
+                )
 
 
         # --------------------------
