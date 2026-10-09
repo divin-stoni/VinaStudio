@@ -43,7 +43,7 @@ INAT_TAXA_URL = "https://api.inaturalist.org/v1/taxa"
 INAT_TAXON_URL = "https://api.inaturalist.org/v1/taxa/{id}"
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 PUBCHEM_CID_BY_NAME_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{name}/cids/JSON"
-PUBCHEM_SDF_BATCH_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cids}/SDF"
+PUBCHEM_SDF_BATCH_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cids}/record/3D/SDF"
 
 GBIF_BACKBONE_KEY = "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
 GBIF_PLANTAE_KEY = 6
