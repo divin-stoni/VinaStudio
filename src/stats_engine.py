@@ -553,11 +553,13 @@ def compute_si_and_classification(df, x_col="dg_mexb", y_col="dg_mexr",
     # Convention : plus ΔG(MexR) est négatif, plus la liaison est forte -> plus le risque
     # de dérépression est élevé. Un composé est "à risque" si ΔG(MexR) <= seuil
     # (donc au moins aussi négatif que le seuil), "Favorable" si ΔG(MexR) > seuil.
-    out["statut_risque"] = np.where(
-        out[y_col] <= seuil_risque_absolu, "À risque (dérépression possible)", "Favorable"
-    )
-    out.attrs["seuil_risque_absolu"] = seuil_risque_absolu
-    out.attrs["ref_name"] = ref_name
+    # patch-seuil : sans seuil absolu (couple autre que MexB/MexR), pas de colonne de risque
+    if seuil_risque_absolu is not None:
+        out["statut_risque"] = np.where(
+            out[y_col] <= seuil_risque_absolu, "À risque (dérépression possible)", "Favorable"
+        )
+        out.attrs["seuil_risque_absolu"] = seuil_risque_absolu
+        out.attrs["ref_name"] = ref_name
     return out
 
 
@@ -577,6 +579,9 @@ def dual_filter(df_classified, percentile_col="percentile_SI", status_col="statu
     Retourne (valides, exclus_absolu).
     """
     relatif_favorable = df_classified[df_classified[percentile_col] > percentile_seuil]
+    if status_col not in df_classified.columns:  # patch-seuil
+        valides = relatif_favorable.sort_values("SI_calc", ascending=False).reset_index(drop=True)
+        return valides, relatif_favorable.iloc[0:0].reset_index(drop=True)
     valides = relatif_favorable[relatif_favorable[status_col] == "Favorable"].sort_values(
         "SI_calc", ascending=False).reset_index(drop=True)
     exclus_absolu = relatif_favorable[relatif_favorable[status_col] == "À risque (dérépression possible)"].sort_values(
@@ -585,5 +590,8 @@ def dual_filter(df_classified, percentile_col="percentile_SI", status_col="statu
 
 
 def top_candidates(df_classified, n=10, si_col="SI_calc", status_col="statut_risque"):
-    favorables = df_classified[df_classified[status_col] == "Favorable"]
+    if status_col in df_classified.columns:  # patch-seuil
+        favorables = df_classified[df_classified[status_col] == "Favorable"]
+    else:
+        favorables = df_classified
     return favorables.sort_values(si_col, ascending=False).head(n)

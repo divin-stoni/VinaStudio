@@ -70,6 +70,15 @@ def _receptor_labels(csv_path, x_col, y_col):
     return labels
 
 
+SEUIL_PYOCYANINE_MEXR = -8.289  # patch-seuil
+
+
+def _risk_threshold(labels):
+    """Seuil de la pyocyanine : propre au couple dont le repressor est MexR."""
+    y = str((labels or {}).get("y") or "").strip().lower()
+    return SEUIL_PYOCYANINE_MEXR if y == "mexr" else None
+
+
 def run_statistics_pipeline(csv_path):
 
     csv_path = Path(csv_path)
@@ -94,8 +103,12 @@ def run_statistics_pipeline(csv_path):
     # Analyses communes
     # --------------------------------------------------
 
+    _labels0 = _receptor_labels(csv_path, x_col, y_col)  # patch-seuil
+    _seuil = _risk_threshold(_labels0)
     result["classification"] = (
-        compute_si_and_classification(df, x_col=x_col, y_col=y_col)
+        compute_si_and_classification(
+            df, x_col=x_col, y_col=y_col, seuil_risque_absolu=_seuil
+        )
     )
 
     # patch-libelles : noms des recepteurs (fusion -> meta -> pipeline -> figures)
@@ -120,7 +133,7 @@ def run_statistics_pipeline(csv_path):
         "candidates": dual_valides,
         "excluded_absolute": dual_exclus,
         "threshold_percentile": 50.0,
-        "threshold_mexr": -8.289,
+        "threshold_mexr": _seuil,
     }
 
 
