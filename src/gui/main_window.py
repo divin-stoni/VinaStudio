@@ -5938,7 +5938,7 @@ class DockingPage(QWidget):
                     self._set_fields_enabled(
                         panel_data["fields"],
                         panel_data["sliders"],
-                        False,
+                        True,
                     )
                 elif visible:
                     self._set_fields_enabled(
@@ -6140,7 +6140,25 @@ class DockingPage(QWidget):
                 return
             self._sync_grid_profile(profile, fields)
             try:
-                save_user_grid_override(profile.profile_id, profile.grid_box)
+                if profile.profile_type == "user_defined":
+                    # Recepteur importe : son JSON est la source unique.
+                    # On y ecrit la grid box (deja synchronisee) et, en
+                    # cible unique, les parametres Vina affiches.
+                    _members = getattr(self, "pair_targets", {}).get(
+                        self.target_combo.currentData()) or ()
+                    if (self.current_single_target == profile.profile_id
+                            or profile.profile_id in _members):
+                        for _key, _fld in (
+                            ("exhaustiveness", self.exhaustiveness_field),
+                            ("num_modes", self.num_modes_field),
+                        ):
+                            try:
+                                profile.docking_params[_key] = int(_fld.text())
+                            except (ValueError, AttributeError):
+                                pass
+                    save_user_profile(profile)
+                else:
+                    save_user_grid_override(profile.profile_id, profile.grid_box)
             except Exception as exc:
                 self.execution_status.setText(
                     f"Erreur enregistrement configuration : {exc}"
@@ -6173,11 +6191,115 @@ class DockingPage(QWidget):
         activate_button.clicked.connect(_activate)
         default_button.clicked.connect(_restore_default)
 
-        row = QHBoxLayout()
+        row = QVBoxLayout()
         row.setSpacing(10)
-        row.addWidget(activate_button)
-        row.addWidget(default_button)
-        row.addStretch(1)
+        buttons_row = QHBoxLayout()
+        buttons_row.setSpacing(10)
+        buttons_row.addWidget(activate_button)
+        # --- Centrage de la grid box sur un residu de reference ---
+        from PySide6.QtWidgets import QLineEdit as _ResLineEdit
+        from PySide6.QtWidgets import QPushButton as _ResButton
+
+        residue_input = _ResLineEdit()
+        residue_input.setPlaceholderText("Résidu de référence : GLU22, E22, A:22")
+        residue_input.setMaximumWidth(240)
+        residue_input.setToolTip(
+            "Numéro seul (22), avec le nom (GLU22, Glu-22, E22, glutamate 22) "
+            "et éventuellement la chaîne (A:GLU22, GLU22:B)."
+        )
+        center_button = _ResButton("⌖ Centrer sur le résidu")
+        center_button.setToolTip(
+            "Place le centre de la grid box sur ce résidu. La taille et les "
+            "curseurs restent réglables ensuite ; Enregistrer conserve le résultat."
+        )
+
+        def _center_on_residue():
+            profile = get_profile()
+            query = residue_input.text().strip()
+            if profile is None or not query:
+                return
+            if not fields["center_x"].isEnabled():
+                self.execution_status.setText(
+                    "Grid box verrouillée dans ce mode : choisis le récepteur seul pour la centrer."
+                )
+                return
+            try:
+                from src.residue_center import locate_residue
+                path = profile.pdbqt_path
+                if not path or not Path(path).exists():
+                    path = profile.pdb_path_for_viewer
+                found = locate_residue(path, query)
+            except ValueError as exc:
+                self.execution_status.setText(f"Centrage impossible : {exc}")
+                return
+            except Exception as exc:
+                self.execution_status.setText(f"Erreur de centrage : {exc}")
+                return
+
+            cx, cy, cz = (round(v, 3) for v in found["center"])
+            out_of_range = False
+            for key, val in (("center_x", cx), ("center_y", cy), ("center_z", cz)):
+                fields[key].setValue(val)
+                if abs(fields[key].value() - val) > 0.01:
+                    out_of_range = True
+            self._sync_grid_profile(profile, fields)
+            if is_current():
+                self._update_viewer_box(profile.grid_box)
+
+            if out_of_range:
+                self.execution_status.setText(
+                    "Centre hors des limites du champ : valeur ajustée au maximum autorisé."
+                )
+                return
+            message = (
+                f"Grid box centrée sur {found['resname']}{found['resnum']} "
+                f"(chaîne {found['chain']}) : {cx:.2f}, {cy:.2f}, {cz:.2f}."
+            )
+            if len(found["chains"]) > 1 and not found["chain_given"]:
+                message += (
+                    " Présent dans les chaînes " + ", ".join(found["chains"])
+                    + " : précise-la (ex. B:" + found["resname"] + str(found["resnum"])
+                    + ") pour une autre."
+                )
+            self.execution_status.setText(message)
+
+        center_button.clicked.connect(_center_on_residue)
+        residue_input.returnPressed.connect(_center_on_residue)
+
+        residue_input.setMinimumWidth(280)
+        residue_input.setMaximumWidth(16777215)
+        residue_input.setMinimumHeight(34)
+        residue_input.setPlaceholderText("Ex. : 22   ou   GLY22   ou   A:GLY22")
+        center_button.setMinimumHeight(34)
+
+        from PySide6.QtWidgets import QLabel as _ResLabel
+        residue_title = _ResLabel("Centrer la grid box sur un résidu de référence")
+        residue_title.setStyleSheet("font-weight: 600;")
+        residue_hint = _ResLabel(
+            "Tape le numéro du résidu (celui du fichier de la protéine), avec ou "
+            "sans son nom, puis clique sur « Centrer ». Pas de virgule ni de point. "
+            "Exemples : 22 · GLY22 · Gly-22 · G22 · glycine 22 · A:GLY22 (chaîne A). "
+            "Si le nom ne correspond pas au numéro, le logiciel te prévient sans rien "
+            "déplacer. Ensuite, ajuste avec les curseurs puis clique sur « ✓ Enregistrer »."
+        )
+        residue_hint.setWordWrap(True)
+
+        residue_input_row = QHBoxLayout()
+        residue_input_row.setSpacing(10)
+        residue_input_row.addWidget(residue_input, 1)
+        residue_input_row.addWidget(center_button)
+
+        residue_block = QVBoxLayout()
+        residue_block.setSpacing(6)
+        residue_block.setContentsMargins(0, 12, 0, 12)
+        residue_block.addWidget(residue_title)
+        residue_block.addLayout(residue_input_row)
+        residue_block.addWidget(residue_hint)
+
+        buttons_row.addWidget(default_button)
+        buttons_row.addStretch(1)
+        row.addLayout(residue_block)
+        row.addLayout(buttons_row)
 
         return row, activate_button, default_button
 
@@ -6339,6 +6461,52 @@ class DockingPage(QWidget):
         )
 
     def _import_receptor_core(self, prompt_label="", also_taken=None):
+        """Import d'un recepteur, avec reutilisation du profil deja
+        configure (grid box, parametres Vina) si le nom correspond a un
+        profil importe existant."""
+        profile = self._import_receptor_core_raw(
+            prompt_label=prompt_label, also_taken=also_taken
+        )
+        if profile is None:
+            return None
+        try:
+            base_slug = "".join(
+                ch if ch.isalnum() else "_"
+                for ch in profile.display_name.lower()
+            ).strip("_") or "recepteur_importe"
+            taken = set(also_taken or ())
+            if (
+                base_slug != profile.profile_id
+                and base_slug in set(list_profile_ids())
+                and base_slug not in self.generic_panels
+                and base_slug not in taken
+            ):
+                old = resolve_target_profile(base_slug)
+                if old.profile_type == "user_defined":
+                    answer = QMessageBox.question(
+                        self,
+                        "Récepteur déjà configuré",
+                        f"Un profil « {old.display_name} » existe déjà, avec sa "
+                        "grid box et ses paramètres enregistrés.\n\n"
+                        "Réutiliser cette configuration pour le fichier importé ?\n"
+                        "(Non : nouveau profil avec la grid box par défaut.)",
+                    )
+                    if answer == QMessageBox.Yes:
+                        profile.profile_id = base_slug
+                        profile.grid_box = old.grid_box
+                        profile.docking_params = dict(old.docking_params)
+                        profile.species = profile.species or old.species
+                        profile.validated = old.validated
+                        profile.notes = old.notes
+                        profile.risk_calibration = old.risk_calibration
+                        profile.short_name = old.short_name
+                        profile.partner_id = old.partner_id
+                        profile.partner_ids = list(old.partner_ids or [])
+        except Exception:
+            pass
+        return profile
+
+    def _import_receptor_core_raw(self, prompt_label="", also_taken=None):
         """
         Étapes communes à tout import de récepteur (Mode 2) : choix du
         fichier, nettoyage/conversion si PDB brut (avec sélection de
@@ -7363,6 +7531,16 @@ class DockingPage(QWidget):
 
                 sub_config.exhaustiveness = config.exhaustiveness
                 sub_config.num_modes = config.num_modes
+
+                _pd = self.generic_panels.get(sub_target)
+                if _pd is not None and _pd.get("profile") is not None:
+                    _f = _pd["fields"]
+                    sub_config.center_x = _f["center_x"].value()
+                    sub_config.center_y = _f["center_y"].value()
+                    sub_config.center_z = _f["center_z"].value()
+                    sub_config.size_x = _f["size_x"].value()
+                    sub_config.size_y = _f["size_y"].value()
+                    sub_config.size_z = _f["size_z"].value()
 
                 engines[sub_target] = VinaEngine(sub_config)
 

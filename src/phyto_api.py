@@ -43,7 +43,7 @@ INAT_TAXA_URL = "https://api.inaturalist.org/v1/taxa"
 INAT_TAXON_URL = "https://api.inaturalist.org/v1/taxa/{id}"
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 PUBCHEM_CID_BY_NAME_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{name}/cids/JSON"
-PUBCHEM_SDF_BATCH_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cids}/record/3D/SDF"
+PUBCHEM_SDF_BATCH_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cids}/SDF"
 
 GBIF_BACKBONE_KEY = "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
 GBIF_PLANTAE_KEY = 6
@@ -553,6 +553,9 @@ def group_by_family(compounds):
 def pubchem_search_by_name(name):
     """Mode 'Autres molécules organiques' : recherche directe PubChem par nom.
     Liste vide si PubChem ne connaît pas ce nom (HTTP 404)."""
+    name = str(name).strip()
+    if name.isdigit():
+        return [int(name)]
     url = PUBCHEM_CID_BY_NAME_URL.format(name=quote(name, safe=""))
     try:
         resp = _request("GET", url, "PubChem")
@@ -563,19 +566,152 @@ def pubchem_search_by_name(name):
     return _json(resp, "PubChem").get("IdentifierList", {}).get("CID", [])
 
 
+def _sdf_blocks(content):
+    """Decoupe un SDF (bytes) en {cid: bloc}. Le titre de chaque bloc est le CID."""
+    out = {}
+    for raw in content.decode("utf-8", errors="replace").split("$$$$"):
+        blk = raw.strip("\r\n")
+        if not blk.strip():
+            continue
+        first = blk.splitlines()[0].strip()
+        if first.isdigit():
+            out[int(first)] = blk + "\n$$$$\n"
+    return out
+
+
+def _is_3d(block):
+    """True si au moins un atome a une coordonnee z non nulle."""
+    try:
+        lines = block.splitlines()
+        n_atoms = int(lines[3][0:3])
+        return any(abs(float(l[20:30])) > 1e-4 for l in lines[4:4 + n_atoms])
+    except (ValueError, IndexError):
+        return False
+
+
+def _pubchem_fetch_blocks(cids, record_type):
+    """{cid: bloc SDF} pour record_type '3d' ou '2d'. Lot d'abord ; si PubChem
+    refuse le lot (400/404), repli CID par CID. Les CID sans structure sont absents."""
+    got = {}
+    url = PUBCHEM_SDF_BATCH_URL.format(cids=",".join(str(c) for c in cids))
+    try:
+        resp = _request("GET", url, "PubChem", params={"record_type": record_type},
+                        timeout=SDF_TIMEOUT)
+        got.update(_sdf_blocks(resp.content))
+        return got
+    except PhytoNetworkError as exc:
+        if exc.status not in (400, 404):
+            raise
+    if len(cids) == 1:
+        return got
+    for cid in cids:
+        one = PUBCHEM_SDF_BATCH_URL.format(cids=str(cid))
+        try:
+            resp = _request("GET", one, "PubChem", params={"record_type": record_type},
+                            timeout=SDF_TIMEOUT)
+            got.update(_sdf_blocks(resp.content))
+        except PhytoNetworkError as exc:
+            if exc.status not in (400, 404):
+                raise
+        time.sleep(0.25)
+    return got
+
+
+def _find_obabel():
+    import shutil
+    exe = shutil.which("obabel")
+    if exe:
+        return exe
+    base = Path(__file__).resolve().parent.parent
+    for cand in sorted(base.glob("obabel_runtime/**/obabel")):
+        if cand.is_file():
+            return str(cand)
+    return None
+
+
+def _gen3d_local(blocks):
+    """Genere la 3D en local (Open Babel, sinon RDKit) pour {cid: bloc 2D}.
+    Retourne {cid: bloc 3D} ; les CID non convertibles sont absents."""
+    import subprocess
+    import tempfile
+    out = {}
+    if not blocks:
+        return out
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        src_f = tmp / "in2d.sdf"
+        src_f.write_text("".join(blocks.values()), encoding="utf-8")
+        exe = _find_obabel()
+        if exe:
+            dst = tmp / "out3d.sdf"
+            try:
+                subprocess.run([exe, str(src_f), "-O", str(dst), "--gen3d", "-h"],
+                               capture_output=True, timeout=900)
+                if dst.exists():
+                    for cid, blk in _sdf_blocks(dst.read_bytes()).items():
+                        if _is_3d(blk):
+                            out[cid] = blk
+            except (OSError, subprocess.SubprocessError):
+                pass
+    todo = [c for c in blocks if c not in out]
+    if todo:
+        try:
+            from rdkit import Chem
+            from rdkit.Chem import AllChem
+        except ImportError:
+            return out
+        for cid in todo:
+            try:
+                blk = blocks[cid]
+                molblock = blk[:blk.index("M  END") + 6]
+                mol = Chem.MolFromMolBlock(molblock, removeHs=False)
+                if mol is None:
+                    continue
+                mol = Chem.AddHs(mol)
+                if AllChem.EmbedMolecule(mol, randomSeed=42) != 0:
+                    continue
+                try:
+                    AllChem.MMFFOptimizeMolecule(mol)
+                except Exception:
+                    pass
+                mol.SetProp("_Name", str(cid))
+                out[cid] = Chem.MolToMolBlock(mol) + "$$$$\n"
+            except Exception:
+                continue
+    return out
+
+
 def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
-    """Télécharge en lot les SDF PubChem et les concatène dans out_file,
-    prêt pour extraction via src/docking/sdf_preparer.py::_split_sdf."""
+    """Telecharge en lot les SDF 3D PubChem (record_type=3d) et les concatene
+    dans out_file. CID sans 3D : 2D PubChem puis 3D generee localement.
+    Ecrit aussi <out_file>_rapport.txt (CID, statut)."""
     out_file = Path(out_file)
+    cids = list(dict.fromkeys(int(c) for c in cids))
+    native, generated = {}, {}
+    for i in range(0, len(cids), batch_size):
+        batch = cids[i:i + batch_size]
+        found = _pubchem_fetch_blocks(batch, "3d")
+        native.update(found)
+        missing = [c for c in batch if c not in found]
+        if missing:
+            flat = _pubchem_fetch_blocks(missing, "2d")
+            generated.update(_gen3d_local(flat))
+        time.sleep(0.3)
+    if not native and not generated:
+        raise PhytoNetworkError(
+            "PubChem : aucune structure disponible pour ces CID ("
+            + ", ".join(str(c) for c in cids[:10]) + ").", status=404)
+    rapport = ["CID\tstatut"]
     with out_file.open("wb") as fh:
-        for i in range(0, len(cids), batch_size):
-            batch = cids[i:i + batch_size]
-            url = PUBCHEM_SDF_BATCH_URL.format(cids=",".join(str(c) for c in batch))
-            resp = _request("GET", url, "PubChem", timeout=SDF_TIMEOUT)
-            fh.write(resp.content)
-            if not resp.content.endswith(b"\n"):
-                fh.write(b"\n")
-            time.sleep(0.3)
+        for c in cids:
+            blk = native.get(c) or generated.get(c)
+            if blk:
+                fh.write(blk.encode("utf-8"))
+                rapport.append(str(c) + "\t" + ("3D_PubChem" if c in native else "3D_generee_locale"))
+            else:
+                rapport.append(str(c) + "\techec")
+    out_file.with_name(out_file.stem + "_rapport.txt").write_text(
+        "\n".join(rapport) + "\n", encoding="utf-8")
     return out_file
 
 
