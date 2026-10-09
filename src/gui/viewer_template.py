@@ -90,6 +90,10 @@ VIEWER_HTML = """<!DOCTYPE html>
   <script>
     let viewer = $3Dmol.createViewer("container", {backgroundColor: "0xffffff"});
     let currentBox = null;
+    // Apparence : proteine d'une seule couleur, grid box epaisse.
+    const PROTEIN_COLOR = "0x9aa4ae";
+    const BOX_COLOR = "0xff0055";
+    const BOX_EDGE_RADIUS = 0.22;
     let currentHighlight = null;
     let currentPockets = [];
     let pocketModels = {};   // pocket_id -> GLModel (ou null si pas de PQR)
@@ -149,7 +153,7 @@ VIEWER_HTML = """<!DOCTYPE html>
 
       // Ruban opaque, coloré par chaîne (pas de transparence globale --
       // seul le résidu survolé est mis en avant, voir plus bas).
-      viewer.setStyle({}, {cartoon: {color: "spectrum", opacity: 1.0}});
+      viewer.setStyle({}, {cartoon: {color: PROTEIN_COLOR, opacity: 1.0}});
 
       viewer.setHoverable(
         {},
@@ -274,18 +278,30 @@ VIEWER_HTML = """<!DOCTYPE html>
     }
 
     function updateBox(cx, cy, cz, sx, sy, sz) {
-      if (currentBox) { viewer.removeShape(currentBox); currentBox = null; }
-      // Une seule forme filaire evite de recreer 12 cylindres WebGL a
-      // chaque mouvement de slider ou de camera.
-      currentBox = viewer.addBox({
-        center: {x: cx, y: cy, z: cz},
-        dimensions: {w: sx, h: sy, d: sz},
-        color: "0xff0055",
-        wireframe: true,
-        lineWidth: 2.5,
-        opacity: 1.0
-      });
-
+      if (currentBox) {
+        currentBox.forEach(function(s) { viewer.removeShape(s); });
+      }
+      currentBox = [];
+      const xs = [cx - sx / 2, cx + sx / 2];
+      const ys = [cy - sy / 2, cy + sy / 2];
+      const zs = [cz - sz / 2, cz + sz / 2];
+      function edge(a, b) {
+        currentBox.push(viewer.addCylinder({
+          start: {x: a[0], y: a[1], z: a[2]},
+          end: {x: b[0], y: b[1], z: b[2]},
+          radius: BOX_EDGE_RADIUS,
+          color: BOX_COLOR,
+          fromCap: 1,
+          toCap: 1
+        }));
+      }
+      for (let j = 0; j < 2; j++) {
+        for (let k = 0; k < 2; k++) {
+          edge([xs[0], ys[j], zs[k]], [xs[1], ys[j], zs[k]]);
+          edge([xs[j], ys[0], zs[k]], [xs[j], ys[1], zs[k]]);
+          edge([xs[j], ys[k], zs[0]], [xs[j], ys[k], zs[1]]);
+        }
+      }
       viewer.render();
     }
 
