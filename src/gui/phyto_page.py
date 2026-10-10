@@ -65,6 +65,32 @@ _DIR_PARAMS = {"work_dir", "out_dir", "output_dir", "dest_dir", "dest", "target_
 _PREFIX_PARAMS = {"prefix", "basename", "base_name", "stem"}
 
 
+def split_sdf_by_cid(sdf_path, out_dir, prefix="mol"):
+    """Decoupe un SDF PubChem groupe en fichiers <CID>.sdf (le titre de
+    chaque bloc est le CID). Retourne une liste de (cid, chemin)."""
+    import re
+    text = Path(sdf_path).read_text(encoding="utf-8", errors="replace")
+    blocks = [b.strip("\r\n") + "\n$$$$\n" for b in text.split("$$$$") if b.strip()]
+    if not blocks:
+        raise ValueError("Le fichier SDF ne contient aucune molécule : " + str(sdf_path))
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    outputs = []
+    for index, block in enumerate(blocks, start=1):
+        lines = block.splitlines()
+        first = lines[0].strip() if lines else ""
+        cid = first if first.isdigit() else None
+        if cid is None:
+            m = re.search(r">\s*<PUBCHEM_COMPOUND_CID>\s*\n\s*(\d+)", block)
+            if m:
+                cid = m.group(1)
+        name = cid if cid else (str(prefix) + "_" + format(index, "06d"))
+        path = out_dir / (name + ".sdf")
+        path.write_text(block, encoding="utf-8")
+        outputs.append((cid, path))
+    return outputs
+
+
 def call_split_sdf(sdf_path, out_dir, prefix):
     """Appelle _split_sdf en liant les arguments PAR NOM d'après sa signature réelle
     (sdf_path, work_dir, prefix...). Lève TypeError avec la signature si un paramètre
@@ -1036,9 +1062,46 @@ class PhytoPage(QWidget):
                                self._t("phyto_done_msg",
                                        "Famille téléchargée et extraite dans le dossier ligand."))
 
+    def _write_cid_index(self, pairs, out_dir, prefix):
+        """Ecrit <prefix>_index.csv : CID, nom, famille, fichier (Excel FR)."""
+        try:
+            import csv
+            names, families = {}, {}
+            for fam, mols in (getattr(self, "_current_families", None) or {}).items():
+                for m in mols:
+                    try:
+                        key = int(m.get("pubchem_cid"))
+                    except (TypeError, ValueError):
+                        continue
+                    names.setdefault(key, m.get("name", ""))
+                    families.setdefault(key, fam)
+            for m in (getattr(self, "_other_rows", None) or []):
+                try:
+                    key = int(m.get("cid"))
+                except (TypeError, ValueError):
+                    continue
+                names.setdefault(key, m.get("title", ""))
+            cur = getattr(self, "_other_current", None)
+            if isinstance(cur, dict) and cur.get("cid"):
+                names.setdefault(int(cur["cid"]), cur.get("title", ""))
+            index_path = Path(out_dir) / (str(prefix) + "_index.csv")
+            with index_path.open("w", encoding="utf-8-sig", newline="") as fh:
+                writer = csv.writer(fh, delimiter=";")
+                writer.writerow(["cid", "nom", "famille", "fichier"])
+                for cid, path in pairs:
+                    try:
+                        key = int(cid)
+                    except (TypeError, ValueError):
+                        key = None
+                    writer.writerow([cid or "", names.get(key, ""), families.get(key, ""), Path(path).name])
+        except Exception:
+            pass
+
     def _split_and_report(self, sdf_path, out_dir, prefix, done_msg):
         try:
-            result = call_split_sdf(sdf_path, out_dir, prefix)
+            pairs = split_sdf_by_cid(sdf_path, out_dir, prefix)
+            result = [p for _, p in pairs]
+            self._write_cid_index(pairs, out_dir, prefix)
         except Exception as exc:
             QMessageBox.warning(
                 self, self._t("phyto_error_title", "Erreur"),
