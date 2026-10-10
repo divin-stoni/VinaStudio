@@ -5866,6 +5866,7 @@ class DockingPage(QWidget):
             self.target_combo.setCurrentIndex(chosen)
 
     def _sync_receptor_picker_button(self, _index=None):
+        self._ensure_couple_button()
         if not hasattr(self, "_receptor_picker_button"):
             return
         text = self.target_combo.currentText()
@@ -5874,6 +5875,7 @@ class DockingPage(QWidget):
         )
 
     def update_target_parameters(self, target):
+        self._ensure_couple_button()
 
         try:
 
@@ -6500,15 +6502,16 @@ class DockingPage(QWidget):
         )
 
     def _import_receptor_core(self, prompt_label="", also_taken=None):
-        """Import d'un recepteur, avec reutilisation du profil deja
-        configure (grid box, parametres Vina) si le nom correspond a un
-        profil importe existant."""
+        """Import d'un recepteur. Un meme recepteur (meme nom) n'a qu'UN
+        profil : sa configuration (grid box, parametres) est commune a la
+        selection seule et a tous les couples."""
         profile = self._import_receptor_core_raw(
             prompt_label=prompt_label, also_taken=also_taken
         )
         if profile is None:
             return None
         try:
+            import hashlib
             base_slug = "".join(
                 ch if ch.isalnum() else "_"
                 for ch in profile.display_name.lower()
@@ -6517,20 +6520,32 @@ class DockingPage(QWidget):
             if (
                 base_slug != profile.profile_id
                 and base_slug in set(list_profile_ids())
-                and base_slug not in self.generic_panels
                 and base_slug not in taken
             ):
                 old = resolve_target_profile(base_slug)
                 if old.profile_type == "user_defined":
-                    answer = QMessageBox.question(
-                        self,
-                        "Récepteur déjà configuré",
-                        f"Un profil « {old.display_name} » existe déjà, avec sa "
-                        "grid box et ses paramètres enregistrés.\n\n"
-                        "Réutiliser cette configuration pour le fichier importé ?\n"
-                        "(Non : nouveau profil avec la grid box par défaut.)",
+                    def _digest(path):
+                        try:
+                            return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                        except Exception:
+                            return None
+                    old_digest = _digest(old.pdbqt_path)
+                    new_digest = _digest(profile.pdbqt_path)
+                    reuse = (
+                        old_digest is None
+                        or new_digest is None
+                        or old_digest == new_digest
                     )
-                    if answer == QMessageBox.Yes:
+                    if not reuse:
+                        answer = QMessageBox.question(
+                            self,
+                            "Même nom, fichier différent",
+                            f"Un récepteur « {old.display_name} » existe déjà mais son "
+                            "fichier est différent de celui importé.\n\n"
+                            "Réutiliser sa configuration (grid box, paramètres) ?",
+                        )
+                        reuse = (answer == QMessageBox.Yes)
+                    if reuse:
                         profile.profile_id = base_slug
                         profile.grid_box = old.grid_box
                         profile.docking_params = dict(old.docking_params)
@@ -6736,6 +6751,23 @@ class DockingPage(QWidget):
         campagne combinée) + panneau de grid box.
         """
 
+        if profile.profile_id in self.generic_panels:
+            # Recepteur deja branche dans cette session : meme panneau,
+            # meme configuration (rechargee depuis le profil enregistre).
+            try:
+                self._load_generic_panel(profile.profile_id)
+            except Exception:
+                pass
+            if not silent:
+                existing = self.target_combo.findData(profile.profile_id)
+                if existing < 0:
+                    existing = self.target_combo.count()
+                    self.target_combo.insertItem(
+                        existing, f"⚠ {profile.display_name} (importé)", profile.profile_id
+                    )
+                self.target_combo.setCurrentIndex(existing)
+            return
+
         insert_index = None
 
         if not silent:
@@ -6872,11 +6904,18 @@ class DockingPage(QWidget):
         pump.role = "pump"
         repressor.role = "derepressor"
 
-        pump.partner_id = repressor.profile_id
-        pump.partner_ids = [repressor.profile_id]
+        def _merge_partner(prof, other_id):
+            ids = [x for x in (prof.partner_ids or []) if x]
+            if prof.partner_id and prof.partner_id not in ids:
+                ids.insert(0, prof.partner_id)
+            if other_id not in ids:
+                ids.append(other_id)
+            prof.partner_ids = ids
+            if not prof.partner_id:
+                prof.partner_id = other_id
 
-        repressor.partner_id = pump.profile_id
-        repressor.partner_ids = [pump.profile_id]
+        _merge_partner(pump, repressor.profile_id)
+        _merge_partner(repressor, pump.profile_id)
 
         try:
             save_user_profile(pump)
@@ -6900,11 +6939,13 @@ class DockingPage(QWidget):
         pair_key = make_pair_key(pump.profile_id, repressor.profile_id)
         self.pair_targets[pair_key] = (pump.profile_id, repressor.profile_id)
 
-        pair_index = self.target_combo.count()
-        self.target_combo.addItem(
-            f"⚠ {short_label(pump)} + {short_label(repressor)} (importé)",
-            pair_key,
-        )
+        pair_index = self.target_combo.findData(pair_key)
+        if pair_index < 0:
+            pair_index = self.target_combo.count()
+            self.target_combo.addItem(
+                f"⚠ {short_label(pump)} + {short_label(repressor)} (importé)",
+                pair_key,
+            )
         self.target_combo.setCurrentIndex(pair_index)
 
         QMessageBox.information(
@@ -6918,45 +6959,173 @@ class DockingPage(QWidget):
         )
 
     def _import_receptor_dialog(self):
-        """
-        Mode 2 (import libre) — point d'entrée public.
+        """Import d'UN recepteur a la fois. Pour former un couple, utiliser
+        le bouton « Coupler deux recepteurs »."""
+        self._import_receptor_dialog_single()
 
-        Demande d'abord combien de récepteurs importer : un seul
-        (cible unique — pompe seule, ou dérépresseur seul), ou deux
-        (jamais plus) — auquel cas l'utilisateur désigne lequel est la
-        pompe et lequel est le dérépresseur, et le couple est docké
-        ensemble selon le filtre à double sélectivité du logiciel.
-        """
+    def _couple_receptors_dialog(self):
+        """Assemble un couple pompe / derepresseur a partir de recepteurs
+        deja presents, avec les cartes de choix du logiciel. Le couple n'a
+        aucune configuration propre : il lit celle de chaque recepteur."""
+        entries = []
+        for pid in list(self.generic_panels.keys()):
+            try:
+                entries.append((pid, resolve_target_profile(pid)))
+            except Exception:
+                continue
 
-        chosen = _ReceptorChoiceCardDialog.ask(
-            self,
-            "Import de récepteur(s)",
-            "Combien de récepteurs veux-tu importer ?",
-            [
-                (
-                    "single",
-                    "1 récepteur",
-                    "Docké seul — pompe seule, ou dérépresseur seul, "
-                    "selon le rôle que tu choisiras.",
-                ),
-                (
-                    "pair",
-                    "2 récepteurs (un couple)",
-                    "Tu désigneras lequel est la pompe d'efflux et "
-                    "lequel est le dérépresseur — le couple sera docké "
-                    "ensemble (filtre à double sélectivité), avec les "
-                    "mêmes étapes (fichier, chaîne(s)...) pour chacun.",
-                ),
-            ],
-        )
-
-        if chosen is None:
+        if len(entries) < 2:
+            QMessageBox.information(
+                self,
+                "Couplage",
+                "Il faut au moins deux récepteurs (importés ou intégrés). "
+                "Importe d'abord les récepteurs un par un.",
+            )
             return
 
-        if chosen == "pair":
-            self._import_receptor_dialog_pair()
+        def _card(pid, prof):
+            species = prof.species or "espèce non renseignée"
+            state = (
+                "configuration validée" if prof.validated
+                else "configuration non validée"
+            )
+            return (pid, prof.display_name, f"{species} · {state}")
+
+        names = {pid: prof.display_name for pid, prof in entries}
+
+        pump_id = _ReceptorChoiceCardDialog.ask(
+            self,
+            "Coupler deux récepteurs",
+            "Étape 1 sur 2 : quelle est la pompe d'efflux ?",
+            [_card(pid, prof) for pid, prof in entries],
+        )
+        if pump_id is None:
+            return
+
+        rest = [(pid, prof) for pid, prof in entries if pid != pump_id]
+        if len(rest) == 1:
+            rep_id = rest[0][0]
         else:
-            self._import_receptor_dialog_single()
+            rep_id = _ReceptorChoiceCardDialog.ask(
+                self,
+                "Coupler deux récepteurs",
+                f"Étape 2 sur 2 : quel est le dérépresseur à coupler avec "
+                f"{names[pump_id]} ?",
+                [_card(pid, prof) for pid, prof in rest],
+            )
+            if rep_id is None:
+                return
+
+        try:
+            for pid, role in ((pump_id, "pump"), (rep_id, "derepressor")):
+                panel = self.generic_panels.get(pid) or {}
+                prof = panel.get("profile") or resolve_target_profile(pid)
+                if prof.profile_type == "user_defined":
+                    prof.role = role
+                    save_user_profile(prof)
+            pump = resolve_target_profile(pump_id)
+            repressor = resolve_target_profile(rep_id)
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Couplage",
+                f"Impossible de préparer le couple : {exc}",
+            )
+            return
+
+        pair_key = make_pair_key(pump_id, rep_id)
+        reverse_key = make_pair_key(rep_id, pump_id)
+        if self.pair_targets.pop(reverse_key, None) is not None:
+            old_index = self.target_combo.findData(reverse_key)
+            if old_index >= 0:
+                self.target_combo.removeItem(old_index)
+
+        self.pair_targets[pair_key] = (pump_id, rep_id)
+        pair_index = self.target_combo.findData(pair_key)
+        if pair_index < 0:
+            pair_index = self.target_combo.count()
+            prefix = "" if (pump.validated and repressor.validated) else "⚠ "
+            self.target_combo.addItem(
+                f"{prefix}{short_label(pump)} + {short_label(repressor)}",
+                pair_key,
+            )
+        self.target_combo.setCurrentIndex(pair_index)
+
+        self.execution_status.setText(
+            f"Couple prêt : {pump.display_name} (pompe) + "
+            f"{repressor.display_name} (dérépresseur)."
+        )
+
+    def _ensure_couple_button(self):
+        """Ajoute (une seule fois) le bouton de couplage a cote du bouton
+        d'import de recepteur, ou en haut de la colonne gauche du docking."""
+        if getattr(self, "_couple_btn_done", False):
+            return
+        try:
+            from PySide6.QtWidgets import QPushButton as _PB, QBoxLayout as _BL
+
+            imp = None
+            for b in self.findChildren(_PB):
+                t = b.text().lower()
+                if "import" in t and "cepteur" in t:
+                    imp = b
+                    break
+
+            try:
+                btn = self._t_button("dock_couple_btn", "Coupler deux récepteurs")
+                if (not btn.text()) or btn.text() == "dock_couple_btn":
+                    btn.setText("Coupler deux récepteurs")
+            except Exception:
+                btn = _PB("Coupler deux récepteurs")
+            btn.setToolTip(
+                "Assemble une pompe d'efflux et son dérépresseur à partir de "
+                "récepteurs déjà importés. Chaque récepteur garde sa configuration."
+            )
+            btn.clicked.connect(self._couple_receptors_dialog)
+
+            def _find(layout, widget):
+                for i in range(layout.count()):
+                    item = layout.itemAt(i)
+                    if item is None:
+                        continue
+                    if item.widget() is widget:
+                        return layout, i
+                    sub = item.layout()
+                    if sub is not None:
+                        found = _find(sub, widget)
+                        if found:
+                            return found
+                return None
+
+            placed = False
+            if imp is not None:
+                if imp.objectName():
+                    btn.setObjectName(imp.objectName())
+                parent = imp.parentWidget()
+                while parent is not None and not placed:
+                    lay = parent.layout()
+                    found = _find(lay, imp) if lay is not None else None
+                    if found:
+                        sub, idx = found
+                        if isinstance(sub, _BL):
+                            sub.insertWidget(idx + 1, btn)
+                        else:
+                            sub.addWidget(btn)
+                        placed = True
+                    parent = parent.parentWidget()
+
+            if not placed:
+                left = getattr(self, "_docking_left_layout", None)
+                if left is None:
+                    return
+                left.insertWidget(0, btn)
+
+            self._couple_btn = btn
+            self._couple_btn_done = True
+        except Exception:
+            self._couple_btn_done = True
+            import traceback
+            traceback.print_exc()
 
     def _build_generic_grid_panel(self, target_key, title):
         """

@@ -21,6 +21,11 @@ LANGUAGE_NAMES = {
 }
 
 TR = {
+    "dock_couple_btn": {
+        "fr": "Coupler deux récepteurs", "en": "Pair two receptors",
+        "de": "Zwei Rezeptoren koppeln", "zh": "配对两个受体",
+        "ja": "2つの受容体をペアにする",
+    },
     "window_title": {
         "fr": "MexAB-OprM Analyzer — Analyse statistique ΔG(MexB)/ΔG(MexR)",
         "en": "MexAB-OprM Analyzer — Statistical Analysis ΔG(MexB)/ΔG(MexR)",
