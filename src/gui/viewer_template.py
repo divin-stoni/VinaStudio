@@ -305,6 +305,70 @@ VIEWER_HTML = """<!DOCTYPE html>
       viewer.render();
     }
 
+    var _centerResShapes = [];
+    var _centerResStyled = null;
+
+    function clearCenterResidue() {
+      try {
+        _centerResShapes.forEach(function(s) {
+          if (s && s.constructor && s.constructor.name === "Label") {
+            viewer.removeLabel(s);
+          } else {
+            viewer.removeShape(s);
+          }
+        });
+        if (_centerResStyled) {
+          viewer.setStyle(_centerResStyled, {cartoon: {color: PROTEIN_COLOR, opacity: 1.0}});
+        }
+      } catch (e) {}
+      _centerResShapes = [];
+      _centerResStyled = null;
+      viewer.render();
+    }
+
+    function highlightCenterResidue(chain, resi, resn) {
+      clearCenterResidue();
+      var sel = {resi: resi};
+      if (chain && String(chain).trim() !== "") {
+        sel.chain = String(chain).trim();
+      }
+      var atoms = viewer.selectedAtoms(sel);
+      if (!atoms || atoms.length === 0) {
+        return;
+      }
+      viewer.addStyle(sel, {
+        stick: {color: "yellow", radius: 0.35},
+        cartoon: {color: PROTEIN_COLOR, opacity: 1.0}
+      });
+      _centerResStyled = sel;
+
+      var sx = 0, sy = 0, sz = 0;
+      atoms.forEach(function(a) { sx += a.x; sy += a.y; sz += a.z; });
+      var n = atoms.length;
+      var pos = {x: sx / n, y: sy / n, z: sz / n};
+
+      _centerResShapes.push(viewer.addSphere({
+        center: pos,
+        radius: 0.6,
+        color: "yellow",
+        opacity: 0.6
+      }));
+      var chainTxt = (sel.chain ? " (" + sel.chain + ")" : "");
+      _centerResShapes.push(viewer.addLabel(
+        (resn || atoms[0].resn || "") + " " + resi + chainTxt,
+        {
+          position: pos,
+          backgroundColor: "black",
+          backgroundOpacity: 0.75,
+          fontColor: "white",
+          fontSize: 14,
+          showBackground: true,
+          alignment: "bottomCenter"
+        }
+      ));
+      viewer.render();
+    }
+
     const POCKET_PALETTE = [
       "0x00bcd4", "0xe91e63", "0xff9800", "0x8bc34a",
       "0x9c27b0", "0xffc107", "0x00e676", "0xff5252",

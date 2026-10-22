@@ -684,6 +684,35 @@ from PySide6.QtWidgets import (
 # ============================================================================
 
 _PREFERENCES = QSettings("VINA Studio", "VINA Studio")
+
+
+def _seed_default_theme(settings):
+    """Premier lancement : applique le theme par defaut du logiciel
+    (image_theme/default_theme.json). Ne touche jamais a des reglages existants."""
+    try:
+        import json as _seed_json
+        from pathlib import Path as _SeedPath
+        keys = settings.allKeys()
+        if any(k.startswith("glass/") for k in keys) or "theme/index" in keys:
+            return
+        root = _SeedPath(__file__).resolve().parents[2] / "image_theme"
+        preset_file = root / "default_theme.json"
+        if not preset_file.exists():
+            return
+        preset = _seed_json.loads(preset_file.read_text(encoding="utf-8"))
+        for key, value in (preset.get("glass") or {}).items():
+            settings.setValue("glass/" + key, value)
+        names = [p.name for p in sorted(root.glob("*.jpg"))]
+        background = preset.get("background")
+        if background in names:
+            settings.setValue("theme/index", names.index(background))
+        settings.sync()
+    except Exception:
+        pass
+
+
+_seed_default_theme(_PREFERENCES)
+
 GLASS_PREFERENCES = {
     "tint": _PREFERENCES.value("glass/tint", "#6bd18d"),
     "panel_tint": _PREFERENCES.value("glass/panel_tint", "#6bd18d"),
@@ -822,6 +851,27 @@ def _coerce_pref(spec, raw):
         return str(raw)
     except (TypeError, ValueError):
         return spec["default"]
+
+
+def _load_default_theme_preset():
+    """Theme par defaut du logiciel (image_theme/default_theme.json), {} si absent."""
+    try:
+        import json as _preset_json
+        from pathlib import Path as _PresetPath
+        _file = _PresetPath(__file__).resolve().parents[2] / "image_theme" / "default_theme.json"
+        if _file.exists():
+            return _preset_json.loads(_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {}
+
+
+_DEFAULT_THEME_PRESET = _load_default_theme_preset()
+for _preset_spec in _THEME_SCHEMA:
+    _preset_raw = (_DEFAULT_THEME_PRESET.get("glass") or {}).get(_preset_spec["key"])
+    if _preset_raw is not None:
+        _preset_spec["default"] = _coerce_pref(_preset_spec, _preset_raw)
+_THEME_DEFAULTS = {spec["key"]: spec["default"] for spec in _THEME_SCHEMA}
 
 
 for _item in _THEME_SCHEMA:
@@ -3521,6 +3571,12 @@ class GlassPreferencesDialog(QDialog):
     def _restore_defaults(self):
         for spec in _THEME_SCHEMA:
             self._set_value(spec["key"], spec["default"])
+        try:
+            _bg = getattr(self.parent(), "theme_background", None)
+            if _bg is not None:
+                _bg.set_default_theme()
+        except Exception:
+            pass
         self._style_timer.stop()
         self._apply_now()
 
@@ -4920,6 +4976,15 @@ class DockingPage(QWidget):
             self._import_receptor_dialog
         )
         _import_toolbar.addWidget(self._import_receptor_button)
+        self._delete_imported_button = QPushButton("🗑 Supprimer un récepteur importé")
+        self._delete_imported_button.setToolTip(
+            "Supprime un récepteur que tu as importé. Les récepteurs intégrés "
+            "au logiciel ne peuvent jamais être supprimés."
+        )
+        self._delete_imported_button.clicked.connect(
+            self._delete_imported_receptors_dialog
+        )
+        _import_toolbar.addWidget(self._delete_imported_button)
         _import_toolbar.addStretch(1)
 
         self._export_session_button = QPushButton(
@@ -5833,6 +5898,20 @@ class DockingPage(QWidget):
                 pass
 
             subtitle = warning_note or tooltip
+            try:
+                if data and isinstance(data, str):
+                    _members = parse_pair_key(data) if is_pair_key(data) else (data,)
+                    if any(
+                        resolve_target_profile(_m).profile_type != "built_in"
+                        for _m in _members
+                    ):
+                        kind_label = kind_label + " · importé"
+                        clean_title = "👤 " + clean_title
+                        subtitle = "👤 Importé par l'utilisateur — supprimable" + (
+                            " · " + subtitle if subtitle else ""
+                        )
+            except Exception:
+                pass
 
             if species_label not in buckets:
                 buckets[species_label] = []
@@ -6290,6 +6369,7 @@ class DockingPage(QWidget):
             self._sync_grid_profile(profile, fields)
             if is_current():
                 self._update_viewer_box(profile.grid_box)
+                self._highlight_center_residue(found)
 
             if out_of_range:
                 self.execution_status.setText(
@@ -6746,6 +6826,170 @@ class DockingPage(QWidget):
                 "impérativement via les sliders avant tout docking réel."
             ),
         )
+
+    def _delete_imported_receptors_dialog(self):
+        """Supprime des recepteurs IMPORTES (profile_type != built_in).
+        Les recepteurs integres ne sont jamais touches. Le JSON du profil est
+        deplace dans _corbeille_recepteurs (annulable) ; les fichiers PDB et
+        PDBQT ne sont jamais effaces."""
+        import json as _json
+        import shutil as _shutil
+        from datetime import datetime as _dt
+        from PySide6.QtWidgets import (
+            QDialog, QVBoxLayout, QLabel, QListWidget, QListWidgetItem,
+            QDialogButtonBox,
+        )
+        from src.docking.receptor_profile import PROFILES_DIR
+
+        imported = []
+        for pid in list_profile_ids():
+            try:
+                prof = resolve_target_profile(pid)
+            except Exception:
+                continue
+            if prof.profile_type == "built_in":
+                continue
+            imported.append((pid, prof))
+
+        if not imported:
+            QMessageBox.information(
+                self,
+                "Récepteurs importés",
+                "Aucun récepteur importé à supprimer.\n\n"
+                "Les récepteurs intégrés ne peuvent pas être supprimés.",
+            )
+            return
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Supprimer des récepteurs importés")
+        dlg.setMinimumWidth(520)
+        lay = QVBoxLayout(dlg)
+        lay.addWidget(QLabel(
+            "Sélectionne le ou les récepteurs importés à supprimer\n"
+            "(Ctrl ou Maj pour en choisir plusieurs). Les récepteurs intégrés\n"
+            "ne figurent pas dans cette liste."
+        ))
+        lst = QListWidget()
+        lst.setSelectionMode(QListWidget.ExtendedSelection)
+        for pid, prof in imported:
+            item = QListWidgetItem("👤 %s   [%s]" % (prof.display_name, pid))
+            item.setData(Qt.UserRole, pid)
+            item.setToolTip(str(getattr(prof, "pdbqt_path", "") or ""))
+            lst.addItem(item)
+        lay.addWidget(lst)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Supprimer")
+        buttons.button(QDialogButtonBox.Cancel).setText("Annuler")
+        buttons.accepted.connect(dlg.accept)
+        buttons.rejected.connect(dlg.reject)
+        lay.addWidget(buttons)
+
+        if dlg.exec() != QDialog.Accepted:
+            return
+        pids = [it.data(Qt.UserRole) for it in lst.selectedItems()]
+        if not pids:
+            return
+
+        answer = QMessageBox.question(
+            self,
+            "Confirmer la suppression",
+            "Supprimer %d récepteur(s) importé(s) ?\n\n%s\n\n"
+            "Le profil est déplacé dans _corbeille_recepteurs (récupérable). "
+            "Tes fichiers PDB / PDBQT ne sont pas effacés."
+            % (len(pids), "\n".join(" - " + p for p in pids)),
+        )
+        if answer != QMessageBox.Yes:
+            return
+
+        trash = Path(PROFILES_DIR).parent / "_corbeille_recepteurs"
+        trash.mkdir(parents=True, exist_ok=True)
+        stamp = _dt.now().strftime("%Y%m%d_%H%M%S")
+        deleted, errors = [], []
+        for pid in pids:
+            try:
+                prof = resolve_target_profile(pid)
+                if prof.profile_type == "built_in":
+                    errors.append(pid + " : récepteur intégré, protégé")
+                    continue
+                src_json = Path(PROFILES_DIR) / (pid + ".json")
+                if not src_json.exists():
+                    errors.append(pid + " : fichier de profil introuvable")
+                    continue
+                _shutil.move(
+                    str(src_json), str(trash / ("%s__%s.json" % (pid, stamp)))
+                )
+                deleted.append(pid)
+            except Exception as exc:
+                errors.append("%s : %s" % (pid, exc))
+
+        # Retire les references de partenaire dans les AUTRES profils importes
+        try:
+            for f in Path(PROFILES_DIR).glob("*.json"):
+                try:
+                    data = _json.loads(f.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                if data.get("profile_type", "built_in") == "built_in":
+                    continue
+                changed = False
+                ids = [x for x in (data.get("partner_ids") or []) if x]
+                new_ids = [x for x in ids if x not in deleted]
+                if new_ids != ids:
+                    data["partner_ids"] = new_ids
+                    changed = True
+                if data.get("partner_id") in deleted:
+                    data["partner_id"] = new_ids[0] if new_ids else None
+                    changed = True
+                if changed:
+                    f.write_text(
+                        _json.dumps(data, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+        except Exception:
+            pass
+
+        # Mise a jour de l'interface : menu, couples, panneaux de grid box
+        for pid in deleted:
+            try:
+                idx = self.target_combo.findData(pid)
+                while idx >= 0:
+                    self.target_combo.removeItem(idx)
+                    idx = self.target_combo.findData(pid)
+                for i in reversed(range(self.target_combo.count())):
+                    d = self.target_combo.itemData(i)
+                    if isinstance(d, str) and is_pair_key(d) and pid in parse_pair_key(d):
+                        self.target_combo.removeItem(i)
+                for key in list(getattr(self, "pair_targets", {}).keys()):
+                    if pid in self.pair_targets[key]:
+                        self.pair_targets.pop(key, None)
+                panel = self.generic_panels.pop(pid, None)
+                widgets = []
+                if panel is not None:
+                    if hasattr(panel, "deleteLater"):
+                        widgets = [panel]
+                    elif isinstance(panel, dict):
+                        widgets = [v for v in panel.values() if hasattr(v, "deleteLater")]
+                    elif isinstance(panel, (tuple, list)):
+                        widgets = [v for v in panel if hasattr(v, "deleteLater")]
+                for w in widgets:
+                    w.hide()
+                    try:
+                        self._docking_left_layout.removeWidget(w)
+                    except Exception:
+                        pass
+                    w.deleteLater()
+            except Exception:
+                pass
+        try:
+            self._last_valid_target_index = max(0, self.target_combo.currentIndex())
+            self._sync_receptor_picker_button()
+        except Exception:
+            pass
+
+        msg = "%d récepteur(s) supprimé(s)." % len(deleted)
+        if errors:
+            msg += "\n\nNon supprimés :\n" + "\n".join(errors)
+        QMessageBox.information(self, "Suppression terminée", msg)
 
     def _register_imported_profile(self, profile, silent=False):
         """
@@ -7339,6 +7583,20 @@ class DockingPage(QWidget):
         )
 
         self.receptor_viewer.page().runJavaScript(script)
+
+    def _highlight_center_residue(self, found):
+        """Met en evidence dans le viewer le residu qui sert de centre a la grid box."""
+        if not getattr(self, "_viewer_loaded", False):
+            return
+        try:
+            script = "highlightCenterResidue(%s, %d, %s);" % (
+                json.dumps(str(found.get("chain") or "")),
+                int(found["resnum"]),
+                json.dumps(str(found.get("resname") or "")),
+            )
+            self.receptor_viewer.page().runJavaScript(script)
+        except Exception:
+            pass
 
     def _set_pocket_panel_visible(self, visible: bool):
         self._pocket_combo.setVisible(visible)
@@ -10513,6 +10771,18 @@ class ThemeBackground(QWidget):
         self._load_theme()
         return self.current_theme_name()
 
+    def set_default_theme(self):
+        """Remet le fond du theme par defaut (retenu par nom de fichier)."""
+        name = (_DEFAULT_THEME_PRESET or {}).get("background")
+        names = [p.name for p in self._theme_paths]
+        if name not in names:
+            return
+        self._theme_index = names.index(name)
+        GLASS_PREFERENCES["theme_index"] = self._theme_index
+        _PREFERENCES.setValue("theme/index", self._theme_index)
+        _PREFERENCES.sync()
+        self._load_theme()
+
     def current_theme_name(self):
         if not self._theme_paths:
             return ""
@@ -10555,7 +10825,11 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             gui_debug(f"Erreur nettoyage début de session : {exc}")
 
-        self.lang_mgr = LanguageManager()
+        _saved_lang = str(_PREFERENCES.value("language/code", "") or "")
+        from src.translations import SUPPORTED_LANGUAGES as _SUPPORTED_LANGS
+        self.lang_mgr = LanguageManager(
+            initial_lang=_saved_lang if _saved_lang in _SUPPORTED_LANGS else None
+        )
         self.lang_mgr.languageChanged.connect(self.retranslate_ui)
 
         self.setWindowTitle(
@@ -10701,10 +10975,93 @@ class MainWindow(QMainWindow):
         sans ca, ce bouton se confondait visuellement avec les actions
         "Charger une analyse" / "A propos" qui n'ont rien a voir.
         """
-        return f"🌐 {self.lang_mgr.native_name()}"
+        if self._language_icon() is not None:
+            return "Language ▾"
+        return "🌐 Language ▾"
 
     def _on_toggle_language(self):
         self.lang_mgr.cycle_language()
+
+    def _language_icon(self):
+        """Icone 'traduction' (文 / A) dessinee sans fichier externe.
+        Mise en cache ; None si la police ne sait pas dessiner 文."""
+        if not hasattr(self, "_lang_icon_cache"):
+            self._lang_icon_cache = self._make_language_icon()
+        return self._lang_icon_cache
+
+    def _make_language_icon(self):
+        """Logo de langue (SVG integre, independant des polices) : 2 bulles 文 / A."""
+        _svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7be0a0"/>
+      <stop offset="1" stop-color="#2f8f5b"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#bg)"/>
+  <g transform="translate(4.2 3.8) scale(0.88)">
+    <path d="M50 33 L56 40 L44 33 Z" fill="#ffffff"/>
+    <rect x="26" y="6" width="34" height="28" rx="8" fill="#ffffff"/>
+    <g stroke="#1f6b45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <line x1="43" y1="11" x2="43" y2="13.5"/>
+      <line x1="35" y1="16" x2="51" y2="16"/>
+      <line x1="47" y1="17" x2="38" y2="28"/>
+      <line x1="39" y1="17" x2="49" y2="28"/>
+    </g>
+    <path d="M12 55 L10 62 L19 56 Z" fill="#e9fff1" stroke="#1f6b45" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="6" y="30" width="34" height="26" rx="8" fill="#e9fff1" stroke="#1f6b45" stroke-width="2"/>
+    <path d="M12.5 54.2 L18.5 54.2" stroke="#e9fff1" stroke-width="3"/>
+    <g stroke="#1f6b45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M16.5 50 L23 36 L29.5 50"/>
+      <line x1="18.8" y1="45" x2="27.2" y2="45"/>
+    </g>
+  </g>
+</svg>
+"""
+        try:
+            from PySide6.QtSvg import QSvgRenderer
+            from PySide6.QtGui import QIcon, QPixmap, QPainter
+            from PySide6.QtCore import QByteArray
+
+            renderer = QSvgRenderer(QByteArray(_svg.encode("utf-8")))
+            if not renderer.isValid():
+                return None
+            icon = QIcon()
+            for _size in (24, 32, 48, 64, 96, 128):
+                pm = QPixmap(_size, _size)
+                pm.fill(Qt.transparent)
+                painter = QPainter(pm)
+                painter.setRenderHint(QPainter.Antialiasing)
+                renderer.render(painter)
+                painter.end()
+                icon.addPixmap(pm)
+            return icon
+        except Exception:
+            return None
+
+    def _on_language_chosen(self, code):
+        """Choix d'une langue dans la liste deroulante."""
+        try:
+            self.lang_mgr.set_language(code)
+        except ValueError:
+            return
+        self._refresh_language_selector()
+
+    def _refresh_language_selector(self, _code=None):
+        """Met a jour le texte du bouton, les coches, et memorise la langue."""
+        try:
+            if hasattr(self, "lang_button"):
+                self.lang_button.setText(self._lang_button_text())
+                self.lang_button.setToolTip(
+                    "🌐 " + self.lang_mgr.native_name() + " — " + self.lang_mgr.t("toolbar_tooltip_lang")
+                )
+                self.lang_button.setAccessibleName(self.lang_mgr.native_name())
+            for _c, _a in getattr(self, "_lang_actions", {}).items():
+                _a.setChecked(_c == self.lang_mgr.lang)
+            _PREFERENCES.setValue("language/code", self.lang_mgr.lang)
+            _PREFERENCES.sync()
+        except Exception:
+            pass
 
     def _on_change_theme(self):
         if self.theme_background is None:
@@ -11015,11 +11372,70 @@ class MainWindow(QMainWindow):
             if widget is not None:
                 widget.setCursor(Qt.PointingHandCursor)
 
-        self.lang_action = QAction(self._lang_button_text(), self)
-        self.lang_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_lang"))
-        self.lang_action.triggered.connect(self._on_toggle_language)
-        toolbar.addAction(self.lang_action)
-        _set_pointer_cursor(self.lang_action)
+        from PySide6.QtWidgets import QToolButton as _LangToolButton, QMenu as _LangMenu
+        from PySide6.QtGui import QActionGroup as _LangActionGroup
+        from src.translations import SUPPORTED_LANGUAGES as _LANG_CODES
+
+        self.lang_button = _LangToolButton()
+        self.lang_button.setObjectName("LanguageSelector")
+        self.lang_button.setText(self._lang_button_text())
+        self.lang_button.setToolTip(self.lang_mgr.t("toolbar_tooltip_lang"))
+        self.lang_button.setPopupMode(_LangToolButton.InstantPopup)
+        self.lang_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        _lang_icon = self._language_icon()
+        if _lang_icon is not None:
+            self.lang_button.setIcon(_lang_icon)
+            self.lang_button.setIconSize(QSize(40, 40))
+            self.lang_button.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            _lf = self.lang_button.font()
+            if _lf.pointSize() > 0:
+                _lf.setPointSize(_lf.pointSize() + 3)
+            elif _lf.pixelSize() > 0:
+                _lf.setPixelSize(_lf.pixelSize() + 4)
+            _lf.setBold(True)
+            self.lang_button.setFont(_lf)
+            self.lang_button.setMinimumHeight(46)
+        self.lang_button.setCursor(Qt.PointingHandCursor)
+        self.lang_button.setStyleSheet(
+            "QToolButton::menu-indicator { image: none; width: 0px; }"
+        )
+
+        self._lang_menu = _LangMenu(self.lang_button)
+        self._lang_group = _LangActionGroup(self)
+        self._lang_group.setExclusive(True)
+        self._lang_actions = {}
+        for _code in _LANG_CODES:
+            _act = QAction(self.lang_mgr.native_name(_code), self)
+            _act.setCheckable(True)
+            _act.setChecked(_code == self.lang_mgr.lang)
+            _act.triggered.connect(
+                lambda checked=False, c=_code: self._on_language_chosen(c)
+            )
+            self._lang_group.addAction(_act)
+            self._lang_menu.addAction(_act)
+            self._lang_actions[_code] = _act
+        self.lang_button.setMenu(self._lang_menu)
+        # Compatibilite : le reste du code peut continuer a utiliser
+        # self.lang_action.setText(...) / setToolTip(...).
+        self.lang_action = self.lang_button
+        # Le bouton de langue est place dans le bandeau (voir build_interface).
+        if self._language_icon() is not None:
+            _LANG_ICON_PX = 36
+            self.lang_button.setIconSize(QSize(_LANG_ICON_PX, _LANG_ICON_PX))
+            self.lang_button.setFixedSize(52, 46)
+            self.lang_button.setStyleSheet(
+                "QToolButton#LanguageSelector { padding: 0px; margin: 0px; }"
+                "QToolButton::menu-indicator { image: none; width: 0px; }"
+            )
+            try:
+                toolbar.iconSizeChanged.connect(
+                    lambda _s: self.lang_button.setIconSize(
+                        QSize(_LANG_ICON_PX, _LANG_ICON_PX)
+                    )
+                )
+            except Exception:
+                pass
+        self.lang_mgr.languageChanged.connect(self._refresh_language_selector)
 
         self.theme_action = QAction(self.lang_mgr.t("toolbar_theme"), self)
         self.theme_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_theme"))
@@ -11121,6 +11537,18 @@ class MainWindow(QMainWindow):
             f"color: {COLORS['accent_dark']};"
         )
 
+        if hasattr(self, "lang_button"):
+            self.lang_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            self.lang_button.setIconSize(QSize(34, 34))
+            self.lang_button.setMinimumSize(0, 44)
+            self.lang_button.setMaximumSize(16777215, 16777215)
+            self.lang_button.setText(self._lang_button_text())
+            self.lang_button.setStyleSheet(
+                "QToolButton#LanguageSelector { padding: 4px 12px; font-weight: 600; }"
+                "QToolButton::menu-indicator { image: none; width: 0px; }"
+            )
+            header_layout.addWidget(self.lang_button)
+            header_layout.addSpacing(22)
         header_layout.addWidget(self.header_target_caption)
 
         header_layout.addSpacing(8)
