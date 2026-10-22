@@ -4,6 +4,7 @@ from __future__ import annotations
 from src.session_runtime import start_new_session, end_session
 from src.session_manager import SessionManager
 from src.i18n.language_manager import LanguageManager
+from src.gui.grid_precision import PreciseSpinBox, FineSlider, build_override_row_with_fit
 
 import sys
 import shutil
@@ -5161,7 +5162,7 @@ class DockingPage(QWidget):
             )
             self._mexb_gridbox_widgets.append(_mexb_row_label)
 
-            field = QDoubleSpinBox()
+            field = PreciseSpinBox()
             field.setMaximumWidth(130)
 
             if key.startswith("center_"):
@@ -5177,7 +5178,7 @@ class DockingPage(QWidget):
 
             self.grid_scales[key] = scale
 
-            slider = QSlider(Qt.Horizontal)
+            slider = FineSlider(Qt.Horizontal)
             slider.setMinimumWidth(110)
             slider.setMaximumWidth(160)
             slider.setMinimum(int(round(field.minimum() * scale)))
@@ -5366,7 +5367,7 @@ class DockingPage(QWidget):
                 col,
             )
 
-            mexr_field = QDoubleSpinBox()
+            mexr_field = PreciseSpinBox()
             mexr_field.setMaximumWidth(130)
 
             if key.startswith("center_"):
@@ -5382,7 +5383,7 @@ class DockingPage(QWidget):
 
             self.mexr_grid_scales[key] = mexr_scale
 
-            mexr_slider = QSlider(Qt.Horizontal)
+            mexr_slider = FineSlider(Qt.Horizontal)
             mexr_slider.setMinimumWidth(110)
             mexr_slider.setMaximumWidth(160)
             mexr_slider.setMinimum(int(round(mexr_field.minimum() * mexr_scale)))
@@ -6142,7 +6143,10 @@ class DockingPage(QWidget):
     # PERSONNALISATION DE LA GRID BOX (recepteurs deja integres)
     # ------------------------------------------------------------------
 
-    def _build_grid_override_row(self, get_profile, is_current, fields, sliders, scales):
+    def _build_grid_override_row(self, *args, **kwargs):
+        return build_override_row_with_fit(self, self._build_grid_override_row_base, *args, **kwargs)
+
+    def _build_grid_override_row_base(self, get_profile, is_current, fields, sliders, scales):
         """
         Ligne de deux boutons pour le panneau de grid box d'un récepteur
         déjà intégré au logiciel :
@@ -7175,7 +7179,7 @@ class DockingPage(QWidget):
 
             panel_grid.addWidget(make_label(label), row, col)
 
-            field = QDoubleSpinBox()
+            field = PreciseSpinBox()
             field.setMaximumWidth(130)
 
             if key.startswith("center_"):
@@ -7191,7 +7195,7 @@ class DockingPage(QWidget):
 
             scales[key] = scale
 
-            slider = QSlider(Qt.Horizontal)
+            slider = FineSlider(Qt.Horizontal)
             slider.setMinimumWidth(110)
             slider.setMaximumWidth(160)
             slider.setMinimum(int(round(field.minimum() * scale)))
@@ -11249,9 +11253,9 @@ class MainWindow(QMainWindow):
 # APPLICATION
 # ============================================================================
 
-def main():
+def main(startup=None):
 
-    app = QApplication(sys.argv)
+    app = QApplication.instance() or QApplication(sys.argv)
 
     app.setApplicationName(
         "VINA Studio"
@@ -11306,9 +11310,12 @@ def main():
 
     app.setFont(font)
 
+    if startup is not None:
+        startup.building_window()
     window = MainWindow()
     window.show()
-
+    if startup is not None:
+        startup.ready(window)
     return app.exec()
 
 
