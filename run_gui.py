@@ -14,7 +14,18 @@ if len(sys.argv) > 1 and sys.argv[1] == "--plip-worker":
 from src.tools.vcredist_check import ensure_vcredist_installed
 ensure_vcredist_installed()
 
-from src.gui.main_window import main
-
 if __name__ == "__main__":
-    raise SystemExit(main())
+    from src.tools import startup as _startup
+
+    _st = _startup.begin()
+    if _st is None:
+        raise SystemExit(0)  # une autre instance tourne deja
+
+    try:
+        _st.preload()
+        from src.gui.main_window import main
+        _code = main(_st)
+    finally:
+        _st.close()
+
+    raise SystemExit(_code)
