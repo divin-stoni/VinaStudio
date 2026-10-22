@@ -29,17 +29,6 @@ if [ ! -f "$SRC_EXE" ]; then
 fi
 echo "OK : $SRC_EXE present ($(stat -c%s "$SRC_EXE") octets)"
 
-echo ""
-echo "=== 3bis. Copie de credit_du_logiciel (a cote de l'executable, requis par _credits_root()) ==="
-CREDITS_SRC="$PROJ/credit_du_logiciel"
-CREDITS_DEST="$PROJ/src/dist/VinaStudio/credit_du_logiciel"
-if [ ! -d "$CREDITS_SRC" ]; then
-    echo "ERREUR FATALE : $CREDITS_SRC introuvable. Abandon."
-    exit 1
-fi
-rm -rf "$CREDITS_DEST"
-cp -r "$CREDITS_SRC" "$CREDITS_DEST"
-echo "OK : credit_du_logiciel copie dans $CREDITS_DEST"
 
 echo ""
 echo "=== 4. Construction de l'arborescence .deb ==="
@@ -58,9 +47,6 @@ cp -v "$SRC_EXE" "$DEB_ROOT/opt/$PKGNAME/VinaStudio"
 echo "Copie de _internal (peut prendre du temps, ~20000 fichiers)..."
 cp -r "$PROJ/src/dist/VinaStudio/_internal" "$DEB_ROOT/opt/$PKGNAME/_internal"
 
-echo "Copie de credit_du_logiciel (a cote de l'executable dans le paquet, requis par _credits_root())..."
-cp -r "$PROJ/src/dist/VinaStudio/credit_du_logiciel" "$DEB_ROOT/opt/$PKGNAME/credit_du_logiciel"
-
 echo ""
 echo "=== 5. VERIFICATION STRICTE : l'executable est-il bien dans le paquet ? ==="
 if [ ! -f "$DEB_ROOT/opt/$PKGNAME/VinaStudio" ]; then
@@ -68,12 +54,6 @@ if [ ! -f "$DEB_ROOT/opt/$PKGNAME/VinaStudio" ]; then
     exit 1
 fi
 echo "OK : present dans $DEB_ROOT/opt/$PKGNAME/VinaStudio"
-
-if [ ! -d "$DEB_ROOT/opt/$PKGNAME/credit_du_logiciel" ]; then
-    echo "ERREUR FATALE : credit_du_logiciel absent du paquet. Abandon."
-    exit 1
-fi
-echo "OK : credit_du_logiciel present dans $DEB_ROOT/opt/$PKGNAME/credit_du_logiciel"
 
 chmod +x "$DEB_ROOT/opt/$PKGNAME/VinaStudio"
 

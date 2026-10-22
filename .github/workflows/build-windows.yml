@@ -113,17 +113,8 @@ jobs:
             --add-data "vcredist/vc_redist.x64.exe;vcredist" \
             --collect-all plip \
             --collect-all openbabel \
+            --collect-all rdkit \
             run_gui.py
-
-      - name: Copy credit_du_logiciel next to the exe (required by _credits_root())
-        shell: pwsh
-        run: |
-          Copy-Item -Path "credit_du_logiciel" -Destination "dist\credit_du_logiciel" -Recurse -Force
-          if (-not (Test-Path "dist\credit_du_logiciel")) {
-            Write-Error "credit_du_logiciel absent apres copie -- abandon."
-            exit 1
-          }
-          Write-Host "OK : credit_du_logiciel copie dans dist\credit_du_logiciel"
 
       - name: Build installer with Inno Setup
         shell: pwsh
@@ -142,4 +133,3 @@ jobs:
           name: VinaStudio-Windows
           path: |
             dist/VinaStudio.exe
-            dist/credit_du_logiciel/**
