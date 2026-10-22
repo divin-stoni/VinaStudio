@@ -49,7 +49,6 @@ from src.gui.viewer_template import VIEWER_HTML
 from src.analysis.statistics_pipeline import run_statistics_pipeline
 from src.analysis.analysis_controller import analyze_docking_csv
 from src.gui import visualization_bridge as viz_bridge
-from src.gui.credits_page import CreditsPage
 from src.gui.phyto_page import PhytoPage  # --- patch16 phytomolecules tab ---
 
 
@@ -10962,9 +10961,6 @@ class MainWindow(QMainWindow):
         if hasattr(self, "header_target_caption"):
             self.header_target_caption.setText(t("header_active_target"))
 
-        if hasattr(self, "credits_page") and hasattr(self.credits_page, "retranslate"):
-            self.credits_page.retranslate()
-
         if hasattr(self, "status"):
             self.status.showMessage(t("status_ready"))
 
@@ -11083,12 +11079,6 @@ class MainWindow(QMainWindow):
             viz_bridge.cleanup_visualization_outputs()
         except Exception as exc:
             gui_debug(f"Erreur nettoyage visualisation : {exc}")
-
-        try:
-            if hasattr(self, "credits_page"):
-                self.credits_page.shutdown()
-        except Exception as exc:
-            gui_debug(f"Erreur nettoyage threads Crédits : {exc}")
 
         try:
             if hasattr(self, "phyto_page"):
@@ -11285,15 +11275,11 @@ class MainWindow(QMainWindow):
         text_label = QLabel(
             f"<b>{t('vina_app_name')}</b><br>"
             f"{t('vina_app_subtitle')}<br><br>"
-            f"{t('about_pipeline_desc')}<br><br>"
-            f'<a href="credits" style="text-decoration: underline;">{t("about_credits_link")}</a>'
+            f"{t('about_pipeline_desc')}"
         )
         text_label.setTextFormat(Qt.RichText)
         text_label.setOpenExternalLinks(False)
         text_label.setWordWrap(True)
-        text_label.linkActivated.connect(
-            lambda _link: self._open_credits_from_about(dialog)
-        )
         layout.addWidget(text_label)
 
         close_button = LiquidGlassButton(t("scan_btn_close"))
@@ -11302,13 +11288,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(close_button, 0, Qt.AlignRight)
 
         dialog.exec()
-
-    def _open_credits_from_about(self, dialog):
-        # Le lien "Credits" de la boite "A propos" bascule vers la page
-        # credits_page (switch_primary gere deja le scan paresseux du
-        # dossier et le changement de page de travail).
-        dialog.accept()
-        self.switch_primary(4)
 
     # ------------------------------------------------------------------
     # TOOLBAR
@@ -11617,12 +11596,6 @@ class MainWindow(QMainWindow):
 
         self.workspace.addWidget(self.phyto_page)
 
-        self.credits_page = CreditsPage(lang_mgr=self.lang_mgr)
-
-        self.workspace.addWidget(
-            self.credits_page
-        )
-
         body_layout.addWidget(
             self.workspace,
             1,
@@ -11643,12 +11616,6 @@ class MainWindow(QMainWindow):
 
     def switch_primary(self, index):
 
-        if index != 4 and hasattr(self, "credits_page"):
-            # On quitte (ou on ne va pas vers) l'onglet Credits : coupe
-            # toute video en cours pour qu'elle ne continue pas a se
-            # lire en arriere-plan une fois la page quittee.
-            self.credits_page.stop_playback()
-
         self.workspace.setCurrentIndex(
             index
         )
@@ -11668,13 +11635,6 @@ class MainWindow(QMainWindow):
 
         if index == 2 and hasattr(self, "visualization_page"):
             self.visualization_page.ensure_batch_started()
-
-        if index == 4 and hasattr(self, "credits_page"):
-            # Le scan du dossier credit_du_logiciel (photos + videos)
-            # ne demarre qu'a la premiere ouverture de l'onglet, et se
-            # fait en arriere-plan : ouvrir "Credits" ne doit jamais
-            # geler l'interface, meme avec des centaines de Mo de medias.
-            self.credits_page.ensure_loaded()
 
 
 # ============================================================================

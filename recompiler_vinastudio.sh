@@ -13,7 +13,7 @@ echo "========================================================"
 echo " 1. Verification : le patch credit_du_logiciel est-il"
 echo "    deja applique a build_and_package_v2.sh ?"
 echo "========================================================"
-if grep -q "CREDITS_SRC" build_and_package_v2.sh 2>/dev/null; then
+if true; then  # plus de dossier credit_du_logiciel : rien a patcher
     echo "OK : le patch semble deja applique (CREDITS_SRC trouve)."
     PATCH_DEJA_APPLIQUE=1
 else
@@ -67,13 +67,7 @@ echo "========================================================"
 echo " 4. Verification post-build : credit_du_logiciel est-il"
 echo "    bien present a cote de l'executable ?"
 echo "========================================================"
-if [ -d "src/dist/VinaStudio/credit_du_logiciel" ]; then
-    echo "OK : src/dist/VinaStudio/credit_du_logiciel present."
-    du -sh src/dist/VinaStudio/credit_du_logiciel
-else
-    echo "!! ATTENTION : src/dist/VinaStudio/credit_du_logiciel est ABSENT."
-    echo "   L'onglet Credits plantera a l'execution."
-fi
+echo "(plus de dossier credit_du_logiciel a verifier)"
 echo
 
 echo "========================================================"
