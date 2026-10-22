@@ -79,12 +79,15 @@ def split_sdf_by_cid(sdf_path, out_dir, prefix="mol"):
     for index, block in enumerate(blocks, start=1):
         lines = block.splitlines()
         first = lines[0].strip() if lines else ""
-        cid = first if first.isdigit() else None
+        mcid = re.match(r"(?i)^CID[_\- ]?(\d+)$", first)
+        cid = first if first.isdigit() else (mcid.group(1) if mcid else None)
         if cid is None:
             m = re.search(r">\s*<PUBCHEM_COMPOUND_CID>\s*\n\s*(\d+)", block)
             if m:
                 cid = m.group(1)
-        name = cid if cid else (str(prefix) + "_" + format(index, "06d"))
+        name = ("CID_" + cid) if cid else (str(prefix) + "_" + format(index, "06d"))
+        if cid:
+            block = "\n".join(["CID_" + cid] + lines[1:]) + "\n"
         path = out_dir / (name + ".sdf")
         path.write_text(block, encoding="utf-8")
         outputs.append((cid, path))
