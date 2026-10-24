@@ -58,3 +58,4 @@ dev/patch*.py
 *.mp4
 docking/ligands/
 DECLARATION_COAUTEUR_*
+_archive_pdbqt_raw/
