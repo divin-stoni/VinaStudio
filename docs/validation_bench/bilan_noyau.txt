@@ -1,0 +1,26 @@
+PDB   fam.    RMSD1  noyau  queues  noyau at.  niveau
+4DX5  AcrB     6.16   6.17    6.14      18/33  [31m○ Site non retrouvé[0m
+4DX7  AcrB    11.16   7.79   13.39      18/39  [31m○ Site non retrouvé[0m
+5ENO  AcrB     0.89   0.74    1.08      18/29  [32m● Reproduite[0m
+5ENP  AcrB     0.72   0.50    0.87      18/37  [32m● Reproduite[0m
+5ENQ  AcrB     0.28   0.28    0.27      12/35  [32m● Reproduite[0m
+5ENR  AcrB     0.43   0.29    0.56      20/36  [32m● Reproduite[0m
+7B8R  AcrB     0.92   0.74    1.20      21/32  [32m● Reproduite[0m
+7B8S  AcrB     6.60   6.25    7.03      21/37  [38;5;208m◔ Site retrouvé, noyau non reproduit[0m
+9FE2  AcrB     1.88   1.61    2.23      20/33  [32m● Reproduite[0m
+9HAO  AcrB     0.48   0.22    0.78      17/25  [32m● Reproduite[0m
+7KGG  AdeB     0.63   0.63    0.63      14/24  [32m● Reproduite[0m
+8GJK  CmeB     3.03   3.88    2.62       7/25  [38;5;208m◔ Site retrouvé, noyau non reproduit[0m
+21FO  MexB    13.26  12.45   13.42       6/36  [31m○ Site non retrouvé[0m
+21FP  MexB    10.60  12.06    9.91       6/20  [31m○ Site non retrouvé[0m
+3W9J  MexB     2.22   0.30    2.74      17/49  [33m◐ Noyau reproduit, queues variables[0m
+6IIA  MexB     2.99   1.44    3.10       6/69  [38;5;208m◔ Site retrouvé, noyau non reproduit[0m
+
+Recapitulatif par niveau :
+  AcrB   {'vert': 7, 'jaune': 0, 'orange': 1, 'rouge': 2}
+  AdeB   {'vert': 1, 'jaune': 0, 'orange': 0, 'rouge': 0}
+  CmeB   {'vert': 0, 'jaune': 0, 'orange': 1, 'rouge': 0}
+  MexB   {'vert': 0, 'jaune': 1, 'orange': 1, 'rouge': 2}
+  TOTAL  {'vert': 8, 'jaune': 1, 'orange': 3, 'rouge': 4}
+
+Seul le vert valide. Le jaune est un descripteur secondaire ajoute apres observation.

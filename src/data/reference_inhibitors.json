@@ -1,0 +1,31 @@
+{
+  "version": "2026-10-24",
+  "note": "Liste verifiee a la main. Les structures sont telechargees a l'execution (PubChem, RCSB) et enregistrees avec leur identifiant et la date.",
+  "composes": [
+    {"nom": "D13-9001 / ABI-PP", "classe": "pyridopyrimidine", "role": "inhibiteur",
+     "pompes": ["AcrB", "MexB"], "exclut": ["MexY"],
+     "pdb": [{"code": "3W9J", "ligand": "P9D", "verifie": false}],
+     "donnees": {"KD_AcrB_uM": 1.15, "KD_MexB_uM": 3.57},
+     "refs": ["doi:10.1038/nature12300", "doi:10.3389/fmicb.2015.00421"], "verifie": true},
+    {"nom": "MBX2319", "classe": "pyranopyridine", "role": "inhibiteur",
+     "pompes": ["AcrB"], "pdb": [],
+     "refs": ["doi:10.1073/pnas.1602472113", "doi:10.1128/aac.03283-14"], "verifie": true},
+    {"nom": "PAbetaN (phenylalanine-arginine beta-naphthylamide)", "classe": "peptidomimetique", "role": "inhibiteur",
+     "pompes": ["AcrB", "AdeB", "CmeB"], "pdb": [],
+     "refs": ["pmc:PMC6044690"], "verifie": true,
+     "remarque": "large spectre, competitif ; effet sur MexB non confirme par cette recherche"},
+    {"nom": "1-(1-naphthylmethyl)-piperazine (NMP)", "classe": "arylpiperazine", "role": "inhibiteur",
+     "pompes": ["AcrB", "AdeB"], "pdb": [],
+     "refs": ["J Antimicrob Chemother 2006;57(5):970-974"], "verifie": true,
+     "remarque": "inhibition partielle chez A. baumannii"},
+    {"nom": "Berberine", "classe": "alcaloide", "role": "inhibiteur",
+     "pompes": ["MexB"], "pdb": [],
+     "refs": ["pii:S1341321X2200006X"], "verifie": true,
+     "remarque": "etude sur MexAB et MexXY, pas de structure cocristallisee"}
+  ],
+  "ligands_cristal_connus": [
+    {"pdb": "8GJK", "ligand": "ZZ7", "pompe": "CmeB", "role": "substrat", "verifie": true,
+     "ref": "doi:10.1128/spectrum.01197-23"},
+    {"pdb": "7KGG", "ligand": "ET", "pompe": "AdeB", "role": "substrat_probable", "verifie": false}
+  ]
+}

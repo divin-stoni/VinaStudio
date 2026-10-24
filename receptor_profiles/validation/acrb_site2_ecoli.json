@@ -1,0 +1,110 @@
+{
+  "reference": "ET:A:3002",
+  "passed": false,
+  "rmsd_top": 10.36235188675814,
+  "rmsd_best": 7.010420419513605,
+  "score_top": -7.401,
+  "n_heavy": 24,
+  "threshold": 2.0,
+  "n_modes": 9,
+  "center_dist_top": 9.516540599081077,
+  "n_site": 0,
+  "frac_2a_top": 0.0,
+  "profile_id": "acrb_site2_ecoli",
+  "box": {
+    "center": [
+      7.767,
+      39.208,
+      105.488
+    ],
+    "size": [
+      24.3,
+      25.5,
+      27.0
+    ]
+  },
+  "role": "redocking",
+  "date": "2026-10-24T09:30:40",
+  "poses": [
+    {
+      "pose": 1,
+      "energie_kcal_mol": -7.401,
+      "rmsd_sym": 10.36235188675814,
+      "dist_centres": 9.516540599081077,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 2,
+      "energie_kcal_mol": -7.353,
+      "rmsd_sym": 9.646854202277549,
+      "dist_centres": 7.19298712747161,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 3,
+      "energie_kcal_mol": -7.31,
+      "rmsd_sym": 10.376796410742575,
+      "dist_centres": 7.943497075045089,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 4,
+      "energie_kcal_mol": -6.993,
+      "rmsd_sym": 7.721372756835404,
+      "dist_centres": 7.562898175238622,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 5,
+      "energie_kcal_mol": -6.8,
+      "rmsd_sym": 11.343372389490995,
+      "dist_centres": 9.892599174137148,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 6,
+      "energie_kcal_mol": -6.795,
+      "rmsd_sym": 10.136649347787461,
+      "dist_centres": 8.445731979534909,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 7,
+      "energie_kcal_mol": -6.744,
+      "rmsd_sym": 8.545429463071667,
+      "dist_centres": 8.284840547504183,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 8,
+      "energie_kcal_mol": -6.733,
+      "rmsd_sym": 7.010420419513605,
+      "dist_centres": 5.256967124584127,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false
+    },
+    {
+      "pose": 9,
+      "energie_kcal_mol": -6.682,
+      "rmsd_sym": 8.68284943629298,
+      "dist_centres": 6.941418852869517,
+      "part_atomes_sous_seuil": 0.041666666666666664,
+      "dans_le_site": false
+    }
+  ],
+  "params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "reference_pdb": "/home/stoni/MexAB_MexR_Analyzer_BETA/redocking_runs/acrb_site2_ecoli/ET_A_3002_cristal.pdb"
+}

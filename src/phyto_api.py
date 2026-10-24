@@ -618,66 +618,20 @@ def _pubchem_fetch_blocks(cids, record_type):
 
 
 def _find_obabel():
-    import shutil
-    exe = shutil.which("obabel")
-    if exe:
-        return exe
-    base = Path(__file__).resolve().parent.parent
-    for cand in sorted(base.glob("obabel_runtime/**/obabel")):
-        if cand.is_file():
-            return str(cand)
-    return None
+    """Compatibilite : delegue a mol3d (obabel.exe, runtime embarque, PATH)."""
+    from src import mol3d
+    exe, _env = mol3d.find_obabel()
+    return exe
 
 
-def _gen3d_local(blocks):
-    """Genere la 3D en local (Open Babel, sinon RDKit) pour {cid: bloc 2D}.
-    Retourne {cid: bloc 3D} ; les CID non convertibles sont absents."""
-    import subprocess
-    import tempfile
-    out = {}
-    if not blocks:
-        return out
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp = Path(tmp)
-        src_f = tmp / "in2d.sdf"
-        src_f.write_text("".join(blocks.values()), encoding="utf-8")
-        exe = _find_obabel()
-        if exe:
-            dst = tmp / "out3d.sdf"
-            try:
-                subprocess.run([exe, str(src_f), "-O", str(dst), "--gen3d", "-h"],
-                               capture_output=True, timeout=900)
-                if dst.exists():
-                    for cid, blk in _sdf_blocks(dst.read_bytes()).items():
-                        if _is_3d(blk):
-                            out[cid] = blk
-            except (OSError, subprocess.SubprocessError):
-                pass
-    todo = [c for c in blocks if c not in out]
-    if todo:
-        try:
-            from rdkit import Chem
-            from rdkit.Chem import AllChem
-        except ImportError:
-            return out
-        for cid in todo:
-            try:
-                blk = blocks[cid]
-                molblock = blk[:blk.index("M  END") + 6]
-                mol = Chem.MolFromMolBlock(molblock, removeHs=False)
-                if mol is None:
-                    continue
-                mol = Chem.AddHs(mol)
-                if AllChem.EmbedMolecule(mol, randomSeed=42) != 0:
-                    continue
-                try:
-                    AllChem.MMFFOptimizeMolecule(mol)
-                except Exception:
-                    pass
-                mol.SetProp("_Name", str(cid))
-                out[cid] = Chem.MolToMolBlock(mol) + "$$$$\n"
-            except Exception:
-                continue
+def _gen3d_local(blocks, diag=None):
+    """Genere la 3D en local pour {cid: bloc 2D} via src/mol3d.py (Open Babel,
+    RDKit puis pybel, dans l'ordre). Retourne {cid: bloc 3D} ; les CID non
+    convertibles sont absents. diag (liste) recoit les lignes de diagnostic."""
+    from src import mol3d
+    out, info = mol3d.generate_3d(blocks)
+    if diag is not None:
+        diag.extend(info["diag"])
     return out
 
 
@@ -688,6 +642,7 @@ def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
     out_file = Path(out_file)
     cids = list(dict.fromkeys(int(c) for c in cids))
     native, generated = {}, {}
+    diag = []
     for i in range(0, len(cids), batch_size):
         batch = cids[i:i + batch_size]
         found = _pubchem_fetch_blocks(batch, "3d")
@@ -695,9 +650,13 @@ def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
         missing = [c for c in batch if c not in found]
         if missing:
             flat = _pubchem_fetch_blocks(missing, "2d")
-            generated.update(_gen3d_local(flat))
+            generated.update(_gen3d_local(flat, diag))
         time.sleep(0.3)
     if not native and not generated:
+        if diag:
+            raise PhytoNetworkError(
+                "Génération 3D locale impossible (structures 2D reçues de PubChem) : "
+                + " | ".join(diag), status=None)
         raise PhytoNetworkError(
             "PubChem : aucune structure disponible pour ces CID ("
             + ", ".join(str(c) for c in cids[:10]) + ").", status=404)
@@ -712,6 +671,14 @@ def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
                 rapport.append(str(c) + "\techec")
     out_file.with_name(out_file.stem + "_rapport.txt").write_text(
         "\n".join(rapport) + "\n", encoding="utf-8")
+    if diag and any(c not in native and c not in generated for c in cids):
+        try:
+            from src import mol3d
+            out_file.with_name(out_file.stem + "_diagnostic3d.txt").write_text(
+                "\n".join(diag + ["", "Environnement :"] + mol3d.diagnostic()) + "\n",
+                encoding="utf-8")
+        except Exception:
+            pass
     return out_file
 
 

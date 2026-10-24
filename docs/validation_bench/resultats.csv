@@ -1,0 +1,17 @@
+famille,pdb,resolution,ligand,resname,chaine,n_atomes,contacts,ratio_B,rmsd_pose1,rmsd_meilleur,valide,site_retrouve,n_site,n_modes,dist_centres,part_atomes_2A,score_pose1,duree_s,statut
+MexB,21FO,2.3,CA7:B:2001,CA7,B,36,67,1.02,13.26,2.21,False,False,2,9,10.08,0.06,-8.69,402,ok
+MexB,21FP,2.89,CLM:B:1101,CLM,B,20,34,1.17,10.6,2.27,False,False,4,9,8.92,0.0,-6.54,60,ok
+MexB,6IIA,2.91,AV0:B:1101,AV0,B,69,103,1.11,2.99,2.51,False,True,8,9,0.9,0.51,-9.09,3588,ok
+MexB,3W9J,3.15,P9D:B:2001,P9D,B,49,81,0.92,2.22,1.41,False,False,4,9,1.03,0.8,-11.87,331,ok
+AcrB,5ENQ,1.8,5QE:C:901,5QE,C,35,75,0.84,0.28,0.28,True,True,7,9,0.2,1.0,-12.89,116,ok
+AdeB,7KGG,2.97,ET:C:1105,ET,C,24,38,1.22,0.63,0.63,True,True,5,9,0.59,1.0,-9.9,33,ok
+CmeB,8GJK,3.16,ZZ7:C:1101,ZZ7,C,44,48,0.36,3.03,3.03,False,True,7,9,2.07,0.44,-7.43,100,ok
+AcrB,9FE2,1.89,MIY:A:1101,MIY,A,33,39,1.53,1.88,0.98,True,False,4,9,0.68,0.64,-8.22,85,ok
+AcrB,4DX5,1.9,MIY:B:1103,MIY,B,60,56,1.8,6.16,0.94,False,False,2,9,6.04,0.0,-8.74,107,ok
+AcrB,5ENP,1.9,5QF:C:901,5QF,C,37,64,1.5,0.72,0.72,True,True,6,9,0.49,1.0,-10.6,174,ok
+AcrB,9HAO,1.94,XE9:A:1122,XE9,A,48,168,1.14,0.48,0.48,True,True,5,6,0.14,1.0,-11.99,43,ok
+AcrB,7B8R,2.1,DXT:C:902,DXT,C,32,51,1.37,0.92,0.92,True,False,4,9,0.68,1.0,-9.53,79,ok
+AcrB,5ENO,2.2,5QG:C:901,5QG,C,29,58,1.63,0.89,0.89,True,True,5,9,0.71,1.0,-11.19,53,ok
+AcrB,4DX7,2.25,DM2:A:1105,DM2,A,39,50,1.75,11.16,5.14,False,False,0,9,7.99,0.0,-8.6,181,ok
+AcrB,5ENR,2.3,MBX:C:901,MBX,C,36,71,0.9,0.43,0.43,True,True,5,8,0.18,1.0,-12.91,117,ok
+AcrB,7B8S,2.3,FUA:C:901,FUA,C,37,43,2.04,6.6,4.22,False,True,5,9,4.09,0.0,-8.44,142,ok

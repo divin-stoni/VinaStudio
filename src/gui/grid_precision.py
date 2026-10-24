@@ -230,7 +230,7 @@ class _FitPanel(QFrame):
         grid.setColumnStretch(1, 1)
 
         lay.addWidget(title)
-        lay.addWidget(hint)
+        title.setToolTip(hint.text())
         lay.addLayout(grid)
         lay.addWidget(self.msg)
         lay.addWidget(self.stats)

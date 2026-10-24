@@ -47,3 +47,14 @@ dev/archive_patchs_diagnostics/
 .~lock.*#
 DECLARATION_COAUTEUR_*.odt
 DECLARATION_COAUTEUR_*.pdf
+_patch_backups/
+_corbeille_recepteurs/
+redocking_runs/
+*.bak*
+_nettoyer_recepteurs.py
+diag_*.txt
+patch_*.py
+dev/patch*.py
+*.mp4
+docking/ligands/
+DECLARATION_COAUTEUR_*

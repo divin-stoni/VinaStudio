@@ -1,0 +1,22 @@
+{
+  "reference": "ZZ7:C:1101",
+  "passed": false,
+  "rmsd_top": 3.09428514523145,
+  "rmsd_best": 3.09428514523145,
+  "score_top": -7.442,
+  "n_heavy": 25,
+  "threshold": 2.0,
+  "profile_id": "cmeb_ampicillin_cjejuni",
+  "box": {
+    "center": [
+      162.864,
+      167.385,
+      175.551
+    ],
+    "size": [
+      28.1,
+      25.3,
+      23.7
+    ]
+  }
+}

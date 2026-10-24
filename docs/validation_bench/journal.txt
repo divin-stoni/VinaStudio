@@ -1,0 +1,39 @@
+CRITERES : resolution <= 3.2 A ; ligand 12-70 atomes ; >= 10 contacts ; >= 80 % sur la chaine liante ; B(ligand)/B(chaine) <= 2.5 ; pas de lipide/detergent ; <= 2 entrees par (famille, ligand)
+AcrB: 15 entree(s) trouvee(s) a <= 3.2 A avec ligand
+MexB: 6 entree(s) trouvee(s) a <= 3.2 A avec ligand
+AdeB: 5 entree(s) trouvee(s) a <= 3.2 A avec ligand
+CmeB: 2 entree(s) trouvee(s) a <= 3.2 A avec ligand
+
+4 complexe(s) retenu(s), 24 ecarte(s) (raisons : redocking_runs/bench2/exclusions.csv)
+
+PDB   fam.    res ligand         at. contacts   B x
+21FO  MexB   2.30 CA7:B:2001      36       67  1.02
+21FP  MexB   2.89 CLM:B:1101      20       34  1.17
+6IIA  MexB   2.91 AV0:B:1101      69      103  1.11
+3W9J  MexB   3.15 P9D:B:2001      49       81  0.92
+  AcrB: 0 retenu(s)
+  MexB: 4 retenu(s)
+  AdeB: 0 retenu(s)
+  CmeB: 0 retenu(s)
+[1/4] 21FO / CA7:B:2001 (MexB)...
+    ok 13.26
+[2/4] 21FP / CLM:B:1101 (MexB)...
+    ok 10.6
+[3/4] 6IIA / AV0:B:1101 (MexB)...
+    ok 2.99
+[4/4] 3W9J / P9D:B:2001 (MexB)...
+    ok 2.22
+==============================================================================
+BILAN DU BANC DE RE-DOCKING
+==============================================================================
+PDB   fam.    res ligand          B x  RMSD 1  meill.  site  verdict
+21FO  MexB   2.30 CA7:B:2001     1.02   13.26    2.21   2/9  echec
+21FP  MexB   2.89 CLM:B:1101     1.17    10.6    2.27   4/9  echec
+3W9J  MexB   3.15 P9D:B:2001     0.92    2.22    1.41   4/9  echec
+6IIA  MexB   2.91 AV0:B:1101     1.11    2.99    2.51   8/9  site retrouve
+
+GLOBAL   n=4   pose n°1 < 2 A : 0/4 (0 %, IC95 0-49 %) | meilleure des 9 : 1/4 | site retrouve : 1/4
+MexB     n=4   pose n°1 < 2 A : 0/4 (0 %, IC95 0-49 %) | meilleure des 9 : 1/4 | site retrouve : 1/4
+
+Rappel : re-docking dans le cas le plus favorable (boite centree sur le ligand du cristal,
+chaine liante seule, hydrogenes ajoutes). Ce n'est pas un test de cross-docking.
