@@ -1,0 +1,137 @@
+{
+  "reference": "P9D:B:2001",
+  "passed": false,
+  "rmsd_top": 2.20820787989182,
+  "rmsd_best": 1.7917315305455268,
+  "score_top": -11.839,
+  "n_heavy": 49,
+  "threshold": 2.0,
+  "n_modes": 9,
+  "center_dist_top": 1.0331072442357838,
+  "n_site": 4,
+  "frac_2a_top": 0.7959183673469388,
+  "profile_id": "mexb_paeruginosa",
+  "box": {
+    "center": [
+      34.12,
+      16.29,
+      -58.71
+    ],
+    "size": [
+      26.0,
+      26.0,
+      26.0
+    ]
+  },
+  "role": "redocking",
+  "date": "2026-10-24T10:41:20",
+  "poses": [
+    {
+      "pose": 1,
+      "energie_kcal_mol": -11.839,
+      "rmsd_sym": 2.20820787989182,
+      "dist_centres": 1.0331072442357838,
+      "part_atomes_sous_seuil": 0.7959183673469388,
+      "dans_le_site": true,
+      "rmsd_noyau": 0.3100698213590726,
+      "rmsd_queues": 2.723155820918076
+    },
+    {
+      "pose": 2,
+      "energie_kcal_mol": -11.826,
+      "rmsd_sym": 4.516468357973011,
+      "dist_centres": 2.0208900619897374,
+      "part_atomes_sous_seuil": 0.7551020408163265,
+      "dans_le_site": true,
+      "rmsd_noyau": 0.318090072334311,
+      "rmsd_queues": 5.5840334688511675
+    },
+    {
+      "pose": 3,
+      "energie_kcal_mol": -11.559,
+      "rmsd_sym": 1.791731530545527,
+      "dist_centres": 0.7004524788558888,
+      "part_atomes_sous_seuil": 0.8571428571428571,
+      "dans_le_site": true,
+      "rmsd_noyau": 0.39052581446647816,
+      "rmsd_queues": 2.198807311646474
+    },
+    {
+      "pose": 4,
+      "energie_kcal_mol": -11.358,
+      "rmsd_sym": 4.223597608094553,
+      "dist_centres": 1.727862322446754,
+      "part_atomes_sous_seuil": 0.7551020408163265,
+      "dans_le_site": true,
+      "rmsd_noyau": 0.39747926324008653,
+      "rmsd_queues": 5.218399643928203
+    },
+    {
+      "pose": 5,
+      "energie_kcal_mol": -10.745,
+      "rmsd_sym": 6.393644925124591,
+      "dist_centres": 5.126177034391404,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false,
+      "rmsd_noyau": 6.603289567908336,
+      "rmsd_queues": 6.27942501597479
+    },
+    {
+      "pose": 6,
+      "energie_kcal_mol": -10.669,
+      "rmsd_sym": 6.354401908303007,
+      "dist_centres": 4.86524802941792,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false,
+      "rmsd_noyau": 6.689505675045848,
+      "rmsd_queues": 6.168978572259754
+    },
+    {
+      "pose": 7,
+      "energie_kcal_mol": -10.471,
+      "rmsd_sym": 6.122601936218601,
+      "dist_centres": 4.106831240859512,
+      "part_atomes_sous_seuil": 0.10204081632653061,
+      "dans_le_site": false,
+      "rmsd_noyau": 6.261306662163023,
+      "rmsd_queues": 6.047621252401642
+    },
+    {
+      "pose": 8,
+      "energie_kcal_mol": -10.204,
+      "rmsd_sym": 12.195864281445107,
+      "dist_centres": 10.483051143785152,
+      "part_atomes_sous_seuil": 0.04081632653061224,
+      "dans_le_site": false,
+      "rmsd_noyau": 12.6108765800656,
+      "rmsd_queues": 11.969537682957935
+    },
+    {
+      "pose": 9,
+      "energie_kcal_mol": -10.048,
+      "rmsd_sym": 5.6623010196151435,
+      "dist_centres": 4.425051036067683,
+      "part_atomes_sous_seuil": 0.0,
+      "dans_le_site": false,
+      "rmsd_noyau": 6.225807974968106,
+      "rmsd_queues": 5.338800617296922
+    }
+  ],
+  "params": {
+    "exhaustiveness": 32,
+    "num_modes": 9,
+    "energy_range": 3.0,
+    "seed": 2024,
+    "cpu": 0
+  },
+  "reference_pdb": "/home/stoni/MexAB_MexR_Analyzer_BETA/redocking_runs/mexb_paeruginosa/P9D_B_2001_cristal.pdb",
+  "noyau": {
+    "mode": "torsions Vina",
+    "n_atoms": 49,
+    "n_core": 17,
+    "n_tail": 32,
+    "rmsd_core": 0.3100698213590726,
+    "rmsd_tail": 2.723155820918076
+  },
+  "niveau": "jaune"
+}

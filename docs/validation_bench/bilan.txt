@@ -1,0 +1,29 @@
+==============================================================================
+BILAN DU BANC DE RE-DOCKING
+==============================================================================
+PDB   fam.    res ligand          B x  RMSD 1  meill.  site  verdict
+4DX5  AcrB   1.90 MIY:B:1103      1.8    6.16    0.94   2/9  echec
+4DX7  AcrB   2.25 DM2:A:1105     1.75   11.16    5.14   0/9  echec
+5ENO  AcrB   2.20 5QG:C:901      1.63    0.89    0.89   5/9  VALIDE
+5ENP  AcrB   1.90 5QF:C:901       1.5    0.72    0.72   6/9  VALIDE
+5ENQ  AcrB   1.80 5QE:C:901      0.84    0.28    0.28   7/9  VALIDE
+5ENR  AcrB   2.30 MBX:C:901       0.9    0.43    0.43   5/8  VALIDE
+7B8R  AcrB   2.10 DXT:C:902      1.37    0.92    0.92   4/9  VALIDE
+7B8S  AcrB   2.30 FUA:C:901      2.04     6.6    4.22   5/9  site retrouve
+9FE2  AcrB   1.89 MIY:A:1101     1.53    1.88    0.98   4/9  VALIDE
+9HAO  AcrB   1.94 XE9:A:1122     1.14    0.48    0.48   5/6  VALIDE
+7KGG  AdeB   2.97 ET:C:1105      1.22    0.63    0.63   5/9  VALIDE
+8GJK  CmeB   3.16 ZZ7:C:1101     0.36    3.03    3.03   7/9  site retrouve
+21FO  MexB   2.30 CA7:B:2001     1.02   13.26    2.21   2/9  echec
+21FP  MexB   2.89 CLM:B:1101     1.17    10.6    2.27   4/9  echec
+3W9J  MexB   3.15 P9D:B:2001     0.92    2.22    1.41   4/9  echec
+6IIA  MexB   2.91 AV0:B:1101     1.11    2.99    2.51   8/9  site retrouve
+
+GLOBAL   n=16  pose n°1 < 2 A : 8/16 (50 %, IC95 28-72 %) | meilleure des 9 : 10/16 | site retrouve : 9/16
+AcrB     n=10  pose n°1 < 2 A : 7/10 (70 %, IC95 40-89 %) | meilleure des 9 : 8/10 | site retrouve : 6/10
+MexB     n=4   pose n°1 < 2 A : 0/4 (0 %, IC95 0-49 %) | meilleure des 9 : 1/4 | site retrouve : 1/4
+AdeB     n=1   pose n°1 < 2 A : 1/1 (100 %, IC95 21-100 %) | meilleure des 9 : 1/1 | site retrouve : 1/1
+CmeB     n=1   pose n°1 < 2 A : 0/1 (0 %, IC95 0-79 %) | meilleure des 9 : 0/1 | site retrouve : 1/1
+
+Rappel : re-docking dans le cas le plus favorable (boite centree sur le ligand du cristal,
+chaine liante seule, hydrogenes ajoutes). Ce n'est pas un test de cross-docking.

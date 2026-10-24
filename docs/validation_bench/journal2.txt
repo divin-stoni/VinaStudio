@@ -1,0 +1,106 @@
+CRITERES : resolution <= 3.2 A ; ligand 12-70 atomes ; >= 10 contacts ; >= 80 % sur la chaine liante ; B(ligand)/B(chaine) <= 2.5 ; pas de lipide/detergent ; <= 2 entrees par (famille, ligand)
+    UniProt P0AES6 : DNA gyrase subunit B (EC 5.6.2.2) (Type IIA topoisomerase  -> REJETE (nom hors famille)
+    UniProt P31224 : Multidrug efflux pump subunit AcrB (AcrAB-TolC multidrug e -> garde
+    UniProt A0A0H3JMN8 : Efflux pump membrane transporter -> garde
+    UniProt A0A0H2V4W9 : Efflux pump membrane transporter -> garde
+    UniProt B7L699 : Efflux pump membrane transporter -> garde
+    UniProt B7MDY4 : Efflux pump membrane transporter -> garde
+    UniProt A0A0H2YWI2 : Efflux pump membrane transporter -> garde
+    UniProt B7UKE2 : Efflux pump membrane transporter -> garde
+    UniProt E2QH56 : Efflux pump membrane transporter -> garde
+AcrB: 8 accession(s) UniProt, 57 entree(s) RCSB a <= 3.2 A avec ligand
+    UniProt P52002 : Multidrug resistance protein MexB (Multidrug-efflux transp -> garde
+    UniProt A0A0H2ZLB4 : Efflux pump membrane transporter -> garde
+MexB: 2 accession(s) UniProt, 6 entree(s) RCSB a <= 3.2 A avec ligand
+    UniProt A0A0D5YHB7 : Efflux pump membrane transporter -> garde
+    UniProt Q93E19 : Efflux pump membrane transporter -> garde
+    UniProt Q2FD70 : Efflux pump membrane transporter -> garde
+    UniProt A0A068LBC1 : Drug efflux protein -> garde
+AdeB: 4 accession(s) UniProt, 2 entree(s) RCSB a <= 3.2 A avec ligand
+    UniProt Q0PBE4 : Inner membrane efflux transporter CmeB (Multidrug efflux s -> garde
+    UniProt Q8RTE4 : CmeB (RND efflux system, inner membrane transporter CmeB) -> garde
+    UniProt A0A1C9A1J1 : CmeB -> garde
+    UniProt Q1A4H7 : CmeB -> garde
+    UniProt C0M167 : CmeB -> garde
+CmeB: 5 accession(s) UniProt, 2 entree(s) RCSB a <= 3.2 A avec ligand
+
+16 complexe(s) retenu(s), 51 ecarte(s) (raisons : redocking_runs/bench2/exclusions.csv)
+
+PDB   fam.    res ligand         at. contacts   B x  molecule de la chaine liante
+5ENQ  AcrB   1.80 5QE:C:901       35       75  0.84  Multidrug Efflux Pump Subunit Acrb,Multi
+21FO  MexB   2.30 CA7:B:2001      36       67  1.02  Multidrug Resistance Protein Mexb
+7KGG  AdeB   2.97 ET:C:1105       24       38  1.22  Efflux Pump Membrane Transporter
+8GJK  CmeB   3.16 ZZ7:C:1101      44       48  0.36  Efflux Pump Membrane Transporter
+9FE2  AcrB   1.89 MIY:A:1101      33       39  1.53  Multidrug Efflux Pump Subunit Acrb
+21FP  MexB   2.89 CLM:B:1101      20       34  1.17  Multidrug Resistance Protein Mexb
+4DX5  AcrB   1.90 MIY:B:1103      60       56  1.80  Acriflavine Resistance Protein B
+6IIA  MexB   2.91 AV0:B:1101      69      103  1.11  Multidrug Resistance Protein Mexb
+5ENP  AcrB   1.90 5QF:C:901       37       64  1.50  Multidrug Efflux Pump Subunit Acrb,Multi
+3W9J  MexB   3.15 P9D:B:2001      49       81  0.92  Multidrug Resistance Protein Mexb
+9HAO  AcrB   1.94 XE9:A:1122      48      168  1.14  Multidrug Efflux Pump Subunit Acrb
+7B8R  AcrB   2.10 DXT:C:902       32       51  1.37  Multidrug Efflux Pump Subunit Acrb,Multi
+5ENO  AcrB   2.20 5QG:C:901       29       58  1.63  Multidrug Efflux Pump Subunit Acrb,Multi
+4DX7  AcrB   2.25 DM2:A:1105      39       50  1.75  Acriflavine Resistance Protein B
+5ENR  AcrB   2.30 MBX:C:901       36       71  0.90  Multidrug Efflux Pump Subunit Acrb,Multi
+7B8S  AcrB   2.30 FUA:C:901       37       43  2.04  Multidrug Efflux Pump Subunit Acrb,Multi
+  AcrB: 10 retenu(s)
+  MexB: 4 retenu(s)
+  AdeB: 1 retenu(s)
+  CmeB: 1 retenu(s)
+[1/16] 5ENQ / 5QE:C:901 (AcrB)...
+    ok 0.28
+[2/16] 21FO deja fait, ignore
+[3/16] 7KGG / ET:C:1105 (AdeB)...
+    ok 0.63
+[4/16] 8GJK / ZZ7:C:1101 (CmeB)...
+    ok 3.03
+[5/16] 9FE2 / MIY:A:1101 (AcrB)...
+    ok 1.88
+[6/16] 21FP deja fait, ignore
+[7/16] 4DX5 / MIY:B:1103 (AcrB)...
+    ok 6.16
+[8/16] 6IIA deja fait, ignore
+[9/16] 5ENP / 5QF:C:901 (AcrB)...
+    ok 0.72
+[10/16] 3W9J deja fait, ignore
+[11/16] 9HAO / XE9:A:1122 (AcrB)...
+    ok 0.48
+[12/16] 7B8R / DXT:C:902 (AcrB)...
+    ok 0.92
+[13/16] 5ENO / 5QG:C:901 (AcrB)...
+    ok 0.89
+[14/16] 4DX7 / DM2:A:1105 (AcrB)...
+    ok 11.16
+[15/16] 5ENR / MBX:C:901 (AcrB)...
+    ok 0.43
+[16/16] 7B8S / FUA:C:901 (AcrB)...
+    ok 6.6
+==============================================================================
+BILAN DU BANC DE RE-DOCKING
+==============================================================================
+PDB   fam.    res ligand          B x  RMSD 1  meill.  site  verdict
+4DX5  AcrB   1.90 MIY:B:1103      1.8    6.16    0.94   2/9  echec
+4DX7  AcrB   2.25 DM2:A:1105     1.75   11.16    5.14   0/9  echec
+5ENO  AcrB   2.20 5QG:C:901      1.63    0.89    0.89   5/9  VALIDE
+5ENP  AcrB   1.90 5QF:C:901       1.5    0.72    0.72   6/9  VALIDE
+5ENQ  AcrB   1.80 5QE:C:901      0.84    0.28    0.28   7/9  VALIDE
+5ENR  AcrB   2.30 MBX:C:901       0.9    0.43    0.43   5/8  VALIDE
+7B8R  AcrB   2.10 DXT:C:902      1.37    0.92    0.92   4/9  VALIDE
+7B8S  AcrB   2.30 FUA:C:901      2.04     6.6    4.22   5/9  site retrouve
+9FE2  AcrB   1.89 MIY:A:1101     1.53    1.88    0.98   4/9  VALIDE
+9HAO  AcrB   1.94 XE9:A:1122     1.14    0.48    0.48   5/6  VALIDE
+7KGG  AdeB   2.97 ET:C:1105      1.22    0.63    0.63   5/9  VALIDE
+8GJK  CmeB   3.16 ZZ7:C:1101     0.36    3.03    3.03   7/9  site retrouve
+21FO  MexB   2.30 CA7:B:2001     1.02   13.26    2.21   2/9  echec
+21FP  MexB   2.89 CLM:B:1101     1.17    10.6    2.27   4/9  echec
+3W9J  MexB   3.15 P9D:B:2001     0.92    2.22    1.41   4/9  echec
+6IIA  MexB   2.91 AV0:B:1101     1.11    2.99    2.51   8/9  site retrouve
+
+GLOBAL   n=16  pose n°1 < 2 A : 8/16 (50 %, IC95 28-72 %) | meilleure des 9 : 10/16 | site retrouve : 9/16
+AcrB     n=10  pose n°1 < 2 A : 7/10 (70 %, IC95 40-89 %) | meilleure des 9 : 8/10 | site retrouve : 6/10
+MexB     n=4   pose n°1 < 2 A : 0/4 (0 %, IC95 0-49 %) | meilleure des 9 : 1/4 | site retrouve : 1/4
+AdeB     n=1   pose n°1 < 2 A : 1/1 (100 %, IC95 21-100 %) | meilleure des 9 : 1/1 | site retrouve : 1/1
+CmeB     n=1   pose n°1 < 2 A : 0/1 (0 %, IC95 0-79 %) | meilleure des 9 : 0/1 | site retrouve : 1/1
+
+Rappel : re-docking dans le cas le plus favorable (boite centree sur le ligand du cristal,
+chaine liante seule, hydrogenes ajoutes). Ce n'est pas un test de cross-docking.

@@ -5,6 +5,7 @@ from src.session_runtime import start_new_session, end_session
 from src.session_manager import SessionManager
 from src.i18n.language_manager import LanguageManager
 from src.gui.grid_precision import PreciseSpinBox, FineSlider, build_override_row_with_fit
+from src.gui.pdb_import_dialog import choose_receptor_source
 
 import sys
 import shutil
@@ -3749,10 +3750,37 @@ class SecondaryNavigation(GlassPanel):
             self.buttons.append(button)
             layout.addWidget(button)
 
+        self._footer_layout = QVBoxLayout()
+        self._footer_layout.setContentsMargins(10, 8, 10, 8)
+        layout.addLayout(self._footer_layout)
         layout.addStretch()
 
         if self.buttons:
             self.buttons[0].setChecked(True)
+
+    def set_footer(self, widget):
+        self._footer_layout.addWidget(widget)
+
+    def add_children(self, index, items):
+        """Sous-options sous un onglet, visibles seulement quand il est actif."""
+        from PySide6.QtWidgets import QWidget as _W, QVBoxLayout as _V, QPushButton as _B
+        box = _W()
+        bl = _V(box)
+        bl.setContentsMargins(16, 0, 6, 8)
+        bl.setSpacing(2)
+        for text, cb in items:
+            b = _B("› " + text)
+            b.setFlat(True)
+            b.setCursor(Qt.PointingHandCursor)
+            b.setStyleSheet("text-align: left; padding: 4px 6px;")
+            b.clicked.connect(lambda _=False, f=cb: f())
+            bl.addWidget(b)
+        btn = self.buttons[index]
+        lay = self.layout()
+        lay.insertWidget(lay.indexOf(btn) + 1, box)
+        box.setVisible(btn.isChecked())
+        btn.toggled.connect(box.setVisible)
+        return box
 
 
 # ============================================================================
@@ -3843,6 +3871,85 @@ class DockingPage(QWidget):
         self.stack.addWidget(self.pdbqt_page)
         self.stack.addWidget(self.docking_page)
 
+        # CONTEXTE UTILE: infos nouvelles (patch espace)
+        from PySide6.QtCore import QUrl as _QUrl
+        from PySide6.QtGui import QDesktopServices as _QDS
+        from PySide6.QtWidgets import (
+            QWidget as _W, QVBoxLayout as _V, QPushButton as _B, QLineEdit as _LE)
+
+        def _open_dir(getter):
+            def _f():
+                try:
+                    d = Path(getter())
+                    d.mkdir(parents=True, exist_ok=True)
+                    _QDS.openUrl(_QUrl.fromLocalFile(str(d)))
+                except Exception:
+                    pass
+            return _f
+
+        def _tab_box(index):
+            box = _W()
+            lay = _V(box)
+            lay.setContentsMargins(0, 8, 0, 0)
+            lay.setSpacing(6)
+            btn = self.secondary.buttons[index]
+            box.setVisible(btn.isChecked())
+            btn.toggled.connect(box.setVisible)
+            self.secondary.set_footer(box)
+            return lay
+
+        # SDF : retrouver les fichiers produits
+        _l0 = _tab_box(0)
+        _b0 = _B("Ouvrir le dossier de sortie")
+        _b0.clicked.connect(_open_dir(lambda: self.sdf_output.text()))
+        _l0.addWidget(_b0)
+
+        # PDBQT : filtrer une longue liste + retrouver les fichiers
+        _l1 = _tab_box(1)
+        _flt = _LE()
+        _flt.setPlaceholderText("Filtrer les ligands par nom")
+        _flt.setClearButtonEnabled(True)
+
+        def _apply_filter(text):
+            t = (text or "").strip().lower()
+            tbl = self.pdbqt_table
+            for r in range(tbl.rowCount()):
+                hit = not t
+                if not hit:
+                    for c in range(tbl.columnCount()):
+                        it = tbl.item(r, c)
+                        if it is not None and t in it.text().lower():
+                            hit = True
+                            break
+                tbl.setRowHidden(r, not hit)
+
+        _flt.textChanged.connect(_apply_filter)
+        _l1.addWidget(_flt)
+        _b1 = _B("Ouvrir le dossier des PDBQT")
+        _b1.clicked.connect(_open_dir(
+            lambda: self.project_root / "docking" / "ligands" / "prepared"))
+        _l1.addWidget(_b1)
+
+        def _relocate_couple():
+            try:
+                slot = getattr(self, "_dock_toolbar_slot", None)
+                if slot is None:
+                    return
+                for b in self.findChildren(_QPB2):
+                    t = b.text().strip().lower()
+                    if t.startswith("coupler deux") or t.startswith("pair two"):
+                        if slot.indexOf(b) < 0:
+                            b.setMaximumWidth(280)
+                            slot.insertWidget(0, b)
+                        break
+            except Exception:
+                pass
+
+        from PySide6.QtCore import QTimer as _QT
+        from PySide6.QtWidgets import QPushButton as _QPB2
+        for _ms in (0, 400, 1200, 3000, 8000):
+            _QT.singleShot(_ms, _relocate_couple)
+
     # ------------------------------------------------------------------
     # TRADUCTION
     # ------------------------------------------------------------------
@@ -3930,24 +4037,6 @@ class DockingPage(QWidget):
         layout.setContentsMargins(30, 28, 30, 28)
         layout.setSpacing(18)
 
-        layout.addWidget(
-            self._t_label(
-                "sdf_section_title",
-                "Préparation des ligands",
-                "SectionTitle",
-            )
-        )
-
-        layout.addWidget(
-            self._t_label(
-                "sdf_section_desc",
-                "Importez un ou plusieurs fichiers SDF, ou un dossier "
-                "contenant des fichiers SDF, puis convertissez les molécules "
-                "en fichiers PDBQT utilisables par AutoDock Vina.",
-                "SectionDescription",
-            )
-        )
-
         panel = QFrame()
         panel.setObjectName("ContentPanel")
 
@@ -3955,151 +4044,38 @@ class DockingPage(QWidget):
         panel_layout.setContentsMargins(24, 24, 24, 24)
         panel_layout.setSpacing(14)
 
-        panel_layout.addWidget(
-            self._t_label("sdf_panel_title", "Bibliothèque SDF", "PanelTitle")
-        )
-
-        # --------------------------------------------------------------
-        # BOUTONS DE SELECTION
-        # --------------------------------------------------------------
-
+        # SDF: ordre par etapes (patch ergonomie)
+        # 1) AJOUT
         buttons = QHBoxLayout()
         buttons.setSpacing(8)
 
-        add_files = self._t_button(
-            "sdf_btn_add_files",
-            "Ajouter des fichiers SDF",
-        )
-
-        add_files.clicked.connect(
-            self.select_sdf_files
-        )
-
-        add_folder = self._t_button(
-            "sdf_btn_add_folder",
-            "Ajouter un dossier",
-        )
-
-        add_folder.clicked.connect(
-            self.select_sdf_folder
-        )
-
+        add_files = self._t_button("sdf_btn_add_files", "Ajouter des fichiers SDF")
+        add_files.clicked.connect(self.select_sdf_files)
+        add_folder = self._t_button("sdf_btn_add_folder", "Ajouter un dossier")
+        add_folder.clicked.connect(self.select_sdf_folder)
         choose_families = self._t_button(
-            "sdf_btn_choose_families",
-            "Choisir les familles de molécules",
+            "sdf_btn_choose_families", "Choisir les familles de molécules"
         )
         choose_families.clicked.connect(self.select_sdf_families)
-
-        clear = self._t_button(
-            "sdf_btn_clear_selection",
-            "Vider la sélection",
-        )
-
-        clear.clicked.connect(
-            self.clear_sdf_selection
-        )
+        clear = self._t_button("sdf_btn_clear_selection", "Vider la sélection")
+        clear.clicked.connect(self.clear_sdf_selection)
 
         buttons.addWidget(add_files)
         buttons.addWidget(add_folder)
         buttons.addWidget(choose_families)
         buttons.addWidget(clear)
         buttons.addStretch()
-
         panel_layout.addLayout(buttons)
 
-        # --------------------------------------------------------------
-        # LISTE DES ELEMENTS SELECTIONNES
-        # --------------------------------------------------------------
-
+        # Champ de chemin conserve mais masque (l'etat suffit)
         self.sdf_path = QLineEdit()
         self.sdf_path.setReadOnly(True)
-        self.sdf_path.setPlaceholderText(
-            "Aucun fichier ou dossier SDF sélectionné."
-        )
+        self.sdf_path.setPlaceholderText("Aucun fichier ou dossier SDF sélectionné.")
+        self.sdf_path.setVisible(False)
 
-        panel_layout.addWidget(
-            self.sdf_path
-        )
-
-        self.sdf_list = QTableWidget(0, 1)
-        self.sdf_list.setHorizontalHeaderLabels(["Type"])
-        self._sdf_family_columns = []
-        self.sdf_list.horizontalHeader().setSectionResizeMode(
-            0, QHeaderView.ResizeToContents
-        )
-
-        self.sdf_list.verticalHeader().setVisible(False)
-
-        self.sdf_list.setSelectionBehavior(
-            QAbstractItemView.SelectRows
-        )
-
-        self.sdf_list.setEditTriggers(
-            QAbstractItemView.NoEditTriggers
-        )
-
-        self.sdf_list.setAlternatingRowColors(
-            True
-        )
-
-        self.sdf_list.setMinimumHeight(150)
-        self.sdf_list.setMaximumHeight(350)
-
-        panel_layout.addWidget(
-            self.sdf_list
-        )
-
-        # --------------------------------------------------------------
-        # ETAT
-        # --------------------------------------------------------------
-
-        info = QFrame()
-        info.setObjectName("ToolbarPanel")
-
-        info_layout = QHBoxLayout(info)
-        info_layout.setContentsMargins(
-            14,
-            10,
-            14,
-            10,
-        )
-
-        self.sdf_status = make_label(
-            "Aucun fichier SDF sélectionné"
-        )
-
-        info_layout.addWidget(
-            self.sdf_status
-        )
-
-        info_layout.addStretch()
-
-        panel_layout.addWidget(
-            info
-        )
-
-        # --------------------------------------------------------------
-        # DOSSIER DE SORTIE
-        # --------------------------------------------------------------
-
-        panel_layout.addWidget(
-            self._t_label("sdf_output_folder_label", "Dossier de sortie")
-        )
-
-        self.sdf_output = QLineEdit(
-            str(
-                self.project_root
-                / "docking"
-                / "ligands"
-                / "prepared"
-            )
-        )
-
-        panel_layout.addWidget(
-            self.sdf_output
-        )
-
+        # 2) REGLAGES : nommage puis dossier de sortie
         naming_row = QHBoxLayout()
+        naming_row.setSpacing(8)
         naming_row.addWidget(QLabel("Nommage des ligands"))
         self.sdf_naming_mode = QComboBox()
         self.sdf_naming_mode.addItem(self.lang_mgr.t("sdf_naming_preserve") if self.lang_mgr else "Conserver le nom du fichier", "preserve")
@@ -4119,79 +4095,48 @@ class DockingPage(QWidget):
         naming_row.addWidget(self.sdf_cleanup_text, 1)
         panel_layout.addLayout(naming_row)
 
-        # --------------------------------------------------------------
-        # PREPARATION
-        # --------------------------------------------------------------
+        out_row = QHBoxLayout()
+        out_row.setSpacing(8)
+        out_row.addWidget(self._t_label("sdf_output_folder_label", "Dossier de sortie"))
+        self.sdf_output = QLineEdit(
+            str(self.project_root / "docking" / "ligands" / "prepared")
+        )
+        out_row.addWidget(self.sdf_output, 1)
+        panel_layout.addLayout(out_row)
 
-        prepare_buttons = QHBoxLayout()
-        prepare_buttons.addStretch()
-
+        # 3) ACTION : etat de la selection + bouton Preparer
+        action_row = QHBoxLayout()
+        action_row.setSpacing(10)
+        self.sdf_status = make_label("Aucun fichier SDF sélectionné")
+        action_row.addWidget(self.sdf_status, 1)
         self.prepare_button = self._t_button(
-            "sdf_btn_prepare_molecules",
-            "Préparer les molécules",
-            primary=True,
+            "sdf_btn_prepare_molecules", "Préparer les molécules", primary=True
         )
+        self.prepare_button.clicked.connect(self.prepare_ligands)
+        action_row.addWidget(self.prepare_button)
+        panel_layout.addLayout(action_row)
 
-        self.prepare_button.clicked.connect(
-            self.prepare_ligands
-        )
-
-        prepare_buttons.addWidget(
-            self.prepare_button
-        )
-
-        panel_layout.addLayout(
-            prepare_buttons
-        )
-
-        layout.addWidget(
-            panel
-        )
-
-        # --------------------------------------------------------------
-        # JOURNAL
-        # --------------------------------------------------------------
-
-        log_panel = QFrame()
-        log_panel.setObjectName(
-            "ContentPanel"
-        )
-
-        log_layout = QVBoxLayout(
-            log_panel
-        )
-
-        log_layout.setContentsMargins(
-            18,
-            16,
-            18,
-            16,
-        )
-
-        log_layout.addWidget(
-            self._t_label(
-                "sdf_state_panel_title",
-                "État de préparation",
-                "PanelTitle",
-            )
-        )
-
+        # 4) ETAT DE PREPARATION, juste sous le bouton
         self.sdf_log = QLineEdit()
-        self.sdf_log.setReadOnly(
-            True
-        )
+        self.sdf_log.setReadOnly(True)
+        self.sdf_log.setText("En attente de fichiers SDF.")
+        panel_layout.addWidget(self.sdf_log)
 
-        self.sdf_log.setText(
-            "En attente de fichiers SDF."
+        # 5) TABLEAU : seul element qui grandit et defile
+        self.sdf_list = QTableWidget(0, 1)
+        self.sdf_list.setHorizontalHeaderLabels(["Type"])
+        self._sdf_family_columns = []
+        self.sdf_list.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeToContents
         )
+        self.sdf_list.verticalHeader().setVisible(False)
+        self.sdf_list.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sdf_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.sdf_list.setAlternatingRowColors(True)
+        self.sdf_list.setMinimumHeight(260)
+        panel_layout.addWidget(self.sdf_list, 1)
 
-        log_layout.addWidget(
-            self.sdf_log
-        )
-
-        layout.addWidget(
-            log_panel
-        )
+        layout.addWidget(panel, 1)
 
         layout.addStretch()
 
@@ -4524,23 +4469,6 @@ class DockingPage(QWidget):
         layout.setContentsMargins(30, 28, 30, 28)
         layout.setSpacing(16)
 
-        layout.addWidget(
-            self._t_label(
-                "pdbqt_section_title",
-                "Ligands PDBQT",
-                "SectionTitle",
-            )
-        )
-
-        layout.addWidget(
-            self._t_label(
-                "pdbqt_section_desc",
-                "Contrôlez les ligands disponibles avant leur utilisation "
-                "dans la campagne de docking.",
-                "SectionDescription",
-            )
-        )
-
         toolbar = QFrame()
         toolbar.setObjectName("ToolbarPanel")
 
@@ -4578,12 +4506,13 @@ class DockingPage(QWidget):
             self.use_selected_pdbqt
         )
 
+        # PDBQT: ordre par etapes (patch ergonomie)
         toolbar_layout.addWidget(add)
         toolbar_layout.addWidget(add_families)
         toolbar_layout.addWidget(refresh)
+        toolbar_layout.addSpacing(18)
         toolbar_layout.addWidget(select_all)
         toolbar_layout.addWidget(clear_selection)
-        toolbar_layout.addWidget(use_selection)
         toolbar_layout.addStretch()
 
         self.pdbqt_count = make_label(
@@ -4593,6 +4522,7 @@ class DockingPage(QWidget):
         toolbar_layout.addWidget(
             self.pdbqt_count
         )
+        toolbar_layout.addWidget(use_selection)
 
         layout.addWidget(toolbar)
 
@@ -4622,6 +4552,7 @@ class DockingPage(QWidget):
         )
 
         self.pdbqt_table.setAlternatingRowColors(True)
+        self.pdbqt_table.setMinimumHeight(260)
         self.pdbqt_table.verticalHeader().setVisible(False)
 
         self.pdbqt_table.setSelectionBehavior(
@@ -4984,6 +4915,17 @@ class DockingPage(QWidget):
             self._delete_imported_receptors_dialog
         )
         _import_toolbar.addWidget(self._delete_imported_button)
+        # TOOLBAR: emplacement pour Coupler deux recepteurs (patch espace)
+        self._dock_toolbar_slot = QHBoxLayout()
+        self._dock_toolbar_slot.setSpacing(8)
+        _import_toolbar.addLayout(self._dock_toolbar_slot)
+        self._ref_inhib_button = QPushButton("Inhibiteurs de référence")
+        self._ref_inhib_button.setToolTip(
+            "Identifie le rôle du ligand du cristal et télécharge les inhibiteurs "
+            "de référence documentés pour cette pompe, avec leurs sources.")
+        self._ref_inhib_button.setMaximumWidth(280)
+        self._ref_inhib_button.clicked.connect(self._open_reference_inhibitors)
+        self._dock_toolbar_slot.addWidget(self._ref_inhib_button)
         _import_toolbar.addStretch(1)
 
         self._export_session_button = QPushButton(
@@ -4995,23 +4937,6 @@ class DockingPage(QWidget):
         _import_toolbar.addWidget(self._export_session_button)
 
         layout.addLayout(_import_toolbar)
-
-        layout.addWidget(
-            self._t_label(
-                "dock_config_section_title",
-                "Configuration du docking",
-                "SectionTitle",
-            )
-        )
-
-        layout.addWidget(
-            self._t_label(
-                "dock_config_section_desc",
-                "Sélectionnez la cible et vérifiez les paramètres "
-                "de calcul avant de lancer la campagne.",
-                "SectionDescription",
-            )
-        )
 
         config_panel = QFrame()
         config_panel.setObjectName("ContentPanel")
@@ -5326,6 +5251,14 @@ class DockingPage(QWidget):
         grid.addLayout(mexb_override_row, 8, 0, 1, 4)
         self._mexb_gridbox_widgets.append(mexb_activate_btn)
         self._mexb_gridbox_widgets.append(mexb_default_btn)
+        try:
+            from src.gui.validation_ui import ValidationRow
+            _vrow = ValidationRow(self, "mexb_paeruginosa", config_panel)
+            grid.addWidget(_vrow, 30, 0, 1, 4)
+            self._mexb_gridbox_widgets.append(_vrow)
+            config_panel._validation_row = _vrow
+        except Exception as _exc:
+            print(f"[validation] ligne MexB non ajoutee : {_exc}")
 
         # ------------------------------------------------------
         # DISPOSITION CÔTE-À-CÔTE — config à gauche (largeur
@@ -5357,6 +5290,7 @@ class DockingPage(QWidget):
         split_row.addWidget(left_column, 0)
         split_row.addWidget(right_column, 1)
 
+        self._dock_exec_pos = layout.count()  # Lancer remonte au-dessus de la config
         layout.addLayout(split_row)
 
         left_column_layout.addWidget(
@@ -5661,101 +5595,42 @@ class DockingPage(QWidget):
         execution = QFrame()
         execution.setObjectName("ContentPanel")
 
-        execution_layout = QVBoxLayout(execution)
+        # EXEC: une seule ligne (patch ergonomie)
+        execution_layout = QHBoxLayout(execution)
+        execution_layout.setContentsMargins(14, 8, 14, 8)
+        execution_layout.setSpacing(12)
 
-        execution_layout.setContentsMargins(
-            22, 18, 22, 18
-        )
-
-        header = QHBoxLayout()
-
-        header.addWidget(
-            self._t_label("dock_execution_panel_title", "Exécution", "PanelTitle")
-        )
-
-        header.addStretch()
-
-        self.execution_status = make_label(
-            "Prêt"
-        )
-
+        self.execution_status = make_label("Prêt")
         self.execution_status.setStyleSheet(
-            f"color: {COLORS['success']}; "
-            f"font-weight: 650;"
+            f"color: {COLORS['success']}; font-weight: 650;"
         )
+        execution_layout.addWidget(self.execution_status)
 
-        header.addWidget(
-            self.execution_status
-        )
-
-        execution_layout.addLayout(
-            header
-        )
-
-        self.current_ligand = make_label(
-            "Aucun calcul en cours"
-        )
-
+        self.current_ligand = make_label("Aucun calcul en cours")
         self.current_ligand.setStyleSheet(
             f"color: {COLORS['text_secondary']};"
         )
-
-        execution_layout.addWidget(
-            self.current_ligand
-        )
+        execution_layout.addWidget(self.current_ligand)
 
         self.progress = QProgressBar()
-        self.progress.setRange(
-            0, 100
-        )
-
+        self.progress.setRange(0, 100)
         self.progress.setValue(0)
+        self.progress.setMinimumWidth(220)
+        execution_layout.addWidget(self.progress, 1)
 
-        execution_layout.addWidget(
-            self.progress
-        )
-
-        buttons = QHBoxLayout()
-        buttons.addStretch()
-
-        self.cancel_button = self._t_button(
-            "dock_btn_cancel",
-            "Annuler",
-        )
-
-        self.cancel_button.setObjectName(
-            "DangerButton"
-        )
-
-        self.cancel_button.clicked.connect(
-            self.cancel_docking
-        )
-
-        buttons.addWidget(
-            self.cancel_button
-        )
+        self.cancel_button = self._t_button("dock_btn_cancel", "Annuler")
+        self.cancel_button.setObjectName("DangerButton")
+        self.cancel_button.clicked.connect(self.cancel_docking)
+        execution_layout.addWidget(self.cancel_button)
 
         self.launch_button = self._t_button(
-            "dock_tab_run_docking",
-            "Lancer le docking",
-            primary=True,
+            "dock_tab_run_docking", "Lancer le docking", primary=True
         )
+        self.launch_button.clicked.connect(self.launch_docking)
+        execution_layout.addWidget(self.launch_button)
 
-        self.launch_button.clicked.connect(
-            self.launch_docking
-        )
-
-        buttons.addWidget(
-            self.launch_button
-        )
-
-        execution_layout.addLayout(
-            buttons
-        )
-
-        layout.addWidget(
-            execution
-        )
+        self._dock_exec_pos = getattr(self, "_dock_exec_pos", 0)
+        layout.insertWidget(self._dock_exec_pos, execution)
 
         # ----------------------------------------------------------
         # JOURNAL
@@ -5831,6 +5706,10 @@ class DockingPage(QWidget):
     # ------------------------------------------------------------------
     # CONFIGURATION
     # ------------------------------------------------------------------
+
+    def _open_reference_inhibitors(self):
+        from src.gui.reference_inhibitors_ui import open_dialog
+        open_dialog(self)
 
     def _on_target_combo_index_changed(self, index):
         """
@@ -6393,7 +6272,7 @@ class DockingPage(QWidget):
         residue_input.setMinimumWidth(280)
         residue_input.setMaximumWidth(16777215)
         residue_input.setMinimumHeight(34)
-        residue_input.setPlaceholderText("Ex. : 22   ou   GLY22   ou   A:GLY22")
+        residue_input.setPlaceholderText("Ex. : GLY22 ou A:GLY22")
         center_button.setMinimumHeight(34)
 
         from PySide6.QtWidgets import QLabel as _ResLabel
@@ -6404,7 +6283,7 @@ class DockingPage(QWidget):
             "sans son nom, puis clique sur « Centrer ». Pas de virgule ni de point. "
             "Exemples : 22 · GLY22 · Gly-22 · G22 · glycine 22 · A:GLY22 (chaîne A). "
             "Si le nom ne correspond pas au numéro, le logiciel te prévient sans rien "
-            "déplacer. Ensuite, ajuste avec les curseurs puis clique sur « ✓ Enregistrer »."
+            "déplacer. Ensuite, ajuste les valeurs dans les champs puis clique sur « ✓ Enregistrer »."
         )
         residue_hint.setWordWrap(True)
 
@@ -6418,7 +6297,10 @@ class DockingPage(QWidget):
         residue_block.setContentsMargins(0, 12, 0, 12)
         residue_block.addWidget(residue_title)
         residue_block.addLayout(residue_input_row)
-        residue_block.addWidget(residue_hint)
+        _tip = residue_hint.text()
+        residue_input.setToolTip(_tip)
+        residue_title.setToolTip(_tip)
+        center_button.setToolTip(_tip)
 
         buttons_row.addWidget(default_button)
         buttons_row.addStretch(1)
@@ -6453,6 +6335,85 @@ class DockingPage(QWidget):
         return chain_residues
 
     def _prepare_pdbqt_from_pdb(self, pdb_path: Path):
+        """Import assiste d'un PDB brut : fiche de la structure, choix des
+        chaines, nettoyage trace, conversion PDBQT, grid box proposee autour
+        du ligand co-cristallise. Retombe sur l'ancien parcours si le nouveau
+        plante de facon inattendue."""
+        try:
+            return self._prepare_pdbqt_from_pdb_assisted(pdb_path)
+        except Exception as exc:
+            import sys as _sys
+            print(f"[import assiste] repli sur l'ancien parcours : {exc}", file=_sys.stderr)
+            return self._prepare_pdbqt_from_pdb_legacy(pdb_path)
+
+    def _prepare_pdbqt_from_pdb_assisted(self, pdb_path: Path):
+        from src import grid_fit, pdb_inspect
+        from src.gui.pdb_import_dialog import PdbImportDialog
+
+        report = pdb_inspect.inspect_pdb(pdb_path)
+        if not report.chains:
+            QMessageBox.warning(
+                self,
+                "Aucune chaîne détectée",
+                f"Aucun atome ATOM valide détecté dans {pdb_path.name}.",
+            )
+            return None
+
+        dialog = PdbImportDialog(report, parent=self)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+        choice = dialog.choices()
+
+        chains_suffix = "".join(choice["chains"])
+        cleaned_pdb_path = (
+            self._session_manager.prepared_dir
+            / f"{pdb_path.stem}_clean_{chains_suffix}.pdb"
+        )
+        stats = pdb_inspect.write_clean_pdb(
+            pdb_path, cleaned_pdb_path, choice["chains"],
+            convert_mse=choice["convert_mse"],
+            single_altloc=choice["single_altloc"],
+        )
+
+        pdbqt_path = cleaned_pdb_path.with_suffix(".pdbqt")
+        ok, detail = pdb_inspect.convert_to_pdbqt(
+            cleaned_pdb_path, pdbqt_path, protonate=choice["protonate"]
+        )
+        if not ok:
+            QMessageBox.critical(self, "Échec de la conversion", detail)
+            return None
+
+        ligand = report.ligand_by_key(choice["ligand"]) if choice["ligand"] else None
+        box = None
+        if ligand is not None:
+            center, size, _clamped = grid_fit.box_from_coords(ligand.xyz, choice["margin"])
+            center = tuple(round(float(v), 3) for v in center)
+            size = tuple(round(float(v), 2) for v in size)
+            note = (
+                f"La grid box a été calculée automatiquement autour du ligand "
+                f"co-cristallisé {ligand.label} (marge {choice['margin']:.1f} Å) : "
+                f"centre {center[0]:.2f}, {center[1]:.2f}, {center[2]:.2f} ; "
+                f"taille {size[0]:.1f} × {size[1]:.1f} × {size[2]:.1f} Å. "
+                "Vérifie-la dans le visualiseur avant tout docking."
+            )
+            box = {"center": center, "size": size, "note": note}
+
+        try:
+            pdb_inspect.write_import_report(
+                cleaned_pdb_path.with_name(cleaned_pdb_path.stem + "_rapport_import.txt"),
+                report, choice, stats, ligand, box,
+            )
+        except Exception:
+            pass
+
+        self._pending_import_box = box
+        self._pending_import_ref = (
+            {"pdb": str(pdb_path), "ligand": choice["ligand"]}
+            if choice["ligand"] else None
+        )
+        return pdbqt_path, cleaned_pdb_path
+
+    def _prepare_pdbqt_from_pdb_legacy(self, pdb_path: Path):
         """
         Prépare un PDBQT prêt pour le docking à partir d'un PDB brut :
         détecte les chaînes, demande à l'utilisateur lesquelles garder,
@@ -6584,15 +6545,45 @@ class DockingPage(QWidget):
             f"{len(exported_files)} fichier(s) exporté(s) vers \n{exported_root}",
         )
 
+    def _apply_pending_import_box(self, profile):
+        """Applique la grid box proposee a l'import (ligand co-cristallise)."""
+        ref = getattr(self, "_pending_import_ref", None)
+        self._pending_import_ref = None
+        if ref:
+            try:
+                if not hasattr(self, "_import_refs"):
+                    self._import_refs = {}
+                self._import_refs[str(Path(profile.pdbqt_path).resolve())] = ref
+            except Exception:
+                pass
+        box = getattr(self, "_pending_import_box", None)
+        self._pending_import_box = None
+        self._import_box_note = ""
+        if not box:
+            return
+        try:
+            cls = type(profile.grid_box) if profile.grid_box is not None else GridBox
+            profile.grid_box = cls(
+                center=tuple(box["center"]),
+                size=tuple(box["size"]),
+            )
+            self._import_box_note = box.get("note", "")
+        except Exception as exc:
+            import sys as _sys
+            print(f"[import assiste] grid box non appliquee : {exc}", file=_sys.stderr)
+
     def _import_receptor_core(self, prompt_label="", also_taken=None):
         """Import d'un recepteur. Un meme recepteur (meme nom) n'a qu'UN
         profil : sa configuration (grid box, parametres) est commune a la
         selection seule et a tous les couples."""
+        self._pending_import_ref = None
+        self._pending_import_box = None
         profile = self._import_receptor_core_raw(
             prompt_label=prompt_label, also_taken=also_taken
         )
         if profile is None:
             return None
+        self._apply_pending_import_box(profile)
         try:
             import hashlib
             base_slug = "".join(
@@ -6631,6 +6622,7 @@ class DockingPage(QWidget):
                     if reuse:
                         profile.profile_id = base_slug
                         profile.grid_box = old.grid_box
+                        self._import_box_note = ""
                         profile.docking_params = dict(old.docking_params)
                         profile.species = profile.species or old.species
                         profile.validated = old.validated
@@ -6666,16 +6658,14 @@ class DockingPage(QWidget):
 
         title_suffix = f" — {prompt_label}" if prompt_label else ""
 
-        selected_path, _ = QFileDialog.getOpenFileName(
-            self,
-            f"Importer un récepteur{title_suffix} — fichier PDB ou PDBQT",
-            "",
-            "Récepteurs (*.pdbqt *.pdb);;Fichiers PDBQT (*.pdbqt);;Fichiers PDB (*.pdb)",
-        )
-
-        if not selected_path:
+        try:
+            _dl_dir = self._session_manager.prepared_dir
+        except Exception:
+            import tempfile as _tf
+            _dl_dir = Path(_tf.gettempdir())
+        selected_path = choose_receptor_source(self, title_suffix, _dl_dir)
+        if selected_path is None:
             return None
-
         selected_path = Path(selected_path)
 
         # ------------------------------------------------------------
@@ -7075,9 +7065,10 @@ class DockingPage(QWidget):
             self,
             "Récepteur importé",
             f"« {profile.display_name} » a été importé avec succès.\n\n"
-            "La grid box est actuellement centrée sur le centroïde "
-            "géométrique du récepteur, sans aucune signification "
-            "biologique — ajuste-la via les sliders avant tout docking.",
+            + (getattr(self, "_import_box_note", "") or (
+                "La grid box est actuellement centrée sur le centroïde "
+                "géométrique du récepteur, sans aucune signification "
+                "biologique : ajuste-la avec « Ajustement précis » avant tout docking.")),
         )
 
     def _import_receptor_dialog_pair(self):
@@ -7374,7 +7365,18 @@ class DockingPage(QWidget):
             import traceback
             traceback.print_exc()
 
-    def _build_generic_grid_panel(self, target_key, title):
+    def _build_generic_grid_panel(self, *args, **kwargs):
+        """Panneau de grid box + ligne « Vérifier ma configuration »."""
+        panel = self._build_generic_grid_panel_base(*args, **kwargs)
+        try:
+            from src.gui.validation_ui import attach_validation_row
+            attach_validation_row(self, panel, args[0] if args else None)
+        except Exception as exc:
+            import sys as _sys
+            print(f"[validation] ligne non ajoutee : {exc}", file=_sys.stderr)
+        return panel
+
+    def _build_generic_grid_panel_base(self, target_key, title):
         """
         Construit un panneau de grid box indépendant pour un récepteur
         générique (pas MexB/MexR, qui gardent leur code dédié existant).
@@ -8089,10 +8091,20 @@ class DockingPage(QWidget):
 
             return
 
+        _extra = None
+        try:
+            from src.gui.reference_batch import choose_references
+            _extra = choose_references(self, target, pair_members)
+        except Exception as _exc:
+            print(f"[references] ignorees : {_exc}")
+        if _extra is False:
+            return
         ligands = [
             str(path)
             for path in self.selected_ligands
         ]
+        if _extra:
+            ligands += [q for q in _extra if q not in ligands]
 
         self.docking_log.setRowCount(0)
 
@@ -11459,6 +11471,34 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             gui_debug("En-tete cible ignore : " + str(exc))
 
+    def _refresh_header_context(self):
+        try:
+            if not hasattr(self, "header_context_label"):
+                return
+            page = self.workspace.currentWidget()
+            if page is self.docking_page:
+                tab = self.docking_page.stack.currentIndex()
+                title, desc = (
+                    ("Préparation des ligands",
+                     "Importez des SDF ou un dossier, puis convertissez-les en PDBQT pour Vina."),
+                    ("Ligands PDBQT",
+                     "Contrôlez et choisissez les ligands avant la campagne de docking."),
+                    ("Configuration du docking",
+                     "Choisissez la cible, vérifiez la boîte, puis lancez la campagne."),
+                )[max(0, min(tab, 2))]
+            elif page is self.analysis_page:
+                title, desc = "Analyse", "Résultats de docking et double sélectivité."
+            elif page is self.visualization_page:
+                title, desc = "Visualisation", "Poses et interactions en 3D."
+            else:
+                title, desc = "", ""
+            self.header_context_label.setText(
+                f"<div style='font-size:15px;font-weight:700'>{title}</div>"
+                f"<div style='font-size:11px'>{desc}</div>"
+            )
+        except Exception as exc:
+            gui_debug("Contexte en-tete ignore : " + str(exc))
+
     def build_interface(self):
 
         central = ThemeBackground()
@@ -11496,7 +11536,15 @@ class MainWindow(QMainWindow):
         branding.addWidget(self.app_subtitle_label)
 
         header_layout.addLayout(branding)
-        header_layout.addStretch()
+        # BANDEAU: contexte (patch espace)
+        self.header_context_label = make_label("")
+        self.header_context_label.setAlignment(Qt.AlignCenter)
+        self.header_context_label.setWordWrap(True)
+        self.header_context_label.setTextFormat(Qt.RichText)
+        self.header_context_label.setStyleSheet(
+            f"font-size: 12px; color: {COLORS['text_secondary']};"
+        )
+        header_layout.addWidget(self.header_context_label, 1)
 
         self.header_target_caption = make_label(
             self.lang_mgr.t("header_active_target")
@@ -11577,6 +11625,17 @@ class MainWindow(QMainWindow):
         self.workspace.currentChanged.connect(
             lambda _index: self._refresh_header_target()
         )
+        self.workspace.currentChanged.connect(
+            lambda _index: self._refresh_header_context()
+        )
+        self.docking_page.stack.currentChanged.connect(
+            lambda _index: self._refresh_header_context()
+        )
+        from PySide6.QtCore import QTimer as _QTimer
+        self._ctx_timer = _QTimer(self)
+        self._ctx_timer.setInterval(2000)
+        self._ctx_timer.timeout.connect(self._refresh_header_context)
+        self._ctx_timer.start()
 
         self.workspace.addWidget(
             self.analysis_page

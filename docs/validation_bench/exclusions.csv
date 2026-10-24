@@ -1,0 +1,52 @@
+pdb,famille,raison
+4U96,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+9BFT,?,erreur RuntimeError
+6ZO8,?,PTY: lipide/detergent; PTY: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+2J8S,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMU: lipide/detergent
+9HCI,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+9BFH,?,erreur RuntimeError
+9BFM,?,erreur RuntimeError
+9BFN,?,erreur RuntimeError
+6ZOE,?,LMT: lipide/detergent; D10: lipide/detergent
+4DX6,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+6CSX,?,PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent
+6ZOA,?,PTY: lipide/detergent; PTY: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+7RR7,?,PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent
+1T9X,?,ET: 6 contacts; ET: B x4.0
+7RR6,?,PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent
+1T9U,?,CPF: B x2.7; CPF: B x2.7
+4ZIV,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+9TG4,?,erreur RuntimeError
+5NC5,?,LMT: lipide/detergent; D12: lipide/detergent; D12: lipide/detergent; D12: lipide/detergent
+6BAJ,?,PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent
+3W9I,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+2V50,?,LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent; LMT: lipide/detergent
+6OWS,?,PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent; PTY: lipide/detergent
+8GK4,?,CLM: B x24.2
+4U95,AcrB,redondant (MIY deja 2 fois)
+4U8Y,AcrB,redondant (MIY deja 2 fois)
+9FHC,AcrB,redondant (MIY deja 2 fois)
+4U8V,AcrB,redondant (MIY deja 2 fois)
+6ZO6,AcrB,redondant (MIY deja 2 fois)
+5ENT,AcrB,redondant (MIY deja 2 fois)
+6ZO5,AcrB,redondant (FUA deja 2 fois)
+6ZOG,AcrB,redondant (MIY deja 2 fois)
+6Q4N,AcrB,redondant (FUA deja 2 fois)
+6Q4O,AcrB,redondant (FUA deja 2 fois)
+6Q4P,AcrB,redondant (FUA deja 2 fois)
+6ZO7,AcrB,redondant (3YI deja 2 fois)
+6ZOD,AcrB,redondant (FUA deja 2 fois)
+2DRD,AcrB,redondant (MIY deja 2 fois)
+7OUM,AcrB,au-dela du plafond par famille (10)
+5JMN,AcrB,au-dela du plafond par famille (10)
+7OUK,AcrB,au-dela du plafond par famille (10)
+6ZO9,AcrB,au-dela du plafond par famille (10)
+7B8T,AcrB,au-dela du plafond par famille (10)
+5ENS,AcrB,au-dela du plafond par famille (10)
+6ZOB,AcrB,au-dela du plafond par famille (10)
+6ZOH,AcrB,au-dela du plafond par famille (10)
+7OUL,AcrB,au-dela du plafond par famille (10)
+6ZOC,AcrB,au-dela du plafond par famille (10)
+2GIF,AcrB,au-dela du plafond par famille (10)
+2HRT,AcrB,au-dela du plafond par famille (10)
+3W9H,AcrB,au-dela du plafond par famille (10)

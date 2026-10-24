@@ -1,0 +1,17 @@
+pdb,famille,rmsd_pose1,rmsd_noyau,rmsd_queues,atomes_noyau,atomes_total,mode_coupure,niveau
+4DX5,AcrB,6.16,6.17,6.14,18,33,torsions Vina,rouge
+4DX7,AcrB,11.16,7.79,13.39,18,39,torsions Vina,rouge
+5ENO,AcrB,0.89,0.74,1.08,18,29,torsions Vina,vert
+5ENP,AcrB,0.72,0.5,0.87,18,37,torsions Vina,vert
+5ENQ,AcrB,0.28,0.28,0.27,12,35,torsions Vina,vert
+5ENR,AcrB,0.43,0.29,0.56,20,36,torsions Vina,vert
+7B8R,AcrB,0.92,0.74,1.20,21,32,torsions Vina,vert
+7B8S,AcrB,6.6,6.25,7.03,21,37,torsions Vina,orange
+9FE2,AcrB,1.88,1.61,2.23,20,33,torsions Vina,vert
+9HAO,AcrB,0.48,0.22,0.78,17,25,torsions Vina,vert
+7KGG,AdeB,0.63,0.63,0.63,14,24,torsions Vina,vert
+8GJK,CmeB,3.03,3.88,2.62,7,25,torsions Vina,orange
+21FO,MexB,13.26,12.45,13.42,6,36,torsions Vina,rouge
+21FP,MexB,10.6,12.06,9.91,6,20,torsions Vina,rouge
+3W9J,MexB,2.22,0.3,2.74,17,49,torsions Vina,jaune
+6IIA,MexB,2.99,1.44,3.10,6,69,torsions Vina,orange

@@ -1,0 +1,26 @@
+{
+  "reference": "P9D:B:2001",
+  "passed": false,
+  "rmsd_top": 2.279423620307626,
+  "rmsd_best": 1.5727621419343867,
+  "score_top": -11.891,
+  "n_heavy": 49,
+  "threshold": 2.0,
+  "n_modes": 9,
+  "center_dist_top": 1.0329283294486664,
+  "n_site": 4,
+  "frac_2a_top": 0.7551020408163265,
+  "profile_id": "3w9j_clean_b",
+  "box": {
+    "center": [
+      33.651,
+      17.207,
+      -57.587
+    ],
+    "size": [
+      26.09,
+      25.99,
+      34.27
+    ]
+  }
+}

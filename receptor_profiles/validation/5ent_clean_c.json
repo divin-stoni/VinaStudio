@@ -1,0 +1,22 @@
+{
+  "reference": "MIY:C:901",
+  "passed": true,
+  "rmsd_top": 1.4811412982745924,
+  "rmsd_best": 1.4811412982745924,
+  "score_top": -8.727,
+  "n_heavy": 33,
+  "threshold": 2.0,
+  "profile_id": "5ent_clean_c",
+  "box": {
+    "center": [
+      15.925,
+      14.824,
+      -1.434
+    ],
+    "size": [
+      23.3,
+      23.38,
+      27.27
+    ]
+  }
+}
