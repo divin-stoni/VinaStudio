@@ -295,9 +295,9 @@ def _make_table(headers, first_stretch=True):
     return table
 
 
-# Seuils de taille (atomes lourds), d'après le test de docking : jusqu'à 43 atomes
-# (15 torsions) le docking aboutit ; à 65 atomes (24 torsions) il dépasse 7 minutes.
-# Provisoires : rien n'a été mesuré entre les deux.
+# Seuils de taille (atomes lourds), mesurés à exhaustiveness 8 sur MexB : 43 atomes = 77 s,
+# 51-52 atomes = environ 2 min, 65-67 atomes = 6 à 8 min. Les scores ne baissent pas avec la taille.
+# À exhaustiveness 32, compter environ 4 fois plus. Au-delà de 67 atomes : non mesuré.
 SIZE_ORANGE_HA = 46
 SIZE_RED_HA = 65
 
@@ -1355,8 +1355,9 @@ class PhytoPage(QWidget):
         if _c.get("orange") or _c.get("rouge"):
             msg += "\n\n" + self._t(
                 "phyto_size_warning",
-                "Attention : {orange} molécule(s) orange et {rouge} rouge sur {total} "
-                "(grosses ou très flexibles : Vina sera lent ou peu fiable). "
+                "Attention : {orange} molécule(s) orange (docking lent, environ 8 min chacune à exhaustiveness 32) "
+                "et {rouge} rouge (très lent, 25 à 30 min ou plus chacune) sur {total}. "
+                "Durées estimées à partir de mesures faites à exhaustiveness 8. "
                 "Détail dans la colonne « taille » du fichier index."
             ).replace("{orange}", str(_c.get("orange", 0))).replace("{rouge}", str(_c.get("rouge", 0))).replace("{total}", str(sum(_c.values())))
         QMessageBox.information(self, self._t("phyto_done_title", "Terminé"), msg)
