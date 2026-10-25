@@ -76,3 +76,12 @@ diag.txt
 diag_release.txt
 *.bak_ver
 *.bak_*
+
+# Ajoute par nettoyage_depot.py
+*.zip
+*.before_*
+*.old
+*.orig
+
+src/crash_trace.txt
+src/docking/results/
