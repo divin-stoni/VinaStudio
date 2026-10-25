@@ -46,6 +46,7 @@ Name=$APP_DISPLAY_NAME
 Comment=Analyse statistique de docking moleculaire MexAB-OprM/MexR
 Exec=/opt/$APP_NAME/$APP_NAME.sh
 Icon=vinastudio_icon
+StartupWMClass=VinaStudio
 Categories=Science;
 Terminal=false
 DESKTOP
@@ -88,6 +89,7 @@ cat > "$PKG_DIR/DEBIAN/postinst" << 'POSTINST'
 set -e
 chmod -R a+rwX /opt/vinastudio
 update-desktop-database /usr/share/applications 2>/dev/null || true
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
 exit 0
 POSTINST
 chmod +x "$PKG_DIR/DEBIAN/postinst"
