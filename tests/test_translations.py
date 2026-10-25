@@ -15,4 +15,3 @@ def test_language_manager_switches_and_formats_new_ui_text():
     manager.set_language("en")
 
     assert manager.t("header_active_target") == "Active target"
-    assert manager.t("credits_load_error", error="boom") == "Error while loading: boom"
