@@ -97,6 +97,7 @@ jobs:
           SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'].replace(chr(92), '/'))")
           echo "site-packages resolu: $SITE_PACKAGES"
           pyinstaller --noconfirm --onefile --windowed \
+            --icon "src/vinastudio_icon.ico" \
             --name VinaStudio \
             --paths src \
             --add-data "src/reference_data;reference_data" \
