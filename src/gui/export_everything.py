@@ -438,6 +438,10 @@ def _install_button(mw):
             print("[EXPORT] structure : " + _chain(anchor))
             return
         mw._export_everything_button = btn
+        try:
+            _setup_pipeline(mw, btn)
+        except Exception as exc:
+            print("[EXPORT] menu clic droit non installé :", exc)
         for b in mw.findChildren(QAbstractButton):
             if b is not btn and _OLD.search(b.text() or ""):
                 b.hide()
