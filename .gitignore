@@ -75,3 +75,4 @@ pkgbuild/
 diag.txt
 diag_release.txt
 *.bak_ver
+*.bak_*

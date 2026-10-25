@@ -106,6 +106,7 @@ jobs:
             --add-data "src/assets/fonts;assets/fonts" \
             --add-data "image_theme;image_theme" \
             --add-data "receptor_profiles;receptor_profiles" \
+            --add-data "VERSION;." \
             --add-binary "docking/bin/vina.exe;docking/bin" \
             --add-data "$SITE_PACKAGES/openbabel/bin;obabel_runtime/bin" \
             --add-data "$SITE_PACKAGES/openbabel.libs;obabel_runtime/bin" \
