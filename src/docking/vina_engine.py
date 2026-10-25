@@ -616,9 +616,9 @@ seed = {self.config.seed}
             # Délai maximal par ligand (secondes ; 0 = aucune limite).
             import os as _os_timeout
             try:
-                _limit = float(_os_timeout.environ.get("VINASTUDIO_LIGAND_TIMEOUT_S", "1800") or "1800")
+                _limit = float(_os_timeout.environ.get("VINASTUDIO_LIGAND_TIMEOUT_S", "0") or "0")
             except ValueError:
-                _limit = 1800.0
+                _limit = 0.0
 
             try:
                 stdout, _ = process.communicate(
