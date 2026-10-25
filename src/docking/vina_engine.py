@@ -613,7 +613,41 @@ seed = {self.config.seed}
             # Rend le processus accessible à cancel_current_process().
             self._current_process = process
 
-            stdout, _ = process.communicate()
+            # Délai maximal par ligand (secondes ; 0 = aucune limite).
+            import os as _os_timeout
+            try:
+                _limit = float(_os_timeout.environ.get("VINASTUDIO_LIGAND_TIMEOUT_S", "1800") or "1800")
+            except ValueError:
+                _limit = 1800.0
+
+            try:
+                stdout, _ = process.communicate(
+                    timeout=(_limit if _limit > 0 else None)
+                )
+            except subprocess.TimeoutExpired:
+                process.kill()
+                try:
+                    stdout, _ = process.communicate(timeout=10)
+                except Exception:
+                    stdout = ""
+                duration = time.perf_counter() - start
+                self._current_process = None
+                try:
+                    log_file.write_text(stdout or "", encoding="utf-8")
+                except Exception:
+                    pass
+                print(f"[DELAI] {molecule} : arrêté après {_limit:.0f} s")
+                return VinaDockingResult(
+                    molecule=molecule,
+                    ligand_file=ligand.name,
+                    status="FAILED",
+                    log_file=str(log_file),
+                    error=(
+                        f"Délai dépassé ({_limit:.0f} s) : molécule trop "
+                        f"lourde ou trop flexible pour Vina"
+                    ),
+                    duration_seconds=duration,
+                )
 
             duration = (
                 time.perf_counter() - start
