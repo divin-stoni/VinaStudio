@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import src.win_no_console  # noqa: F401
 import sys
 import multiprocessing
 
