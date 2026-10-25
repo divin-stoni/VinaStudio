@@ -16,7 +16,7 @@ This project is in a strong state for a scientific software submission, but some
 ### To finalize before submission
 - [x] Add the final author list and affiliations.
 - [x] Decide the canonical repository URL and ensure it is public.
-- [ ] Finalize the software version tag.
+- [x] Finalize the software version tag (v1.1.0).
 - [x] Prepare the JOSS paper abstract and summary.
 - [x] Add a final `paper.md` in the submission format required by JOSS.
 - [ ] Check the runtime dependencies and installation procedure on a clean machine.
@@ -41,7 +41,7 @@ cd /home/stoni/MexAB_MexR_Analyzer_BETA
 ```
 
 Current verified status:
-- 15 passed in 3.87s
+- 32 passed in 6.51s
 
 ### Documentation
 The project includes:
@@ -54,7 +54,7 @@ The project includes:
 
 1. Confirm the final author metadata and affiliations.
 2. Confirm the repository public URL: https://github.com/divin-stoni/VinaStudio
-3. Finalize the software version tag.
+3. Finalize the software version tag (done: v1.1.0).
 4. Verify the installation steps on a fresh environment.
 5. Submit the repository for review.
 

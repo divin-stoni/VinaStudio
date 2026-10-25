@@ -175,7 +175,9 @@ cd /home/stoni/MexAB_MexR_Analyzer_BETA
 ./venv/bin/python -m pytest tests -q
 ```
 
-La validation a abouti à un résultat stable : 15 tests passent, avec quelques avertissements non bloquants liés à la robustesse du bootstrap sur des jeux de données constants en statistique. Cette couche de validation est importante pour la préparation d’une publication scientifique, car elle permet de documenter la stabilité du logiciel et la reproductibilité de ses fonctions centrales. Elle ne remplace toutefois pas une validation expérimentale des molécules sélectionnées.
+La validation a abouti à un résultat stable : 32 tests passent, avec quelques avertissements non bloquants liés à la robustesse du bootstrap sur des jeux de données constants en statistique. Cette couche de validation est importante pour la préparation d’une publication scientifique, car elle permet de documenter la stabilité du logiciel et la reproductibilité de ses fonctions centrales. Elle ne remplace toutefois pas une validation expérimentale des molécules sélectionnées.
+
+Validation par re-docking. Un banc de re-docking a été exécuté avec le pipeline de VinaStudio sur 16 complexes cristallographiques de transporteurs RND (AcrB n = 10, MexB n = 4, AdeB n = 1, CmeB n = 1), sélectionnés selon des critères fixés avant le docking. La pose classée première reproduit le ligand cristallographique (RMSD < 2 Å) dans 8/16 cas (50 %, IC95 de Wilson 28-72 %) : 7/10 pour AcrB et 0/4 pour MexB. Pour 3W9J, la pose n°1 est à 2,22 Å, avec un noyau reproduit à 0,30 Å. Il s'agit du cas le plus favorable (boîte centrée sur le ligand du cristal) : le re-docking teste la reproduction d'une pose, pas le classement de molécules par ΔG. Les scores obtenus sur MexB doivent donc être lus comme des classements relatifs et non comme des prédictions de pose. Cinq entrées AcrB n'ont pas pu être évaluées faute de fichier au format PDB (mmCIF uniquement).
 
 ## 8. État de préparation pour une publication scientifique
 
@@ -197,7 +199,7 @@ Aucune application scientifique n’est parfaite, et VinaStudio ne fait pas exce
 - le logiciel dépend de plusieurs outils externes comme AutoDock Vina, PLIP et d’autres composants de références biologiques,
 - la visualisation 3D et le packaging sont soumis à des contraintes de dépendances système,
 - certains aspects de l’interface ou de la personnalisation demeurent en constante évolution,
-- le projet est encore en phase de maturation scientifique et doit faire l’objet d’un travail de validation sur des cas d’usage plus larges.
+- le projet est encore en phase de maturation scientifique et doit faire l’objet d’un travail de validation sur des cas d’usage plus larges ; le banc de re-docking (section 7) montre en particulier que les poses cristallographiques ne sont pas reproduites sur MexB (0/4).
 
 Ces limites ne remettent pas en cause la valeur scientifique du projet. Elles signalent plutôt qu’il s’agit d’un logiciel vivant et évolutif, conçu pour une utilisation de recherche appliquée et pour une amélioration continue.
 
