@@ -11566,6 +11566,9 @@ class MainWindow(QMainWindow):
                 self.visualization_page.recompute_button.setText(t("viz_btn_recompute"))
             if hasattr(self.visualization_page, "export_all_button"):
                 self.visualization_page.export_all_button.setText(t("viz_btn_export_all"))
+                _eb = getattr(self, "_export_everything_button", None)
+                if _eb is not None:
+                    _eb.setText(t("viz_btn_export_all"))
             if hasattr(self.visualization_page, "retranslate_subtabs"):
                 self.visualization_page.retranslate_subtabs()
 
@@ -12408,6 +12411,20 @@ def main(startup=None):
     if startup is not None:
         startup.ready(window)
     return app.exec()
+
+
+# --- Bouton unique « Exporter tout » (src/gui/export_everything.py) ---
+try:
+    try:
+        from . import export_everything as _export_everything
+    except ImportError:
+        try:
+            from src.gui import export_everything as _export_everything
+        except ImportError:
+            from gui import export_everything as _export_everything
+    _export_everything.install(MainWindow)
+except Exception as _export_exc:  # ne doit jamais empêcher le démarrage
+    print("[EXPORT] bouton unique non installé :", _export_exc)
 
 
 if __name__ == "__main__":
