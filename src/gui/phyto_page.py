@@ -360,6 +360,9 @@ class _ProgressBridge(QObject):
 
 
 class _ProgressDialog(QDialog):
+    """Fenêtre d'attente : aucune couleur codée en dur, tout vient du thème actif.
+    Les étapes à venir sont affichées « désactivées » (grisées par le thème)."""
+
     STAGES = [
         ("download", "Téléchargement des structures depuis PubChem"),
         ("gen3d", "Récupération 2D et génération des structures 3D manquantes"),
@@ -378,24 +381,37 @@ class _ProgressDialog(QDialog):
         self._detail = ""
         self._seen = set()
         self._dots = 0
+        self._total = total
         lay = QVBoxLayout(self)
-        lay.setSpacing(12)
+        lay.setSpacing(10)
         self._title = QLabel()
-        self._title.setTextFormat(Qt.TextFormat.RichText)
+        self._title.setTextFormat(Qt.TextFormat.PlainText)
+        tf = self._title.font()
+        tf.setBold(True)
+        self._title.setFont(tf)
         lay.addWidget(self._title)
+        if total:
+            sub = QLabel("%d molécule(s) à traiter" % total)
+            sub.setTextFormat(Qt.TextFormat.PlainText)
+            sub.setEnabled(False)
+            lay.addWidget(sub)
         bar = QProgressBar()
         bar.setRange(0, 0)
         bar.setTextVisible(False)
         lay.addWidget(bar)
-        self._steps = QLabel()
-        self._steps.setTextFormat(Qt.TextFormat.RichText)
-        lay.addWidget(self._steps)
+        self._rows = []
+        for _key, _label in self.STAGES:
+            lb = QLabel()
+            lb.setTextFormat(Qt.TextFormat.PlainText)
+            lb.setWordWrap(True)
+            self._rows.append(lb)
+            lay.addWidget(lb)
         note = QLabel("Cela peut durer de quelques secondes à quelques minutes. "
                       "Ne fermez pas le logiciel.")
+        note.setTextFormat(Qt.TextFormat.PlainText)
         note.setWordWrap(True)
-        note.setStyleSheet("color: #888;")
+        note.setEnabled(False)
         lay.addWidget(note)
-        self._total = total
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._tick)
         self._timer.start(400)
@@ -424,23 +440,26 @@ class _ProgressDialog(QDialog):
 
     def _render(self):
         dots = "." * self._dots
-        head = "<b>Veuillez patienter</b>" + dots
-        if self._total:
-            head += "<br><span style='color:#888;'>%d molécule(s) à traiter</span>" % self._total
-        self._title.setText(head)
-        rows = []
+        self._title.setText("Veuillez patienter" + dots)
         for j, (key, label) in enumerate(self.STAGES):
+            lb = self._rows[j]
+            f = lb.font()
+            f.setBold(j == self._idx)
+            lb.setFont(f)
             if j < self._idx:
                 if key == "gen3d" and "gen3d" not in self._seen:
-                    rows.append("<span style='color:#888;'>–&nbsp; %s (non nécessaire)</span>" % label)
+                    lb.setText("–  %s (non nécessaire)" % label)
+                    lb.setEnabled(False)
                 else:
-                    rows.append("<span style='color:#2e7d4f;'>✓</span>&nbsp; %s" % label)
+                    lb.setText("✓  %s" % label)
+                    lb.setEnabled(True)
             elif j == self._idx:
-                extra = (" &nbsp;<span style='color:#888;'>%s</span>" % self._detail) if self._detail else ""
-                rows.append("<b>●&nbsp; %s%s%s</b>" % (label, extra, dots))
+                extra = ("  (%s)" % self._detail) if self._detail else ""
+                lb.setText("●  %s%s%s" % (label, extra, dots))
+                lb.setEnabled(True)
             else:
-                rows.append("<span style='color:#888;'>○&nbsp; %s</span>" % label)
-        self._steps.setText("<br>".join(rows))
+                lb.setText("○  %s" % label)
+                lb.setEnabled(False)
 
     def finish(self):
         try:
