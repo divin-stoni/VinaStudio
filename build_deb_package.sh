@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="vinastudio"
 APP_DISPLAY_NAME="VINA Studio"
-VERSION="1.0.3"
+VERSION="$(cat "$(dirname "$(readlink -f "$0")")/VERSION")"
 ARCH="amd64"
 PKG_DIR="$HOME/${APP_NAME}_${VERSION}_${ARCH}"
 INSTALL_DIR_SRC="$HOME/.local/share/VinaStudio"

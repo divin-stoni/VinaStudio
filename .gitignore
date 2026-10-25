@@ -71,3 +71,7 @@ dev/diag_*.py
 *.backup*
 *broken_backup*
 pkgbuild/
+*.bak_ver
+diag.txt
+diag_release.txt
+*.bak_ver

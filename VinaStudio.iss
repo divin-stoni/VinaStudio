@@ -2,7 +2,9 @@
 ; Genere un installeur .exe classique (installation, raccourcis, desinstalleur)
 
 #define MyAppName "VINA Studio"
-#define MyAppVersion "1.0.0"
+#define VerFile FileOpen(SourcePath + "VERSION")
+#define MyAppVersion FileRead(VerFile)
+#expr FileClose(VerFile)
 #define MyAppPublisher "VINA Studio"
 #define MyAppExeName "VinaStudio.exe"
 

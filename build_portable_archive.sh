@@ -2,7 +2,7 @@
 set -e
 
 APP_NAME="VinaStudio"
-VERSION="1.0.3"
+VERSION="$(cat "$(dirname "$(readlink -f "$0")")/VERSION")"
 INSTALL_DIR="$HOME/.local/share/${APP_NAME}"
 STAGING_DIR="$HOME/${APP_NAME}-Linux-x86_64"
 ARCHIVE_NAME="${APP_NAME}-Linux-x86_64-${VERSION}.tar.gz"

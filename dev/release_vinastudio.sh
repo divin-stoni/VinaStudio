@@ -3,6 +3,7 @@
 # (.deb et .tar.gz), puis push GitHub (declenche la compilation Windows).
 # A lancer depuis n'importe ou : bash release_vinastudio.sh
 set -uo pipefail
+VERSION="$(cat "$(dirname "$(readlink -f "$0")")/../VERSION")"
 PROJ="$HOME/MexAB_MexR_Analyzer_BETA"
 cd "$PROJ" || exit 1
 STAMP=$(date +%Y%m%d_%H%M%S)
@@ -47,10 +48,10 @@ if grep -rq "residue_center" src/build/VinaStudio 2>/dev/null; then echo "module
 # (credit_du_logiciel retiré : l'onglet Crédits n'existe plus)
 
 step "5. Paquets .deb et archive compressee"
-DEB="$HOME/Desktop/vinastudio_1.0.3_amd64.deb"
-TGZ="$HOME/Desktop/VinaStudio-Linux-x86_64-1.0.3.tar.gz"
+DEB="$HOME/Desktop/vinastudio_${VERSION}_amd64.deb"
+TGZ="$HOME/Desktop/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
 mkdir -p "$HOME/Desktop" "_archive_backups/releases_$STAMP"
-for f in "$DEB" "$TGZ" "$PROJ/vinastudio_1.0.3_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-1.0.3.tar.gz"; do
+for f in "$DEB" "$TGZ" "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"; do
   [ -f "$f" ] && mv "$f" "_archive_backups/releases_$STAMP/$(basename "$(dirname "$f")")_$(basename "$f")"
 done
 bash build_deb_final.sh || die "build_deb_final.sh"
@@ -59,8 +60,8 @@ bash build_portable_archive.sh || die "build_portable_archive.sh"
 [ "$DEB" -nt "$MARK" ] || die "le .deb n'a pas ete regenere"
 [ "$TGZ" -nt "$MARK" ] || die "l'archive n'a pas ete regeneree"
 cp -f "$DEB" "$TGZ" "$PROJ/"
-echo; ls -lh "$PROJ/vinastudio_1.0.3_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-1.0.3.tar.gz"
-sha256sum "$PROJ/vinastudio_1.0.3_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-1.0.3.tar.gz"
+echo; ls -lh "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
+sha256sum "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
 
 step "6. Push GitHub (declenche la compilation Windows)"
 git fetch -q origin
@@ -70,4 +71,4 @@ git push origin main || die "push (identifiants GitHub ou reseau)"
 echo
 echo "TERMINE."
 echo "Windows : https://github.com/divin-stoni/VinaStudio/actions (l'.exe sera dans les artifacts du run)"
-echo "Linux   : $PROJ/vinastudio_1.0.3_amd64.deb et $PROJ/VinaStudio-Linux-x86_64-1.0.3.tar.gz (copies sur le Bureau)"
+echo "Linux   : $PROJ/vinastudio_${VERSION}_amd64.deb et $PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz (copies sur le Bureau)"

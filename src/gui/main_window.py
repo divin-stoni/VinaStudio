@@ -11923,6 +11923,14 @@ class MainWindow(QMainWindow):
 
         t = self.lang_mgr.t
 
+        import sys
+        from pathlib import Path
+        base = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
+        try:
+            app_version = (base / 'VERSION').read_text().strip()
+        except OSError:
+            app_version = '?'
+
         dialog = QDialog(self)
         dialog.setWindowTitle(t("menu_about_vina"))
         dialog.setMinimumWidth(380)
@@ -11932,7 +11940,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(14)
 
         text_label = QLabel(
-            f"<b>{t('vina_app_name')}</b><br>"
+            f"<b>{t('vina_app_name')}</b> v{app_version}<br>"
             f"{t('vina_app_subtitle')}<br><br>"
             f"{t('about_pipeline_desc')}"
         )
