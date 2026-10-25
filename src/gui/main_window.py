@@ -12358,6 +12358,11 @@ def main(startup=None):
     app.setOrganizationName(
         "VINA Studio"
     )
+    try:
+        from src.app_icon import apply_app_icon
+        apply_app_icon(app)
+    except Exception as _icon_exc:
+        print("[ICONE]", _icon_exc)
 
     app.setStyle(
         "Fusion"

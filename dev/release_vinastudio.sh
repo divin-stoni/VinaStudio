@@ -44,7 +44,7 @@ PYI="$PROJ/venv/bin/pyinstaller"; [ -x "$PYI" ] || PYI="$PY -m PyInstaller"
 ( cd src && $PYI --noconfirm VinaStudio.spec ) || die "PyInstaller"
 [ -f src/dist/VinaStudio/VinaStudio ] || die "executable absent apres le build"
 if grep -rq "residue_center" src/build/VinaStudio 2>/dev/null; then echo "module residue_center inclus dans le build"; else echo "ATTENTION : residue_center non detecte dans le build"; fi
-[ -d src/dist/VinaStudio/credit_du_logiciel ] || cp -r credit_du_logiciel src/dist/VinaStudio/credit_du_logiciel
+# (credit_du_logiciel retiré : l'onglet Crédits n'existe plus)
 
 step "5. Paquets .deb et archive compressee"
 DEB="$HOME/Desktop/vinastudio_1.0.3_amd64.deb"
