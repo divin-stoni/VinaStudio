@@ -236,7 +236,10 @@ VIEWER_HTML = """<!DOCTYPE html>
       const model = viewer.addModel(pdbData, "pdb");
       viewer.resize();
       viewer.setStyle({model: model, hetflag: false}, {
-        cartoon: {color: "spectrum", opacity: 1.0}
+        cartoon: {
+          color: (typeof PROTEIN_COLOR !== "undefined" ? PROTEIN_COLOR : "0xb4b9bf"),
+          opacity: 1.0
+        }
       });
       viewer.setStyle({model: model, hetflag: true}, {
         stick: {colorscheme: "Jmol", radius: 0.18}

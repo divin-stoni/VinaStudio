@@ -17,19 +17,32 @@ LABELS = {
     "CRISTAL-INH": "ligand du cristal, inhibiteur de référence",
     "CRISTAL-SUB": "ligand du cristal, substrat de référence",
     "CRISTAL-REF": "ligand du cristal, rôle inconnu",
+    "DEREP": "dérépresseur de référence (seuil de risque)",
 }
 
 
 def _pids(target, pair_members):
     if target == "MexB + MexR":
-        return ["mexb_paeruginosa"]
+        return ["mexb_paeruginosa", "mexr_paeruginosa"]
     if pair_members:
-        return [pair_members[0]]
+        return [p for p in pair_members if p]
     return [{"MexB": "mexb_paeruginosa", "MexR": "mexr_paeruginosa"}.get(target, target)]
 
 
 def _slug(s):
     return re.sub(r"[^A-Za-z0-9]+", "_", s).strip("_")[:40] or "ref"
+
+
+def _role_code(role):
+    """Code de role ecrit dans le nom du fichier docke : REF-<code>__<nom>."""
+    r = (role or "").lower()
+    if "dérépresseur" in r or "derepresseur" in r:
+        return "DEREP"
+    if r.startswith("substrat"):
+        return "SUB"
+    if "utilisateur" in r:
+        return "INH-USER"
+    return "INH"
 
 
 def _collect(pid):
@@ -41,7 +54,7 @@ def _collect(pid):
     for r in d.get("references", []):
         f = r.get("fichier")
         if f and Path(f).exists():
-            code = "INH-USER" if "utilisateur" in (r.get("role") or "") else "INH"
+            code = _role_code(r.get("role"))
             items.append({"code": code, "nom": r["nom"], "src": f, "kind": "sdf", "rec": r})
     c = d.get("ligand_cristal")
     if c:
@@ -76,6 +89,7 @@ def _obabel(sdf, out, dim):
 
 def choose_references(host, target, pair_members):
     """None : pas de references, on continue. False : annule. Liste : fichiers PDBQT a ajouter."""
+    host._merge_mode = False  # patch-cible
     pids = _pids(target, pair_members)
     items = []
     for pid in pids:
@@ -102,23 +116,31 @@ def choose_references(host, target, pair_members):
         + ("<p>" + "<br>".join(redock) + "</p>" if redock else "")
         + "<p>L'analyse <b>inclura</b> ces références et les données du re-docking. "
           "Leur rôle est écrit dans le nom du fichier (préfixe REF-).</p>")
+    box.setStyleSheet("QLabel { min-width: 820px; }")
     b_yes = box.addButton("Inclure les références", QMessageBox.AcceptRole)
     b_no = box.addButton("Docker sans références", QMessageBox.DestructiveRole)
+    b_only = box.addButton("Docker seulement les références", QMessageBox.ActionRole)
     box.addButton("Annuler", QMessageBox.RejectRole)
     box.exec()
     clicked = box.clickedButton()
     if clicked is b_no:
         return None
-    if clicked is not b_yes:
+    if clicked is b_only:
+        host._merge_mode = True  # patch-cible : fusion avec les resultats existants
+    elif clicked is not b_yes:
         return False
 
     QApplication.setOverrideCursor(Qt.WaitCursor)
     paths, roles, errors = [], {}, []
+    seen_names = set()
     try:
         for it in items:
             outdir = ri.OUT_ROOT / it["pid"] / "pdbqt"
             outdir.mkdir(parents=True, exist_ok=True)
             out = outdir / f"REF-{it['code']}__{_slug(it['nom'])}.pdbqt"
+            if out.name in seen_names:
+                continue
+            seen_names.add(out.name)
             if it["kind"] == "pdbqt":
                 shutil.copy2(it["src"], out)
                 ok, err = True, ""
@@ -138,6 +160,14 @@ def choose_references(host, target, pair_members):
     if paths:
         f = ri.ROOT / "docking" / "results" / "roles_campagne.json"
         f.parent.mkdir(parents=True, exist_ok=True)
+        # patch-seuil-demande : on cumule avec les references deja enregistrees
+        try:
+            _old = json.loads(f.read_text(encoding="utf-8"))
+            _old_refs = _old.get("references", {}) if isinstance(_old, dict) else {}
+        except Exception:
+            _old_refs = {}
+        _old_refs.update(roles)
+        roles = _old_refs
         f.write_text(json.dumps({
             "date": datetime.datetime.now().isoformat(timespec="seconds"),
             "cible": target, "references": roles, "redocking": redock,

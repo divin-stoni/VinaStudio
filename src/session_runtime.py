@@ -36,6 +36,10 @@ import os
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+# Instant de démarrage de la session (sert à distinguer un résultat de la
+# session en cours d'un ancien fichier resté sur le disque).
+SESSION_START_TS = __import__("time").time()
+
 
 # ---------------------------------------------------------------------------
 # RACINES LOGICIELLES TEMPORAIRES
@@ -105,6 +109,10 @@ def cleanup_legacy_outputs() -> None:
     """
 
     print()
+    if os.environ.get("VINASTUDIO_KEEP_RESULTS") == "1":
+        print("[SESSION] VINASTUDIO_KEEP_RESULTS=1 : sorties de docking conservées.")
+        return
+
     print("[SESSION] Nettoyage des sorties legacy...")
 
     for root in LEGACY_GENERATED_ROOTS:

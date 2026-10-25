@@ -480,11 +480,11 @@ TR = {
     },
 
     "vina_window_title": {
-        "fr": "VINA Studio — Docking moléculaire & Analyse",
-        "en": "VINA Studio — Molecular Docking & Analysis",
-        "de": "VINA Studio — Molekulares Docking & Analyse",
-        "zh": "VINA Studio — 分子对接与分析",
-        "ja": "VINA Studio — 分子ドッキング＆解析",
+        "fr": "VINA Studio",
+        "en": "VINA Studio",
+        "de": "VINA Studio",
+        "zh": "VINA Studio",
+        "ja": "VINA Studio",
     },
     "vina_app_name": {
         "fr": "VINA Studio", "en": "VINA Studio", "de": "VINA Studio",
@@ -696,11 +696,35 @@ TR = {
         "de": "Phytomoleküle", "zh": "植物分子", "ja": "植物分子",
     },
     "toolbar_theme": {
-        "fr": "Thème", "en": "Theme", "de": "Design", "zh": "主题", "ja": "テーマ",
+        "fr": "Image d'arrière-plan", "en": "Background image", "de": "Hintergrundbild",
+        "zh": "背景图片", "ja": "背景画像",
     },
     "toolbar_tooltip_theme": {
-        "fr": "Changer l'image de thème", "en": "Change the theme image",
+        "fr": "Choisir l'image d'arrière-plan", "en": "Choose the background image",
         "de": "Themenbild ändern", "zh": "更改主题图片", "ja": "テーマ画像を変更",
+    },
+    "bg_menu_none": {
+        "fr": "Aucune image", "en": "No image", "de": "Kein Bild", "zh": "无图片", "ja": "画像なし",
+    },
+    "bg_menu_add_image": {
+        "fr": "Ajouter une image…", "en": "Add an image…", "de": "Bild hinzufügen…",
+        "zh": "添加图片…", "ja": "画像を追加…",
+    },
+    "bg_menu_add_folder": {
+        "fr": "Ajouter un dossier…", "en": "Add a folder…", "de": "Ordner hinzufügen…",
+        "zh": "添加文件夹…", "ja": "フォルダーを追加…",
+    },
+    "bg_menu_remove": {
+        "fr": "Retirer une image ajoutée", "en": "Remove an added image",
+        "de": "Hinzugefügtes Bild entfernen", "zh": "移除已添加的图片", "ja": "追加した画像を削除",
+    },
+    "bg_menu_advanced": {
+        "fr": "Réglages avancés du thème…", "en": "Advanced theme settings…",
+        "de": "Erweiterte Design-Einstellungen…", "zh": "高级主题设置…", "ja": "テーマの詳細設定…",
+    },
+    "bg_menu_unreadable": {
+        "fr": "Image illisible : {name}", "en": "Unreadable image: {name}",
+        "de": "Bild nicht lesbar: {name}", "zh": "无法读取图片：{name}", "ja": "読み込めない画像：{name}",
     },
     "toolbar_preferences": {
         "fr": "Paramètres", "en": "Settings", "de": "Einstellungen",
@@ -1016,9 +1040,23 @@ TR = {
         "fr": "Statut", "en": "Status", "de": "Status", "zh": "状态", "ja": "ステータス",
     },
     "analysis_type_section_title": {
-        "fr": "Analyse scientifique MexB / MexR", "en": "MexB / MexR scientific analysis",
-        "de": "Wissenschaftliche Analyse MexB / MexR", "zh": "MexB / MexR 科学分析",
-        "ja": "MexB / MexR 科学分析",
+        "fr": "Type d'analyse", "en": "Analysis type",
+        "de": "Analyseart", "zh": "分析类型",
+        "ja": "解析タイプ",
+    },
+    "viz_filter_receptor": {
+        "fr": "Récepteur", "en": "Receptor", "de": "Rezeptor", "zh": "受体", "ja": "受容体",
+    },
+    "viz_filter_molecule": {
+        "fr": "Molécule", "en": "Molecule", "de": "Molekül", "zh": "分子", "ja": "分子",
+    },
+    "viz_filter_all_receptors": {
+        "fr": "Tous les récepteurs", "en": "All receptors", "de": "Alle Rezeptoren",
+        "zh": "所有受体", "ja": "すべての受容体",
+    },
+    "viz_filter_all_molecules": {
+        "fr": "Toutes les molécules", "en": "All molecules", "de": "Alle Moleküle",
+        "zh": "所有分子", "ja": "すべての分子",
     },
     "analysis_type_section_desc": {
         "fr": "Chargez un fichier CSV scientifique produit par la fusion docking.",

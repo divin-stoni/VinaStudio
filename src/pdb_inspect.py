@@ -442,6 +442,14 @@ def convert_to_pdbqt(clean_pdb, pdbqt, protonate=False):
     if cp.returncode != 0 or not Path(pdbqt).exists():
         return False, "Open Babel n'a pas pu convertir le fichier nettoyé en PDBQT :\n\n" + (
             cp.stderr.strip() or "(pas de détail)")
+    try:
+        from src.docking.receptor_validator import validate_receptor_pdbqt
+        _rep = validate_receptor_pdbqt(pdbqt, fix=True)
+    except Exception:
+        _rep = None
+    if _rep is not None and not _rep["ok"]:
+        return False, ("Le récepteur converti n'est pas utilisable par Vina :\n\n"
+                       + "\n".join(_rep["errors"]))
     return True, ""
 
 

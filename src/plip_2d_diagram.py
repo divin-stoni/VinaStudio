@@ -55,7 +55,7 @@ def extract_ligand_atoms(complex_pdb: Path, reschain_lig: str, restype_lig: str,
                 continue
             name = line[12:16].strip()
             element = line[76:78].strip()
-            if not element:
+            if not element or not element.isalpha():
                 element = "".join(c for c in name if c.isalpha())[:1]
             if element.upper() == "H":
                 continue
@@ -211,9 +211,46 @@ INTERACTION_TAGS = {
 }
 
 
+DOCKED_LIGAND_RESNAME = "UNL"
+
+
+def _select_ligand_site(root):
+    """Site de liaison PLIP du ligand docké.
+
+    PLIP traite aussi comme ligands des résidus modifiés ou des ions du
+    récepteur (ex. MSE, sélénométhionine) et crée un <bindingsite> pour
+    chacun. Le ligand docké est toujours nommé UNL par la conversion
+    Open Babel : on ne garde que ses sites.
+    """
+    sites = root.findall(".//bindingsite")
+    if not sites:
+        return root
+
+    wanted = []
+    found = set()
+    for site in sites:
+        hetid = site.find(".//hetid")
+        name = (hetid.text or "").strip() if hetid is not None else ""
+        found.add(name)
+        if name == DOCKED_LIGAND_RESNAME:
+            wanted.append(site)
+
+    if not wanted:
+        raise RuntimeError(
+            f"Aucun site de liaison PLIP pour le ligand docké "
+            f"({DOCKED_LIGAND_RESNAME}). Sites trouvés : {sorted(found)}."
+        )
+
+    def _count(site):
+        inter = site.find(".//interactions")
+        return sum(len(list(group)) for group in inter) if inter is not None else 0
+
+    return max(wanted, key=_count)
+
+
 def parse_plip_xml(xml_file: Path) -> dict:
     tree = ET.parse(xml_file)
-    root = tree.getroot()
+    root = _select_ligand_site(tree.getroot())
     smiles_el = root.find(".//smiles")
     if smiles_el is None or not smiles_el.text:
         raise RuntimeError("Balise <smiles> introuvable dans le XML PLIP.")
@@ -344,15 +381,73 @@ def render_diagram(mol, interactions, atoms, output_png: Path, molecule: str):
     return legend_lines, skipped
 
 
+def _dump_2d_diagnostic(molecule, xml_file, complex_pdb, data, atoms, lig_ref, exc):
+    """Écrit un rapport dans diag_2d/ (hors des dossiers nettoyés à la fermeture)."""
+    try:
+        import shutil
+        from collections import Counter
+
+        out_dir = Path(__file__).resolve().parents[1] / "diag_2d"
+        out_dir.mkdir(exist_ok=True)
+        target = Path(xml_file).parent.parent.name
+        name = f"{target}__{molecule or Path(xml_file).stem}"
+
+        smiles = data.get("smiles", "")
+        template = Chem.MolFromSmiles(smiles) if smiles else None
+        lines = [
+            f"molecule : {name}",
+            f"erreur   : {exc}",
+            f"ligand   : chain={lig_ref[0]!r} resname={lig_ref[1]!r} resnr={lig_ref[2]!r}",
+            f"smiles   : {smiles}",
+        ]
+        if template is not None:
+            kek = Chem.Mol(template)
+            Chem.Kekulize(kek, clearAromaticFlags=True)
+            lines.append(f"smiles   : {template.GetNumAtoms()} atomes lourds, {kek.GetNumBonds()} liaisons")
+            lines.append("smiles   : " + str(dict(Counter(a.GetSymbol() for a in template.GetAtoms()))))
+        if atoms:
+            lines.append(f"pdb      : {len(atoms)} atomes lourds extraits")
+            lines.append("pdb      : " + str(dict(Counter(a["element"].capitalize() for a in atoms))))
+            for cov in (1.0, 1.3, 1.6, 2.0, 2.2):
+                try:
+                    rw = Chem.RWMol()
+                    for a in atoms:
+                        rw.AddAtom(Chem.Atom(a["element"].capitalize()))
+                    conf = Chem.Conformer(rw.GetNumAtoms())
+                    for i, a in enumerate(atoms):
+                        conf.SetAtomPosition(i, (a["x"], a["y"], a["z"]))
+                    rw.AddConformer(conf)
+                    m = rw.GetMol()
+                    rdDetermineBonds.DetermineConnectivity(m, covFactor=cov)
+                    lines.append(f"pdb      : covFactor={cov} -> {m.GetNumBonds()} liaisons")
+                except Exception as e2:
+                    lines.append(f"pdb      : covFactor={cov} -> erreur {e2}")
+        else:
+            lines.append("pdb      : aucun atome extrait")
+        (out_dir / f"{name}.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+        shutil.copy2(xml_file, out_dir / f"{name}_report.xml")
+        shutil.copy2(complex_pdb, out_dir / f"{name}_complex.pdb")
+    except Exception:
+        pass
+
+
 def generate(xml_file: Path, complex_pdb: Path, output_png: Path, molecule: str = ""):
     data = parse_plip_xml(xml_file)
     tree = ET.parse(xml_file)
-    root = tree.getroot()
+    root = _select_ligand_site(tree.getroot())
     reschain_lig = (root.find(".//chain").text or "A").strip()
     restype_lig = (root.find(".//hetid").text or "").strip()
     resnr_lig = (root.find(".//position").text or "").strip()
-    atoms = extract_ligand_atoms(complex_pdb, reschain_lig, restype_lig, resnr_lig)
-    mol = build_ligand_mol_from_pdb_atoms(data["smiles"], atoms)
+    atoms = None
+    try:
+        atoms = extract_ligand_atoms(complex_pdb, reschain_lig, restype_lig, resnr_lig)
+        mol = build_ligand_mol_from_pdb_atoms(data["smiles"], atoms)
+    except Exception as _exc:
+        _dump_2d_diagnostic(
+            molecule, xml_file, complex_pdb, data, atoms,
+            (reschain_lig, restype_lig, resnr_lig), _exc,
+        )
+        raise
     if not data["interactions"]:
         raise RuntimeError("Aucune interaction exploitable dans le XML PLIP.")
     legend, skipped = render_diagram(mol, data["interactions"], atoms, output_png, molecule or xml_file.stem)

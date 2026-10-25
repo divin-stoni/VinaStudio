@@ -145,15 +145,34 @@ class _ChainSelectionDialog(QDialog):
         ]
 
 
+def _ref_color_item(item, row, col):
+    # patch-references : references en rouge (ligne teintee), candidats en bleu
+    try:
+        from PySide6.QtGui import QColor as _QC, QBrush as _QB
+        name = str(row.get("molecule", ""))
+        if name.startswith("REF-"):
+            item.setBackground(_QB(_QC(239, 68, 68, 55)))
+            if col == "molecule":
+                item.setForeground(_QB(_QC("#F87171")))
+                f = item.font()
+                f.setBold(True)
+                item.setFont(f)
+        elif col == "molecule":
+            item.setForeground(_QB(_QC("#60A5FA")))
+    except Exception:
+        pass
+    return item
+
+
 def _risk_threshold_text(result, classification):
     # patch-seuil : ligne du seuil absolu, seulement si le couple en a un
     attrs = getattr(classification, "attrs", None) or {}
     seuil = attrs.get("seuil_risque_absolu")
     if seuil is None:
         return ""
-    ref = str(attrs.get("ref_name", "pyocyanine")).replace("pyocyanine", "piocyanine")
+    ref = str(attrs.get("ref_name") or "référence")
     y = str((result.get("labels") or {}).get("y", "MexR"))
-    return "- ΔG " + y + " meilleur que le seuil " + ref + " (" + str(seuil) + " kcal/mol)"
+    return "- ΔG " + y + " meilleur que le seuil " + ref + " (" + ("%.3f" % float(seuil)) + " kcal/mol)"
 
 
 def _fmt_cell(value, df=None, col=None):
@@ -1457,7 +1476,7 @@ def apply_runtime_preferences():
     if app is None:
         return
     _apply_app_palette(app)
-    app.setStyleSheet(_build_app_style() + _runtime_preferences_style())
+    (__import__("src.gui.checkbox_style", fromlist=["x"]).install(), app.setStyleSheet(_build_app_style() + _runtime_preferences_style()))
     mapping = _inline_color_map()
     ratio = int(GLASS_PREFERENCES["font_size"]) / 13.0
     for widget in app.allWidgets():
@@ -2206,7 +2225,7 @@ QToolButton {{
         stop:0.58 rgba(133, 211, 160, 150),
         stop:1 rgba(53, 137, 91, 165)
     );
-    color: #103a28;
+    color: {_theme_color("button_text_color", "#103a28").name()};
     padding: 7px 13px;
     border-radius: 11px;
 }}
@@ -2244,7 +2263,7 @@ QToolButton#TopTab {{
     margin: 1px 2px;
     padding: 9px 19px;
     font-weight: 600;
-    color: #17344c;
+    color: {_theme_color("tab_text_color", "#17344c").name()};
     background: qlineargradient(
         x1:0, y1:0, x2:0, y2:1,
         stop:0 rgba(247, 253, 255, 205),
@@ -2255,7 +2274,7 @@ QToolButton#TopTab {{
 
 QToolButton#TopTab:hover {{
     background: rgba(246, 253, 255, 235);
-    color: #0b263d;
+    color: {_theme_color("tab_text_hover_color", "#0b263d").name()};
     border-color: rgba(255, 255, 255, 235);
 }}
 
@@ -2366,7 +2385,7 @@ QToolButton#SecondaryTab:hover {{
         stop:0.62 rgba(161, 211, 235, 180),
         stop:1 rgba(70, 130, 164, 170)
     );
-    color: #102d45;
+    color: {_theme_color("button_text_hover_color", "#102d45").name()};
     border-top-width: 2px;
     border-left-width: 1px;
     border-right-width: 1px;
@@ -2379,7 +2398,7 @@ QToolButton#SecondaryTab:hover {{
 }}
 
 QToolButton#SecondaryTab:checked {{
-    color: #0b2d48;
+    color: {_theme_color("button_text_color", "#0b2d48").name()};
     background: qlineargradient(
         x1:0, y1:0, x2:0, y2:1,
         stop:0 rgba(255, 255, 255, 242),
@@ -2427,7 +2446,7 @@ QPushButton {{
     border-radius: 10px;
     padding: 9px 18px;
     min-height: 18px;
-    color: #112d44;
+    color: {_theme_color("button_text_color", "#112d44").name()};
 }}
 
 QPushButton:hover {{
@@ -2504,7 +2523,7 @@ QComboBox {{
     border-left-color: rgba(255, 255, 255, 180);
     border-right-color: rgba(62, 107, 138, 180);
     border-bottom-color: rgba(46, 86, 116, 195);
-    color: #123a27;
+    color: {_theme_color("popup_text_color", "#123a27").name()};
     border-radius: 10px;
     padding: 8px 12px;
     min-height: 18px;
@@ -2588,8 +2607,8 @@ QComboBox::drop-down {{
 }}
 
 QComboBox QAbstractItemView {{
-    background: rgba(35, 118, 73, 235);
-    color: #effff4;
+    background: {_rgba(_theme_color("popup_tint", "#237649"), max(_pct_alpha(GLASS_PREFERENCES.get("popup_opacity", 90)), 215))};
+    color: {_theme_color("popup_text_color", "#effff4").name()};
     border: 1px solid rgba(218, 255, 229, 180);
     border-radius: 12px;
     outline: none;
@@ -2599,14 +2618,14 @@ QComboBox QAbstractItemView {{
 QComboBox QAbstractItemView::item {{
     padding: 7px 10px;
     border-radius: 8px;
-    color: #effff4;
+    color: {_theme_color("popup_text_color", "#effff4").name()};
     background: transparent;
 }}
 
 QComboBox QAbstractItemView::item:selected,
 QComboBox QAbstractItemView::item:hover {{
     background: rgba(185, 255, 207, 100);
-    color: #0d3521;
+    color: {_theme_color("popup_hover_text_color", "#0d3521").name()};
 }}
 
 QTableWidget {{
@@ -2716,7 +2735,7 @@ QProgressBar::chunk {{
 QStatusBar {{
     background: {COLORS["accent_green"]};
     border-top: 1px solid rgba(210, 255, 225, 135);
-    color: #dfffea;
+    color: {_theme_color("status_text_color", "#dfffea").name()};
 }}
 
 QSplitter::handle {{
@@ -2971,6 +2990,27 @@ def _glass_tint(alpha, factor=1.0, kind="button"):
     return color
 
 
+def _gl_lum(c):
+    def ch(v):
+        v = v / 255.0
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    return 0.2126 * ch(c.red()) + 0.7152 * ch(c.green()) + 0.0722 * ch(c.blue())
+
+
+def _gl_contrast(a, b):
+    la, lb = _gl_lum(a), _gl_lum(b)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+def _gl_readable_text(face, preferred):
+    """Garde la couleur voulue si elle est lisible, sinon prend la meilleure."""
+    best = QColor(preferred)
+    if _gl_contrast(best, face) >= 4.5:
+        return best
+    dark, light = QColor("#0b1f2e"), QColor("#ffffff")
+    return dark if _gl_contrast(dark, face) >= _gl_contrast(light, face) else light
+
+
 class LiquidGlassButton(QPushButton):
     """Bouton natif avec face translucide et liseré de verre poli."""
 
@@ -3072,6 +3112,25 @@ class LiquidGlassButton(QPushButton):
 
         option = QStyleOptionButton()
         self.initStyleOption(option)
+        if self.objectName() == "PrimaryButton" and option.text:
+            tint = _glass_tint(255, 1.0)
+            bg = self.palette().window().color()
+            a = 0.55
+            face = QColor(
+                int(tint.red() * a + bg.red() * (1 - a)),
+                int(tint.green() * a + bg.green() * (1 - a)),
+                int(tint.blue() * a + bg.blue() * (1 - a)),
+            )
+            ink = _gl_readable_text(face, COLORS["accent_ink"])
+            label = option.text.replace("&", "")
+            option.text = ""
+            content = QStylePainter(self)
+            content.drawControl(QStyle.CE_PushButton, option)
+            content.setPen(ink)
+            content.setFont(self.font())
+            content.drawText(option.rect, Qt.AlignCenter, label)
+            content.end()
+            return
         content = QStylePainter(self)
         content.drawControl(QStyle.CE_PushButton, option)
         content.end()
@@ -3300,6 +3359,14 @@ class GlassPreferencesDialog(QDialog):
         description.setObjectName("SectionDescription")
         description.setWordWrap(True)
         layout.addWidget(description)
+        try:   # thèmes rapides (src/gui/quick_themes.py)
+            try:
+                from .quick_themes import build_quick_theme_bar
+            except ImportError:
+                from src.gui.quick_themes import build_quick_theme_bar
+            layout.addWidget(build_quick_theme_bar(self, _THEME_SCHEMA))
+        except Exception as _quick_exc:
+            print(f"[themes rapides] indisponible : {_quick_exc}")
 
         self.tabs = QTabWidget()
         groups = []
@@ -4919,7 +4986,7 @@ class DockingPage(QWidget):
         self._dock_toolbar_slot = QHBoxLayout()
         self._dock_toolbar_slot.setSpacing(8)
         _import_toolbar.addLayout(self._dock_toolbar_slot)
-        self._ref_inhib_button = QPushButton("Inhibiteurs de référence")
+        self._ref_inhib_button = QPushButton("Molécules de référence")
         self._ref_inhib_button.setToolTip(
             "Identifie le rôle du ligand du cristal et télécharge les inhibiteurs "
             "de référence documentés pour cette pompe, avec leurs sources.")
@@ -5700,6 +5767,56 @@ class DockingPage(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidget(page)
+
+        # ---- Bouton flottant "Lancer le docking" (toujours accessible) ----
+        from PySide6.QtCore import QPoint as _QPoint, QTimer as _QTimer
+        from PySide6.QtWidgets import QGraphicsDropShadowEffect as _QShadow
+
+        from PySide6.QtWidgets import QHBoxLayout as _QHBox
+
+        float_btn = QFrame(scroll.viewport())
+        float_btn.setObjectName("ContentPanel")
+        _float_layout = _QHBox(float_btn)
+        _float_layout.setContentsMargins(6, 6, 6, 6)
+        _float_inner = create_button(self.launch_button.text(), primary=True)
+        _float_inner.setCursor(Qt.PointingHandCursor)
+        _float_inner.setToolTip(self.launch_button.text())
+        _float_inner.clicked.connect(self.launch_docking)
+        _float_layout.addWidget(_float_inner)
+        float_btn.hide()
+
+        def _place_float_btn():
+            vp = scroll.viewport()
+            float_btn.adjustSize()
+            float_btn.move(
+                vp.width() - float_btn.width() - 20,
+                vp.height() - float_btn.height() - 16,
+            )
+
+        def _refresh_float_btn(*_args):
+            try:
+                _float_inner.setText(self.launch_button.text())
+                float_btn.setEnabled(self.launch_button.isEnabled())
+                top = execution.mapTo(page, _QPoint(0, 0)).y()
+                bottom = top + execution.height()
+                view_top = scroll.verticalScrollBar().value()
+                view_bottom = view_top + scroll.viewport().height()
+                out_of_view = bottom <= view_top or top >= view_bottom
+                if out_of_view:
+                    _place_float_btn()
+                    float_btn.show()
+                    float_btn.raise_()
+                else:
+                    float_btn.hide()
+            except RuntimeError:
+                pass
+
+        scroll.verticalScrollBar().valueChanged.connect(_refresh_float_btn)
+        _float_timer = _QTimer(scroll)
+        _float_timer.setInterval(200)
+        _float_timer.timeout.connect(_refresh_float_btn)
+        _float_timer.start()
+        _QTimer.singleShot(0, _refresh_float_btn)
 
         return scroll
 
@@ -6501,6 +6618,20 @@ class DockingPage(QWidget):
             )
             return None
 
+        try:
+            from src.docking.receptor_validator import validate_receptor_pdbqt
+            _rep = validate_receptor_pdbqt(pdbqt_path, fix=True)
+        except Exception:
+            _rep = None
+        if _rep is not None and not _rep["ok"]:
+            QMessageBox.critical(
+                self,
+                "Récepteur invalide",
+                "Le PDBQT produit n'est pas utilisable par Vina :\n\n"
+                + "\n".join(_rep["errors"]),
+            )
+            return None
+
         return pdbqt_path, cleaned_pdb_path
 
     def _export_session_dialog(self):
@@ -6690,6 +6821,22 @@ class DockingPage(QWidget):
             pdbqt_path = self._session_manager.import_file(
                 selected_path
             )
+            # Validation Vina sur la COPIE de session (jamais sur le fichier
+            # d'origine de l'utilisateur).
+            try:
+                from src.docking.receptor_validator import validate_receptor_pdbqt
+                _is_copy = Path(pdbqt_path).resolve() != selected_path.resolve()
+                _rep = validate_receptor_pdbqt(pdbqt_path, fix=_is_copy)
+            except Exception:
+                _rep = None
+            if _rep is not None and not _rep["ok"]:
+                QMessageBox.warning(
+                    self,
+                    "Récepteur invalide",
+                    "Ce PDBQT n'est pas utilisable par Vina :\n\n"
+                    + "\n".join(_rep["errors"]),
+                )
+                return None
 
         # ------------------------------------------------------------
         # VALIDATION TECHNIQUE MINIMALE
@@ -6884,7 +7031,7 @@ class DockingPage(QWidget):
             "Confirmer la suppression",
             "Supprimer %d récepteur(s) importé(s) ?\n\n%s\n\n"
             "Le profil est déplacé dans _corbeille_recepteurs (récupérable). "
-            "Tes fichiers PDB / PDBQT ne sont pas effacés."
+            "Ses inhibiteurs de référence et ses résultats de validation sont aussi déplacés dans la corbeille. Tes fichiers PDB / PDBQT ne sont pas effacés."
             % (len(pids), "\n".join(" - " + p for p in pids)),
         )
         if answer != QMessageBox.Yes:
@@ -6908,6 +7055,13 @@ class DockingPage(QWidget):
                     str(src_json), str(trash / ("%s__%s.json" % (pid, stamp)))
                 )
                 deleted.append(pid)
+                try:
+                    from src import guide_assistant as _ga
+                    _ga.purge_receptor_data(pid, trash, stamp)
+                except Exception as _exc:
+                    errors.append(
+                        "%s : donnees associees non deplacees (%s)" % (pid, _exc)
+                    )
             except Exception as exc:
                 errors.append("%s : %s" % (pid, exc))
 
@@ -8091,6 +8245,32 @@ class DockingPage(QWidget):
 
             return
 
+        # Contrôle du récepteur et de la boîte de docking réellement utilisés
+        # (fichier présent, PDBQT lisible par Vina, boîte non vide).
+        _box_errors = []
+        try:
+            from src.docking.receptor_validator import validate_receptor_pdbqt
+            for _name, _eng in engines.items():
+                _c = _eng.config
+                _r = validate_receptor_pdbqt(
+                    _c.receptor,
+                    center=(_c.center_x, _c.center_y, _c.center_z),
+                    size=(_c.size_x, _c.size_y, _c.size_z),
+                )
+                if not _r["ok"]:
+                    _box_errors.append(f"{_name} : " + " ; ".join(_r["errors"]))
+        except Exception as _exc:
+            print(f"[validation récepteur] ignorée : {_exc}")
+            _box_errors = []
+
+        if _box_errors:
+            QMessageBox.critical(
+                self,
+                "Récepteur ou boîte de docking invalide",
+                "\n".join(_box_errors),
+            )
+            return
+
         _extra = None
         try:
             from src.gui.reference_batch import choose_references
@@ -8105,6 +8285,8 @@ class DockingPage(QWidget):
         ]
         if _extra:
             ligands += [q for q in _extra if q not in ligands]
+        if getattr(self, "_merge_mode", False) and _extra:
+            ligands = list(_extra)  # patch-cible : on ne docke que les references
 
         self.docking_log.setRowCount(0)
 
@@ -8168,6 +8350,23 @@ class DockingPage(QWidget):
             _family = str(_lig_family or "").strip()
             if _family and _family.lower() != "sans famille":
                 ligand_groups[str(_FamPath(_lig_path).resolve())] = _family
+
+        # patch-cible : copie des CSV existants pour les refusionner a la fin
+        self._merge_snaps = []
+        try:
+            import shutil as _sh
+            import tempfile as _tf
+            _tmpd = Path(_tf.mkdtemp(prefix="vina_prev_"))
+            _cands = list(Path(self.project_root).glob("docking_results_combined*.csv"))
+            for _e in engines.values():
+                _cands.append(Path(_e.config.results_dir) / "docking_results.csv")
+            for _i, _p in enumerate(_cands):
+                if _p.is_file():
+                    _t = _tmpd / ("%d.csv" % _i)
+                    _sh.copyfile(_p, _t)
+                    self._merge_snaps.append((str(_p), str(_t)))
+        except Exception as _exc:
+            print("Sauvegarde des resultats precedents ignoree :", _exc)
 
         self.worker = DockingWorker(
             engines=engines,
@@ -8317,7 +8516,25 @@ class DockingPage(QWidget):
             message,
         )
 
+    def _merge_targeted_results(self):
+        if not getattr(self, "_merge_mode", False):
+            return
+        from src.docking.merge_results import merge_csv
+        kept = 0
+        for orig, tmp in getattr(self, "_merge_snaps", []):
+            kept = max(kept, merge_csv(tmp, orig))
+        self._merge_mode = False
+        try:
+            self.add_docking_log(
+                "FUSION", "Docking cible : %d ligand(s) des campagnes precedentes conserve(s)." % kept)
+        except Exception:
+            pass
+
     def on_docking_finished(self, csv_path):
+        try:
+            self._merge_targeted_results()  # patch-cible
+        except Exception as _exc:
+            print("Fusion du docking cible ignoree :", _exc)
 
         self.docking_results_csv = str(csv_path)
 
@@ -8731,16 +8948,73 @@ class AnalysisPage(QWidget):
         gui_debug("Création d'un nouvel onglet")
 
 
-        self.stack.addWidget(
-            self.results_page()
-        )
+        _merged_ok = False
+        try:
+            _res_scroll = self.results_page()
+            _opt_scroll = self.analysis_type_page()
+            _res_inner = _res_scroll.takeWidget()
+            _opt_inner = _opt_scroll.takeWidget()
+
+            _container = QWidget()
+            _cl = QVBoxLayout(_container)
+            _cl.setContentsMargins(0, 0, 0, 0)
+            _cl.setSpacing(0)
+
+            # 1) Options en haut (bloc "Type d'analyse"), fixe, sans défilement
+            _ol = _opt_inner.layout()
+            _ol.setContentsMargins(28, 18, 28, 4)
+            _ol.setSpacing(10)
+            _opt_inner.setSizePolicy(
+                QSizePolicy.Preferred, QSizePolicy.Maximum
+            )
+            _cl.addWidget(_opt_inner, 0)
+
+            # 2) Barre "Campagne / Lancer l'analyse" : aussi une option, donc en haut
+            _toolbar = _res_inner.findChild(QFrame, "ToolbarPanel")
+            if _toolbar is not None:
+                _res_inner.layout().removeWidget(_toolbar)
+                _tb_wrap = QWidget()
+                _tbl = QVBoxLayout(_tb_wrap)
+                _tbl.setContentsMargins(28, 0, 28, 0)
+                _tbl.addWidget(_toolbar)
+                _tb_wrap.setSizePolicy(
+                    QSizePolicy.Preferred, QSizePolicy.Maximum
+                )
+                _cl.addWidget(_tb_wrap, 0)
+
+            # 3) Tableau en bas, prend tout l'espace restant, défile seul
+            _res_inner.layout().setContentsMargins(28, 10, 28, 20)
+            _res_inner.setSizePolicy(
+                QSizePolicy.Expanding, QSizePolicy.Expanding
+            )
+            try:
+                self.docking_results_table.setMinimumHeight(200)
+            except Exception:
+                pass
+            _cl.addWidget(_res_inner, 1)
+
+            self.stack.addWidget(_container)
+            _merged_ok = True
+        except Exception as _exc:
+            print("Fusion des onglets Analyse impossible :", _exc)
+            self.stack.addWidget(self.results_page())
 
         gui_debug("Création d'un nouvel onglet")
 
 
-        self.stack.addWidget(
-            self.analysis_type_page()
-        )
+        if _merged_ok:
+            # Page 1 conservée (vide) pour ne décaler aucun numéro d'onglet.
+            self.stack.addWidget(QWidget())
+            try:
+                self.secondary.buttons[1].hide()
+            except Exception as _exc:
+                print("Bouton « Type d'analyse » non masqué :", _exc)
+            # Tout appel vers l'ancienne page 1 est renvoyé sur Résultats.
+            self.stack.currentChanged.connect(
+                lambda i: self.stack.setCurrentIndex(0) if i == 1 else None
+            )
+        else:
+            self.stack.addWidget(self.analysis_type_page())
 
         gui_debug("Création d'un nouvel onglet")
 
@@ -8811,7 +9085,18 @@ class AnalysisPage(QWidget):
             / "docking_results_combined.csv"
         )
 
-        if combined.is_file():
+        # Le CSV fusionné n'est proposé que s'il date de la session en cours
+        # (un ancien fichier resté sur le disque n'est plus offert).
+        try:
+            from src.session_runtime import SESSION_START_TS as _t0
+            _fresh = (
+                combined.is_file()
+                and combined.stat().st_mtime >= _t0
+            )
+        except Exception:
+            _fresh = combined.is_file()
+
+        if _fresh:
             campaigns.append("Dernier couple (CSV fusionné)")
 
         batch_root = self._batch_root()
@@ -9411,7 +9696,7 @@ class AnalysisPage(QWidget):
         layout.addWidget(
             self._t_label(
                 "analysis_type_section_title",
-                "Analyse scientifique MexB / MexR",
+                "Type d'analyse",
                 "SectionTitle",
             )
         )
@@ -9485,6 +9770,42 @@ class AnalysisPage(QWidget):
         )
 
 
+        # patch-seuil : choix de la reference de seuil (liste + valeur manuelle)
+        try:
+            from PySide6.QtWidgets import QComboBox as _QCombo, QDoubleSpinBox as _QDSpin
+            self._seuil_label = make_label("Seuil de risque (référence) :")
+            self._seuil_combo = _QCombo()
+            self._seuil_manual_label = make_label("Valeur manuelle (kcal/mol) :")
+            self._seuil_manual = _QDSpin()
+            self._seuil_manual.setDecimals(3)
+            self._seuil_manual.setRange(-50.0, 50.0)
+            self._seuil_manual.setSingleStep(0.1)
+            self._seuil_note = make_label("")
+            try:
+                self._seuil_note.setWordWrap(True)
+            except Exception:
+                pass
+            grid.addWidget(self._seuil_label, 3, 0)
+            grid.addWidget(self._seuil_combo, 3, 1, 1, 2)
+            grid.addWidget(self._seuil_manual_label, 4, 0)
+            grid.addWidget(self._seuil_manual, 4, 1, 1, 2)
+            grid.addWidget(self._seuil_note, 5, 0, 1, 3)
+            from src.analysis import statistics_pipeline as _spm
+            self._tol_label = make_label("Tolérance pompe / inhibiteurs (kcal/mol) :")
+            self._tol_spin = _QDSpin()
+            self._tol_spin.setDecimals(2)
+            self._tol_spin.setRange(0.0, 5.0)
+            self._tol_spin.setSingleStep(0.05)
+            self._tol_spin.setValue(_spm.load_pump_tolerance())
+            grid.addWidget(self._tol_label, 6, 0)
+            grid.addWidget(self._tol_spin, 6, 1, 1, 2)
+            self._tol_spin.editingFinished.connect(self._on_tol_changed)
+            self._seuil_combo.activated.connect(self._on_seuil_changed)
+            self._seuil_manual.editingFinished.connect(self._on_seuil_changed)
+            self._refresh_threshold_choices()
+        except Exception as _exc:
+            print("Sélecteur de seuil non créé :", _exc)
+
         launch.clicked.connect(
             self.run_statistics_analysis
         )
@@ -9514,6 +9835,95 @@ class AnalysisPage(QWidget):
 
 
 
+    def _refresh_threshold_choices(self):
+        # patch-seuil : liste = aucun / valeur manuelle / references presentes dans les donnees
+        from src.analysis import statistics_pipeline as _sp
+        combo = getattr(self, "_seuil_combo", None)
+        if combo is None:
+            return
+        cfg = _sp.load_threshold_config()
+        names = []
+        try:
+            res = getattr(self, "statistics_result", None) or {}
+            refs = res.get("references")
+            if refs is not None and len(refs) > 0:
+                names = [str(m) for m in refs["molecule"]
+                         if str(m).startswith(("REF-DEREP__", "REF-SUB__"))]
+        except Exception:
+            names = []
+        if not names:
+            try:
+                import pandas as _pd
+                _df = _pd.read_csv(self.statistics_csv)
+                names = [str(m) for m in _df["molecule"]
+                         if str(m).startswith(("REF-DEREP__", "REF-SUB__"))]
+            except Exception:
+                names = []
+        present = list(names)
+        if cfg.get("mode") == "reference":
+            want = str(cfg.get("reference", ""))
+            if want and want not in names:
+                names.append(want)
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem("Aucun seuil", "none")
+        pass  # valeur manuelle retiree (seuil = vraie molecule uniquement)
+        for m in names:
+            txt = "Référence : " + _sp.reference_display_name(m)
+            if m not in present:
+                txt += " (absente des données)"
+            combo.addItem(txt, "ref:" + m)
+        sel = 0
+        if cfg.get("mode") == "reference":
+            idx = combo.findData("ref:" + str(cfg.get("reference", "")))
+            sel = idx if idx >= 0 else 0
+        combo.setCurrentIndex(sel)
+        combo.blockSignals(False)
+        try:
+            self._seuil_manual.setValue(float(cfg.get("valeur", 0.0)))
+        except Exception:
+            pass
+        self._update_seuil_visibility()
+
+    def _on_tol_changed(self, *args):
+        from src.analysis import statistics_pipeline as _spm
+        try:
+            _spm.save_pump_tolerance(self._tol_spin.value())
+            self._seuil_note.setText(
+                "Tolérance enregistrée : %.2f kcal/mol. Relance l'analyse pour l'appliquer."
+                % self._tol_spin.value())
+        except Exception as _exc:
+            self._seuil_note.setText("Tolérance non enregistrée : %s" % _exc)
+
+    def _update_seuil_visibility(self):
+        try:
+            manual = self._seuil_combo.currentData() == "manuel"
+            self._seuil_manual.setVisible(manual)
+            self._seuil_manual_label.setVisible(manual)
+        except Exception:
+            pass
+
+    def _on_seuil_changed(self, *args):
+        from src.analysis import statistics_pipeline as _sp
+        data = self._seuil_combo.currentData()
+        old = _sp.load_threshold_config()
+        keep = old.get("valeur", 0.0)
+        if data == "manuel":
+            cfg = {"mode": "manuel", "valeur": float(self._seuil_manual.value())}
+            note = "Seuil manuel : %.3f kcal/mol (comparé au ΔG du répresseur)." % cfg["valeur"]
+        elif isinstance(data, str) and data.startswith("ref:"):
+            cfg = {"mode": "reference", "reference": data[4:], "valeur": keep}
+            note = "Seuil = ΔG du répresseur de la référence choisie."
+        else:
+            cfg = {"mode": "none", "valeur": keep, "explicite": True}
+            note = "Aucun seuil absolu : pas de statut de risque."
+        try:
+            _sp.save_threshold_config(cfg)
+            self._seuil_note.setText(note + " Relance l'analyse pour l'appliquer.")
+        except Exception as _exc:
+            self._seuil_note.setText("Réglage non enregistré : %s" % _exc)
+        self._update_seuil_visibility()
+
     def load_external_statistics_csv(self):
 
         csv, _ = QFileDialog.getOpenFileName(
@@ -9528,6 +9938,10 @@ class AnalysisPage(QWidget):
 
 
         self.statistics_csv = csv
+        try:
+            self._refresh_threshold_choices()
+        except Exception:
+            pass
 
 
         self.statistics_status.setText(
@@ -9541,6 +9955,78 @@ class AnalysisPage(QWidget):
         )
 
     def run_statistics_analysis(self):
+        # patch-seuil-demande : verifie la reference de seuil avant l'analyse
+        try:
+            if not self._ensure_threshold_reference(getattr(self, "statistics_csv", None)):
+                return
+        except Exception as _exc:
+            print("Verification du seuil ignoree :", _exc)
+        return self._run_statistics_analysis_core()
+
+    def _go_to_docking_page(self):
+        try:
+            nav = getattr(self.window(), "primary_navigation", None)
+            for b in getattr(nav, "buttons", []):
+                if "docking" in b.text().lower():
+                    b.click()
+                    return True
+        except Exception:
+            pass
+        return False
+
+    def _ensure_threshold_reference(self, csv):
+        """True : on peut lancer l'analyse. False : on s'arrete (retour docking ou annulation)."""
+        from PySide6.QtWidgets import QMessageBox, QInputDialog
+        from src.analysis import statistics_pipeline as _sp
+        if not csv:
+            return True
+        names = _sp.threshold_references_in_csv(csv)
+        cfg = _sp.load_threshold_config()
+        if cfg.get("mode") == "none" and cfg.get("explicite"):
+            return True
+        if cfg.get("mode") == "reference" and str(cfg.get("reference", "")) in names:
+            return True
+        if names:
+            derep = [n for n in names if n.startswith("REF-DEREP__")]
+            pool = derep or names
+            chosen = pool[0]
+            if len(pool) > 1:
+                labels = [_sp.reference_display_name(n) for n in pool]
+                label, ok = QInputDialog.getItem(
+                    self, "Seuil de risque",
+                    "Plusieurs molécules de référence sont disponibles. "
+                    "Laquelle sert de seuil de risque ?", labels, 0, False)
+                if not ok:
+                    return False
+                chosen = pool[labels.index(label)]
+            _sp.save_threshold_config({"mode": "reference", "reference": chosen,
+                                       "valeur": cfg.get("valeur", 0.0)})
+            try:
+                self._refresh_threshold_choices()
+            except Exception:
+                pass
+            return True
+        box = QMessageBox(self)
+        box.setWindowTitle("Seuil de risque")
+        box.setText(
+            "Aucune molécule de référence dérépresseur dans ces résultats.\n\n"
+            "Le seuil de risque vient de la molécule qui libère le répresseur "
+            "(par exemple la pyocyanine pour MexR), dockée dans les mêmes conditions "
+            "que tes ligands.\n\n"
+            "Tu peux l'ajouter avec le bouton « Molécules de référence » de la page "
+            "Docking (rôle : dérépresseur), puis la docker.")
+        b_go = box.addButton("Aller au docking", QMessageBox.AcceptRole)
+        b_skip = box.addButton("Analyser sans seuil", QMessageBox.ActionRole)
+        box.addButton("Annuler", QMessageBox.RejectRole)
+        box.exec()
+        clicked = box.clickedButton()
+        if clicked is b_skip:
+            return True
+        if clicked is b_go and not self._go_to_docking_page():
+            QMessageBox.information(self, "Docking", "Ouvre la page Docking dans le menu de gauche.")
+        return False
+
+    def _run_statistics_analysis_core(self):
 
         gui_debug(
             "LANCEMENT ANALYSE STATISTIQUE"
@@ -9604,6 +10090,10 @@ class AnalysisPage(QWidget):
 
 
         self.results_tabs.clear()
+        try:
+            self._refresh_threshold_choices()
+        except Exception:
+            pass
 
 
         result = getattr(
@@ -9655,7 +10145,7 @@ class AnalysisPage(QWidget):
                         table.setItem(
                             idx,
                             c,
-                            QTableWidgetItem(_fmt_cell(row.get(col, ""), classification, col))
+                            _ref_color_item(QTableWidgetItem(_fmt_cell(row.get(col, ""), classification, col)), row, col)
                         )
 
 
@@ -9757,7 +10247,7 @@ class AnalysisPage(QWidget):
                             table.setItem(
                                 idx,
                                 c,
-                                QTableWidgetItem(_fmt_cell(row.get(col, ""), dataframe, col))
+                                _ref_color_item(QTableWidgetItem(_fmt_cell(row.get(col, ""), dataframe, col)), row, col)
                             )
 
 
@@ -9824,9 +10314,25 @@ class AnalysisPage(QWidget):
             )
 
 
+            # patch-cible : ligands egaux ou meilleurs que les inhibiteurs de reference
+            try:
+                _pf = result.get("pump_inhibitor_filter")
+                if _pf is not None and len(_pf) > 0:
+                    add_dual_table("Égaux ou meilleurs que les inhibiteurs", _pf)
+            except Exception as _exc:
+                print("Onglet inhibiteurs ignoré :", _exc)
+
+            # patch-references : onglet des references (rouge), hors classement
+            try:
+                _refs_df = result.get("references")
+                if _refs_df is not None and len(_refs_df) > 0:
+                    add_dual_table("Références", _refs_df)
+            except Exception as _exc:
+                print("Onglet références ignoré :", _exc)
+
             if (getattr(classification, "attrs", None) or {}).get("seuil_risque_absolu") is not None:  # patch-seuil
                 add_dual_table(
-                    "Exclus seuil piocyanine",
+                    "Exclus seuil " + str((getattr(classification, "attrs", None) or {}).get("ref_name") or "référence"),
                     excluded
                 )
 
@@ -10138,14 +10644,19 @@ class VisualizationPage(QWidget):
             # "MexB + MexR"), plutot que de se limiter a la cible
             # par defaut (MexB).
             hits = []
+            self._hit_load_notes = []
             for candidate_target in viz_bridge.known_target_labels():
-                if viz_bridge._results_csv(candidate_target).exists():
+                if not viz_bridge.target_has_docking_results(candidate_target):
+                    continue
+                try:
                     hits.extend(
                         viz_bridge.load_top_hits(
                             viz_bridge.AUTO_TOP_N,
                             target=candidate_target,
                         )
                     )
+                except Exception as exc:
+                    self._hit_load_notes.append(f"{candidate_target} : {exc}")
         except Exception as exc:
             self.batch_running = False
             self.batch_status.setText(f"Erreur au chargement des hits : {exc}")
@@ -10154,7 +10665,8 @@ class VisualizationPage(QWidget):
         if not hits:
             self.batch_running = False
             self.batch_status.setText(
-                "Aucun hit exploitable trouvé dans les résultats de docking."
+                f"Aucun hit exploitable trouvé (dossier cherché : {viz_bridge.BATCH_ROOT})."
+                + (" " + " | ".join(self._hit_load_notes) if self._hit_load_notes else "")
             )
             return
 
@@ -10189,7 +10701,7 @@ class VisualizationPage(QWidget):
         self.batch_running = False
         self.batch_progress.hide()
         self.hit_results = payload.get("results", {})
-        self.batch_errors = payload.get("errors", [])
+        self.batch_errors = list(getattr(self, "_hit_load_notes", [])) + list(payload.get("errors", []))
 
         rows = []
         for key, data in self.hit_results.items():
@@ -10224,6 +10736,18 @@ class VisualizationPage(QWidget):
                 self.lang_mgr.t("status_no_errors") if self.lang_mgr
                 else "Aucune erreur."
             )
+
+        _warns = payload.get("warnings", [])
+        if _warns:
+            _extra = (
+                "Avertissements (interactions conservées) :\n"
+                + "\n".join(_warns)
+            )
+            _current = self.plip_errors_label.text()
+            self.plip_errors_label.setText(
+                (_current + "\n\n" if self.batch_errors else "") + _extra
+            )
+            status_text += f" — {len(_warns)} diagramme(s) 2D indisponible(s)."
 
         self.batch_status.setText(status_text)
         self.export_all_button.setEnabled(bool(self.hit_results))
@@ -10298,6 +10822,25 @@ class VisualizationPage(QWidget):
         for col in range(5):
             table.horizontalHeader().setSectionResizeMode(col, QHeaderView.Stretch)
 
+        self.residues_receptor_combo = QComboBox()
+        self.residues_molecule_combo = QComboBox()
+        self._residues_all_rows = []
+
+        _filters = QHBoxLayout()
+        _filters.addWidget(self._t_label("viz_filter_receptor", "Récepteur"))
+        _filters.addWidget(self.residues_receptor_combo)
+        _filters.addSpacing(16)
+        _filters.addWidget(self._t_label("viz_filter_molecule", "Molécule"))
+        _filters.addWidget(self.residues_molecule_combo, 1)
+        layout.addLayout(_filters)
+
+        self.residues_receptor_combo.activated.connect(
+            self._on_residues_receptor_changed
+        )
+        self.residues_molecule_combo.activated.connect(
+            self._apply_residues_filter
+        )
+
         self.residues_table = table
 
         layout.addWidget(table, 1)
@@ -10310,7 +10853,95 @@ class VisualizationPage(QWidget):
 
         return scroll
 
+    def _tr_viz(self, key, fallback):
+        try:
+            if self.lang_mgr:
+                text = self.lang_mgr.t(key)
+                if text and text != key:
+                    return text
+        except Exception:
+            pass
+        return fallback
+
+    @staticmethod
+    def _split_hit_key(key):
+        key = str(key)
+        if " — " in key:
+            molecule, target = key.rsplit(" — ", 1)
+            return molecule, target
+        return key, ""
+
     def _populate_residues_table(self, rows):
+        if not hasattr(self, "residues_receptor_combo"):
+            self._populate_residues_table_raw(rows)
+            return
+
+        self._residues_all_rows = list(rows)
+
+        targets = []
+        for values in self._residues_all_rows:
+            target = self._split_hit_key(values[4])[1]
+            if target and target not in targets:
+                targets.append(target)
+
+        combo = self.residues_receptor_combo
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem(
+            self._tr_viz("viz_filter_all_receptors", "Tous les récepteurs"), None
+        )
+        for target in sorted(targets):
+            combo.addItem(target, target)
+        if targets:
+            combo.setCurrentIndex(1)
+        combo.blockSignals(False)
+
+        self._fill_residues_molecule_combo()
+        self._apply_residues_filter()
+
+    def _fill_residues_molecule_combo(self):
+        target = self.residues_receptor_combo.currentData()
+
+        molecules = []
+        for values in self._residues_all_rows:
+            molecule, row_target = self._split_hit_key(values[4])
+            if target and row_target != target:
+                continue
+            if molecule not in molecules:
+                molecules.append(molecule)
+
+        combo = self.residues_molecule_combo
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem(
+            self._tr_viz("viz_filter_all_molecules", "Toutes les molécules"), None
+        )
+        for molecule in sorted(molecules):
+            combo.addItem(molecule, molecule)
+        if molecules:
+            combo.setCurrentIndex(1)
+        combo.blockSignals(False)
+
+    def _on_residues_receptor_changed(self, _index=None):
+        self._fill_residues_molecule_combo()
+        self._apply_residues_filter()
+
+    def _apply_residues_filter(self, _index=None):
+        target = self.residues_receptor_combo.currentData()
+        molecule = self.residues_molecule_combo.currentData()
+
+        filtered = []
+        for values in self._residues_all_rows:
+            row_molecule, row_target = self._split_hit_key(values[4])
+            if target and row_target != target:
+                continue
+            if molecule and row_molecule != molecule:
+                continue
+            filtered.append(values)
+
+        self._populate_residues_table_raw(filtered)
+
+    def _populate_residues_table_raw(self, rows):
 
         table = self.residues_table
         table.setRowCount(0)
@@ -10752,57 +11383,56 @@ class ThemeBackground(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._theme_paths = sorted(
-            (Path(__file__).resolve().parents[2] / "image_theme").glob(
-                "*.jpg"
-            )
-        )
-        self._theme_index = (
-            GLASS_PREFERENCES["theme_index"] % len(self._theme_paths)
-            if self._theme_paths
-            else 0
-        )
+        from src.gui import background_library as _lib  # patch-fond
+        self._lib = _lib
         self._pixmap = QPixmap()
         self.setAttribute(Qt.WA_StyledBackground, True)
+        self._current = _lib.initial_choice(_PREFERENCES, _DEFAULT_THEME_PRESET)
         self._load_theme()
 
     def _load_theme(self):
-        if not self._theme_paths:
-            return
-        self._pixmap = QPixmap(str(self._theme_paths[self._theme_index]))
+        if self._current is None:
+            self._pixmap = QPixmap()
+        else:
+            self._pixmap = QPixmap(str(self._current))
         self.update()
 
-    def next_theme(self):
-        if not self._theme_paths:
-            return ""
-        self._theme_index = (self._theme_index + 1) % len(self._theme_paths)
-        GLASS_PREFERENCES["theme_index"] = self._theme_index
-        _PREFERENCES.setValue("theme/index", self._theme_index)
-        _PREFERENCES.sync()
+    def set_background(self, path):
+        """path : chemin d'une image, ou None pour aucune image."""
+        self._current = Path(path) if path else None
+        self._lib.save_choice(_PREFERENCES, self._current)
         self._load_theme()
         return self.current_theme_name()
+
+    def next_theme(self):
+        imgs = [p for p, _u in self._lib.list_images()]
+        if not imgs:
+            return ""
+        nxt = imgs[0]
+        if self._current is not None:
+            names = [p.resolve() for p in imgs]
+            try:
+                nxt = imgs[(names.index(Path(self._current).resolve()) + 1) % len(imgs)]
+            except ValueError:
+                nxt = imgs[0]
+        return self.set_background(nxt)
 
     def set_default_theme(self):
         """Remet le fond du theme par defaut (retenu par nom de fichier)."""
         name = (_DEFAULT_THEME_PRESET or {}).get("background")
-        names = [p.name for p in self._theme_paths]
-        if name not in names:
+        if not name:
             return
-        self._theme_index = names.index(name)
-        GLASS_PREFERENCES["theme_index"] = self._theme_index
-        _PREFERENCES.setValue("theme/index", self._theme_index)
-        _PREFERENCES.sync()
-        self._load_theme()
+        p = self._lib.builtin_dir() / name
+        if p.is_file():
+            self.set_background(p)
 
     def current_theme_name(self):
-        if not self._theme_paths:
-            return ""
-        return self._theme_paths[self._theme_index].stem
+        return self._current.stem if self._current is not None else ""
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-        painter.fillRect(self.rect(), QColor("#0b1219"))
+        painter.fillRect(self.rect(), _theme_color("base_color", "#0b1219"))
 
         if not self._pixmap.isNull() and self.width() and self.height():
             scale = max(
@@ -10843,9 +11473,7 @@ class MainWindow(QMainWindow):
         )
         self.lang_mgr.languageChanged.connect(self.retranslate_ui)
 
-        self.setWindowTitle(
-            "VINA Studio — Molecular Docking & Analysis"
-        )
+        self.setWindowTitle("VINA Studio")
 
         self.resize(1500, 900)
         self.setMinimumSize(1100, 700)
@@ -11072,11 +11700,25 @@ class MainWindow(QMainWindow):
             pass
 
     def _on_change_theme(self):
+        # patch-fond : menu de choix de l'image d'arriere-plan (liste + ajout)
         if self.theme_background is None:
             return
-        theme_name = self.theme_background.next_theme()
-        self.theme_action.setToolTip(self.lang_mgr.t("toolbar_theme_tooltip_applied", name=theme_name))
-        self.status.showMessage(self.lang_mgr.t("status_theme_applied", name=theme_name))
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QToolButton
+        pos = QCursor.pos()
+        try:
+            for w in self.theme_action.associatedObjects():
+                if isinstance(w, QToolButton):
+                    pos = w.mapToGlobal(w.rect().bottomLeft())
+                    break
+        except Exception:
+            pass
+        try:
+            from src.gui import background_library as _bl
+            _bl.show_menu(self, pos)
+        except Exception as exc:
+            print("Menu d'images ignore :", exc)
+            self.theme_background.next_theme()
 
     def _open_preferences(self):
         dialog = GlassPreferencesDialog(self)

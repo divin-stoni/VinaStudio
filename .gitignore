@@ -59,3 +59,15 @@ dev/patch*.py
 docking/ligands/
 DECLARATION_COAUTEUR_*
 _archive_pdbqt_raw/
+diag_2d/
+diag.txt
+image_theme_apercu.zip
+/_patch_import.py
+/_test_redocking.py
+/quick_themes.py
+/analysis_settings.json
+dev/diag_*.py
+/receptor_profiles/3w9j_clean_b.json
+*.backup*
+*broken_backup*
+pkgbuild/

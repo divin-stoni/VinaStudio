@@ -497,7 +497,7 @@ def homogeneity_of_slopes(
 
 
 def compute_si_and_classification(df, x_col="dg_mexb", y_col="dg_mexr",
-                                   seuil_risque_absolu=-8.289, ref_name="pyocyanine"):
+                                   seuil_risque_absolu=None, ref_name=None):
     out = df.copy()
 
     # ------------------------------------------------------------

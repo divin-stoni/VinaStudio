@@ -26,6 +26,11 @@ from PySide6.QtGui import QFont, QFontDatabase, QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
 from src.gui.main_window import MainWindow, APP_STYLE, COLORS, install_glass_proxy_style
+try:
+    from src.gui import tips as _tips
+    _tips.hook_main_window(MainWindow)
+except Exception as _exc:  # les astuces ne doivent jamais empecher le demarrage
+    print("Astuces desactivees :", _exc)
 
 
 def main():

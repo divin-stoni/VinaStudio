@@ -25,6 +25,49 @@ _DYNAMIC_CYCLE = [
 ]
 _DYNAMIC_COLORS = {}
 
+# patch-references : references (inhibiteurs) en rouge, candidats en bleu
+REF_COLOR = "#E3172D"
+CAND_COLOR = "#2F6FDB"
+
+
+def _valid_pair(a, b):
+    try:
+        return a is not None and b is not None and a == a and b == b
+    except Exception:
+        return False
+
+
+def _scatter_refs(ax, refs, xk, yk, label=True):
+    """Losanges rouges etiquetes pour les references. True si quelque chose est dessine."""
+    pts = [(r.get(xk), r.get(yk), r.get("nom_reference", "")) for r in (refs or [])]
+    pts = [p for p in pts if _valid_pair(p[0], p[1])]
+    if not pts:
+        return False
+    ax.scatter([p[0] for p in pts], [p[1] for p in pts], marker="D", s=75,
+               color=REF_COLOR, edgecolor="black", linewidth=0.8, zorder=6,
+               label="Références" if label else None)
+    for p in pts:
+        ax.annotate(str(p[2]), (p[0], p[1]), textcoords="offset points",
+                    xytext=(5, 5), fontsize=7, color=REF_COLOR)
+    return True
+
+
+def _draw_reference_lines(ax, refs, key):
+    """Lignes verticales rouges etiquetees pour les references (histogramme du SI)."""
+    first = True
+    ytop = ax.get_ylim()[1]
+    for r in (refs or []):
+        v = r.get(key)
+        if not _valid_pair(v, v):
+            continue
+        ax.axvline(float(v), color=REF_COLOR, linestyle="--", linewidth=1.4,
+                   label="Références" if first else None)
+        ax.text(float(v), ytop * 0.97, " " + str(r.get("nom_reference", "")),
+                rotation=90, va="top", ha="right", fontsize=7, color=REF_COLOR)
+        first = False
+    if not first:
+        ax.legend(fontsize=8, loc="upper left")
+
 
 def _color_for(g):
     # patch-libelles : une couleur distincte par famille, meme a nom libre
@@ -55,6 +98,7 @@ def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
     _yl = df.attrs.get("y_label", "MexR")
     ax.set_xlabel("ΔG(" + _xl + ") (kcal/mol)")
     ax.set_ylabel("ΔG(" + _yl + ") (kcal/mol)")
+    _scatter_refs(ax, df.attrs.get("references"), x_col, y_col)
     ax.set_title("Corrélation ΔG(" + _xl + ") – ΔG(" + _yl + ") par famille")
     ax.legend(fontsize=8, loc="best")
     ax.grid(alpha=0.25)
@@ -65,8 +109,9 @@ def fig_scatter_corr(df, x_col="dg_mexb", y_col="dg_mexr", group_col="groupe"):
 def fig_histogram_si(df_classified, si_col="SI_calc", group_col="groupe"):
     fig = Figure(figsize=(7, 5), dpi=110)
     ax = fig.add_subplot(111)
-    ax.hist(df_classified[si_col], bins=25, color="#4C72B0", edgecolor="white", alpha=0.9)
+    ax.hist(df_classified[si_col], bins=25, color=CAND_COLOR, edgecolor="white", alpha=0.9)
     seuil = df_classified.attrs.get("seuil_risque_absolu")
+    _draw_reference_lines(ax, df_classified.attrs.get("references"), si_col)
     ax.set_xlabel("Indice de sélectivité SI = ΔG(" + df_classified.attrs.get("y_label", "MexR") + ") − ΔG(" + df_classified.attrs.get("x_label", "MexB") + ")")  # patch-libelles : SI
     ax.set_ylabel("Nombre de composés")
     ax.set_title("Distribution de l'indice de sélectivité (SI)")
@@ -270,6 +315,10 @@ def fig_percentile_scatter(df_classified, si_col="SI_calc", pct_col="percentile_
     from matplotlib.patches import Patch
     handles = [Patch(color="#55A868", label="Favorable"),
                Patch(color="#C44E52", label="À risque")]
+    if _scatter_refs(ax, df_classified.attrs.get("references"), pct_col, si_col, label=False):
+        from matplotlib.lines import Line2D
+        handles.append(Line2D([0], [0], marker="D", color="w", markerfacecolor=REF_COLOR,
+                              markeredgecolor="black", markersize=8, label="Référence"))
     ax.legend(handles=handles, fontsize=8)
     fig.tight_layout()
     return fig

@@ -390,9 +390,81 @@ def to_html(advices, phrase="", level="info", max_items=9) -> str:
 
 
 # -------------------------------------------------------------- validation
+def _history_dir():
+    return VALIDATION_DIR / "historique"
+
+
+def _safe_id(profile_id):
+    s = str(profile_id or "")
+    if not s or s in (".", "..") or "/" in s or chr(92) in s:
+        raise ValueError("identifiant de profil invalide : %r" % (profile_id,))
+    return s
+
+
+def _archive_previous_validation(profile_id, current):
+    """Copie l'ancien resultat dans historique/<id>/ avant de l'ecraser.
+
+    <id>.json reste toujours le dernier resultat ; l'historique n'est lu
+    par aucune analyse.
+    """
+    try:
+        if not current.exists():
+            return None
+        from datetime import datetime as _d
+        stamp = ""
+        try:
+            old = json.loads(current.read_text(encoding="utf-8"))
+            stamp = str(old.get("date", ""))
+        except Exception:
+            stamp = ""
+        if not stamp:
+            stamp = _d.fromtimestamp(current.stat().st_mtime).isoformat(timespec="seconds")
+        stamp = stamp.replace(":", "").replace("-", "").replace("T", "_")
+        d = _history_dir() / _safe_id(profile_id)
+        d.mkdir(parents=True, exist_ok=True)
+        dest = d / f"{stamp}.json"
+        n = 2
+        while dest.exists():
+            dest = d / f"{stamp}_{n}.json"
+            n += 1
+        dest.write_text(current.read_text(encoding="utf-8"), encoding="utf-8")
+        return dest
+    except Exception:
+        return None
+
+
+def list_validation_history(profile_id):
+    """Anciens re-dockings d'un recepteur, du plus recent au plus ancien."""
+    d = _history_dir() / _safe_id(profile_id)
+    if not d.is_dir():
+        return []
+    return sorted(d.glob("*.json"), reverse=True)
+
+
+def purge_receptor_data(profile_id, trash_dir, stamp):
+    """Deplace dans la corbeille les references, la validation et l'historique."""
+    import shutil as _sh
+    from src import reference_inhibitors as _ri
+    pid = _safe_id(profile_id)
+    dest = Path(trash_dir) / f"{pid}__{stamp}__donnees"
+    moved = []
+    items = [
+        (Path(_ri.OUT_ROOT) / pid, "references"),
+        (VALIDATION_DIR / f"{pid}.json", "validation.json"),
+        (_history_dir() / pid, "historique"),
+    ]
+    for src, name in items:
+        if src.exists():
+            dest.mkdir(parents=True, exist_ok=True)
+            _sh.move(str(src), str(dest / name))
+            moved.append(name)
+    return moved
+
+
 def save_validation(profile_id, data: dict) -> Path:
     VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
     p = VALIDATION_DIR / f"{profile_id}.json"
+    _archive_previous_validation(profile_id, p)
     p.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     return p
 

@@ -103,7 +103,44 @@ def known_target_labels() -> list:
 
     return labels
 
-BATCH_ROOT = PROJECT_ROOT / "docking" / "results" / "batch_vina_engine"
+def _resolve_batch_root() -> Path:
+    """Dossier des résultats de docking, quel que soit le mode de lancement.
+
+    Le dépôt de développement écrit sous src/docking/results/..., le logiciel
+    empaqueté sous docking/results/... On prend le dossier qui contient des
+    poses dockées ; à défaut, le premier qui existe.
+    """
+    candidates = [
+        PROJECT_ROOT / "docking" / "results" / "batch_vina_engine",
+        PROJECT_ROOT / "src" / "docking" / "results" / "batch_vina_engine",
+    ]
+    def _count(path):
+        try:
+            return sum(1 for _ in path.glob("*/individual/*_out.pdbqt"))
+        except Exception:
+            return 0
+
+    # Par défaut : le dossier où le moteur de docking écrit (racine du projet).
+    best = candidates[0]
+    best_count = _count(best)
+    for candidate in candidates[1:]:
+        count = _count(candidate)
+        if count > best_count:
+            best, best_count = candidate, count
+    return best
+
+
+BATCH_ROOT = _resolve_batch_root()
+
+
+def target_has_docking_results(target: str) -> bool:
+    """Vrai si la cible a des poses dockées. Le CSV de scores n'est pas
+    requis : load_top_hits relit les scores dans les PDBQT s'il manque."""
+    try:
+        ligands = _ligands_dir(target)
+        return ligands.is_dir() and any(ligands.glob("*_out.pdbqt"))
+    except Exception:
+        return False
 
 PLIP_WORKDIR_ROOT = PROJECT_ROOT / "visualization_results" / "plip"
 
@@ -336,9 +373,30 @@ def _parse_plip_interactions(xml_path: Path) -> list[dict]:
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
+    # Seuls les sites du ligand docké (UNL) comptent : PLIP crée aussi un
+    # site pour chaque résidu modifié ou ion du récepteur (ex. MSE).
+    sites = root.findall(".//bindingsite")
+    if sites:
+        ligand_sites = [
+            site for site in sites
+            if (site.findtext(".//hetid") or "").strip() == "UNL"
+        ]
+        if not ligand_sites:
+            found = sorted({(s.findtext(".//hetid") or "").strip() for s in sites})
+            raise RuntimeError(
+                f"Aucun site de liaison PLIP pour le ligand docké (UNL) "
+                f"dans {xml_path}. Sites trouvés : {found}."
+            )
+    else:
+        ligand_sites = [root]
+
+    categories = []
+    for site in ligand_sites:
+        categories.extend(site.findall(".//interactions/*"))
+
     rows = []
 
-    for category in root.findall(".//interactions/*"):
+    for category in categories:
         label = _category_label(category.tag)
 
         for interaction_elem in category:
@@ -512,6 +570,7 @@ class BatchWorker(QObject):
     def run(self):
         results = {}
         errors = []
+        soft_warnings = []
         total = len(self.hits)
 
         for index, hit in enumerate(self.hits, start=1):
@@ -529,26 +588,34 @@ class BatchWorker(QObject):
                 output_png = _diagrams_dir(hit.target) / hit.molecule / f"{hit.molecule}_interaction_2d.png"
                 output_png.parent.mkdir(parents=True, exist_ok=True)
 
-                render_2d_diagram(
-                    _plip_report_xml(hit.target, hit.molecule),
-                    _plip_complex_pdb(hit.target, hit.molecule),
-                    output_png,
-                    hit.molecule,
-                )
+                diagram_path = str(output_png)
+                try:
+                    render_2d_diagram(
+                        _plip_report_xml(hit.target, hit.molecule),
+                        _plip_complex_pdb(hit.target, hit.molecule),
+                        output_png,
+                        hit.molecule,
+                    )
+                except Exception as diagram_exc:
+                    diagram_path = ""
+                    soft_warnings.append(
+                        f"{hit.molecule} ({hit.target}) : diagramme 2D indisponible, "
+                        f"interactions conservées ({diagram_exc})"
+                    )
 
                 key = hit_result_key(hit.target, hit.molecule)
                 results[key] = {
                     "interactions": interactions,
-                    "diagram": str(output_png),
+                    "diagram": diagram_path,
                     "complex": str(_plip_complex_pdb(hit.target, hit.molecule)),
                     "target": hit.target,
                     "molecule": hit.molecule,
                 }
 
             except Exception as exc:
-                errors.append(f"{hit.molecule} : {exc}")
+                errors.append(f"{hit.molecule} ({hit.target}) : {exc}")
 
-        self.finished.emit({"results": results, "errors": errors})
+        self.finished.emit({"results": results, "errors": errors, "warnings": soft_warnings})
 
 
 # ============================================================================

@@ -194,9 +194,25 @@ class PdbImportDialog(QDialog):
         self._report = report
         self.setWindowTitle("Importer un récepteur : fiche de la structure")
         self.setMinimumWidth(800)
-
-        lay = QVBoxLayout(self)
+        from PySide6.QtGui import QGuiApplication
+        from PySide6.QtWidgets import QFrame, QScrollArea, QWidget
+        scr = QGuiApplication.primaryScreen()
+        max_h = int(scr.availableGeometry().height() * 0.9) if scr else 720
+        self.resize(860, min(720, max_h))
+        outer = QVBoxLayout(self)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("QScrollArea { background: transparent; }")
+        scroll.viewport().setAutoFillBackground(False)
+        body = QWidget()
+        body.setObjectName("pdbImportBody")
+        body.setStyleSheet("#pdbImportBody { background: transparent; }")
+        lay = QVBoxLayout(body)
         lay.setSpacing(10)
+        scroll.setWidget(body)
+        outer.addWidget(scroll, 1)
 
         self.card = QLabel(_card_html(report))
         self.card.setTextFormat(Qt.RichText)
@@ -313,7 +329,7 @@ class PdbImportDialog(QDialog):
         buttons.button(QDialogButtonBox.Cancel).setText("Annuler")
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        lay.addWidget(buttons)
+        outer.addWidget(buttons)
 
     def _apply_recommended(self, initial=False):
         rep = self._report
