@@ -1,5 +1,8 @@
 # VinaStudio
 
+[![Tests](https://github.com/divin-stoni/VinaStudio/actions/workflows/tests.yml/badge.svg)](https://github.com/divin-stoni/VinaStudio/actions/workflows/tests.yml)
+[![License: GPL v2+](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE)
+
 VinaStudio is an advanced desktop application designed for streamlined virtual molecular docking and multi-target selectivity analysis, specifically tailored for the **MexAB/MexR efflux system** in *Pseudomonas aeruginosa*.
 
 ## Key Features
