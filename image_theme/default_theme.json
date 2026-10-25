@@ -74,5 +74,23 @@
     "tab_radius": "12",
     "tab_shimmer": "true",
     "title_size": "17"
+  },
+  "extra": {
+    "theme/ambient_alpha": "20",
+    "theme/button_alpha": "23",
+    "theme/button_color": "#b5835a",
+    "theme/global_alpha": "10",
+    "theme/glow_strength": "0",
+    "theme/pastel_strength": "0",
+    "theme/popup_alpha": "62",
+    "theme/popup_blur": "24",
+    "theme/radius": "8",
+    "theme/reflection_alpha": "76",
+    "theme/refractive_index": "1.47",
+    "theme/scrollbar_color": "#ffffff",
+    "theme/status_color": "#ffffff",
+    "theme/tab_alpha": "69",
+    "theme/tab_color": "#865e3c",
+    "theme/text_color": "#ffffff"
   }
 }

@@ -115,6 +115,17 @@ def thumbnail(path):
     return QPixmap.fromImage(img)
 
 
+def _has_legacy_index(settings):
+    """Ancien réglage numérique (theme/index) : présent seulement chez les anciens utilisateurs."""
+    try:
+        return settings.contains("theme/index")
+    except Exception:
+        try:
+            return settings.value("theme/index", None) is not None
+        except Exception:
+            return False
+
+
 def initial_choice(settings, preset):
     """Image de depart : choix memorise (par nom), sinon ancien numero, sinon theme par defaut."""
     key = settings.value("theme/background_key", None)
@@ -126,7 +137,7 @@ def initial_choice(settings, preset):
         p = (user_dir() if kind == "u" else builtin_dir()) / name
         if name and p.is_file():
             return p
-    else:
+    elif _has_legacy_index(settings):
         old = sorted(builtin_dir().glob("*.jpg"))
         try:
             idx = int(settings.value("theme/index", 0))

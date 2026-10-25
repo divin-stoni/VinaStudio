@@ -721,6 +721,8 @@ def _seed_default_theme(settings):
         preset = _seed_json.loads(preset_file.read_text(encoding="utf-8"))
         for key, value in (preset.get("glass") or {}).items():
             settings.setValue("glass/" + key, value)
+        for key, value in (preset.get("extra") or {}).items():
+            settings.setValue(key, value)
         names = [p.name for p in sorted(root.glob("*.jpg"))]
         background = preset.get("background")
         if background in names:
