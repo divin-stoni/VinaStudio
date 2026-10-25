@@ -1,37 +1,36 @@
-# VinaStudio
+---
+title: 'VinaStudio: An Integrated Desktop Workflow for Virtual Screening and Selectivity Analysis in MexAB/MexR Efflux Systems'
+authors:
+  - name: Divin Stoni MBANIMI
+    affiliation: 1
+  - name: Cyr Abraham YONDZA KOUMBA
+    affiliation: 1
+  - name: N'TOLLAUD Challenge Providence
+    affiliation: 1
+affiliations:
+  - name: Master 2 Biotechnology and Health, UM6SS
+    index: 1
+date: 25 October 2026
+---
 
-## Summary
+# Summary
 
-VinaStudio is a Python/PySide6 desktop application for virtual molecular docking and dual-target selectivity analysis in MexAB/MexR-related studies. It supports ligand preparation, AutoDock Vina docking, scientific result fusion, interaction analysis, and session-based export workflows.
+VinaStudio is an integrated Python/PySide6 desktop application designed to streamline virtual molecular docking and multi-target selectivity analysis, specifically tailored for the MexAB/MexR efflux pump system in *Pseudomonas aeruginosa*. Unlike conventional docking tools that focus solely on binding affinity, VinaStudio implements a unique "dual-target" filtering logic, simultaneously evaluating ligands against both efflux pump targets and regulatory sites. By integrating ligand preparation, AutoDock Vina-based docking, statistical analysis, and structural interaction visualization into a single reproducible workflow, VinaStudio reduces the friction between raw computational output and meaningful biological hypothesis generation.
 
-## Statement of need
+# Statement of need
 
-Virtual screening pipelines often require a combination of docking execution, scientific result harmonization, and downstream analysis of selectivity. VinaStudio aims to provide a compact research workflow that links docking output, receptor profile management, and scientific filtering in a single graphical application, reducing friction between raw docking results and downstream hypothesis generation.
+Virtual screening pipelines in pharmacology often require fragmented workflows involving separate tools for ligand preparation, docking execution, post-processing of results, and statistical analysis. This fragmentation complicates the analysis of selectivity, particularly in efflux systems where a therapeutic candidate must satisfy affinity constraints for both the efflux pump and its regulatory mechanism to be truly effective. Researchers currently lack a unified, user-friendly environment that links these steps while preserving data provenance. VinaStudio addresses this need by providing a compact, GUI-based research workflow that normalizes docking outputs, calculates selectivity indices, and supports comparative analysis, thereby enabling researchers to shift their focus from technical orchestration to biological interpretation.
 
-## Features
+# Key Features
 
-- ligand preparation from SDF inputs
-- receptor/profile management for target-based docking
-- AutoDock Vina execution and result parsing
-- scientific fusion of docking outputs into a consistent analysis table
-- selectivity and correlation analyses for dual-target workflows
-- PLIP and interaction visualization support
-- session export and reproducible data organization
+- **Integrated Workflow:** Seamless transition from raw SDF/phytochemical input preparation to final scientific reports.
+- **Dual-Target Selectivity Engine:** Built-in support for "pump+regulator" campaigns, calculating selectivity indices and facilitating multi-target hypothesis generation.
+- **Robust Docking Engine:** Automation of AutoDock Vina configurations, grid-box management, and result parsing.
+- **Advanced Post-Processing:** Automated statistical pipelines, including Pearson/Spearman correlations and bootstrap confidence intervals, to validate selectivity claims.
+- **Structural Interpretation:** Integrated 3D visualization using PLIP and pocket detection via `fpocket` to bridge the gap between quantitative docking scores and structural mechanisms.
+- **Reproducibility:** Native session management to track all intermediate data and configuration parameters, ensuring experiment transparency.
 
-## Scientific context
+# Acknowledgments
 
-The project targets MexAB/MexR-associated efflux biology in Pseudomonas aeruginosa, where a compound may need to satisfy both pump-target and regulator-target constraints rather than a single affinity criterion alone.
+This work was developed by the lead author, Divin Stoni MBANIMI, with contributions from co-authors and testers Cyr Abraham YONDZA KOUMBA and N'TOLLAUD Challenge Providence, in the context of the M2 Biotechnology and Health program at UM6SS.
 
-## Acknowledgments
-
-The project was developed by Divin Stoni MBANIMI as the lead author, with Cyr Abraham YONDZA KOUMBA and N'TOLLAUD Challenge Providence contributing as co-authors and testers on Windows 11 and Windows 10 respectively. The work is being developed in the context of the M2 Biotechnology and Health program at UM6SS.
-
-## Authors
-
-- Divin Stoni MBANIMI
-- Cyr Abraham YONDZA KOUMBA
-- N'TOLLAUD Challenge Providence
-
-## Institutional context
-
-This work is part of the M2 Biotechnology and Health training at UM6SS.
