@@ -9,8 +9,7 @@ abstract: >-
 
 version: 0.1.0
 
-license: MIT
-
+license: GPL-2.0-or-later
 authors:
   - family-names: "MBANIMI"
     given-names: "Divin Stoni"
@@ -54,5 +53,5 @@ preferred-citation:
       affiliation: "UM6SS, M2 Biotechnology and Health"
       role: "Contributor and tester on Windows 10"
   version: 0.1.0
-  license: MIT
+  license: GPL-2.0-or-later
   repository-code: "https://github.com/divin-stoni/VinaStudio"

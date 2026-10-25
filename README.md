@@ -28,4 +28,4 @@ If you use VinaStudio in your research, please cite:
 Divin Stoni MBANIMI, et al. (2026). VinaStudio: An Integrated Desktop Workflow for Virtual Screening and Selectivity Analysis.
 
 ## License
-VinaStudio is distributed under the MIT License.
+VinaStudio is distributed under the GNU General Public License, version 2 or (at your option) any later version (GPL-2.0-or-later). See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
