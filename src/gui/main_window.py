@@ -11568,7 +11568,7 @@ class MainWindow(QMainWindow):
                 self.visualization_page.export_all_button.setText(t("viz_btn_export_all"))
                 _eb = getattr(self, "_export_everything_button", None)
                 if _eb is not None:
-                    _eb.setText(t("viz_btn_export_all"))
+                    _eb.setText(_export_everything.label())
             if hasattr(self.visualization_page, "retranslate_subtabs"):
                 self.visualization_page.retranslate_subtabs()
 
@@ -12423,6 +12423,7 @@ try:
         except ImportError:
             from gui import export_everything as _export_everything
     _export_everything.install(MainWindow)
+    _export_everything.install_pipeline(DockingPage, AnalysisPage, VisualizationPage)
 except Exception as _export_exc:  # ne doit jamais empêcher le démarrage
     print("[EXPORT] bouton unique non installé :", _export_exc)
 
