@@ -635,7 +635,16 @@ def _gen3d_local(blocks, diag=None):
     return out
 
 
-def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
+def _notify(progress, stage, detail=""):
+    if progress is None:
+        return
+    try:
+        progress(stage, detail)
+    except Exception:
+        pass
+
+
+def pubchem_download_sdf_batch(cids, out_file, batch_size=100, progress=None):
     """Telecharge en lot les SDF 3D PubChem (record_type=3d) et les concatene
     dans out_file. CID sans 3D : 2D PubChem puis 3D generee localement.
     Ecrit aussi <out_file>_rapport.txt (CID, statut)."""
@@ -645,10 +654,12 @@ def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
     diag = []
     for i in range(0, len(cids), batch_size):
         batch = cids[i:i + batch_size]
+        _notify(progress, "download", "lot %d/%d" % (i // batch_size + 1, (len(cids) + batch_size - 1) // batch_size))
         found = _pubchem_fetch_blocks(batch, "3d")
         native.update(found)
         missing = [c for c in batch if c not in found]
         if missing:
+            _notify(progress, "gen3d", "%d molécule(s)" % len(missing))
             flat = _pubchem_fetch_blocks(missing, "2d")
             generated.update(_gen3d_local(flat, diag))
         time.sleep(0.3)
@@ -660,6 +671,7 @@ def pubchem_download_sdf_batch(cids, out_file, batch_size=100):
         raise PhytoNetworkError(
             "PubChem : aucune structure disponible pour ces CID ("
             + ", ".join(str(c) for c in cids[:10]) + ").", status=404)
+    _notify(progress, "write", "")
     rapport = ["CID\tstatut"]
     with out_file.open("wb") as fh:
         for c in cids:

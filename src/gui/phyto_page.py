@@ -351,6 +351,106 @@ def _size_class(ha):
     return "vert"
 
 
+from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from PySide6.QtWidgets import QApplication, QDialog, QLabel, QProgressBar, QVBoxLayout
+
+
+class _ProgressBridge(QObject):
+    message = Signal(str)
+
+
+class _ProgressDialog(QDialog):
+    STAGES = [
+        ("download", "Téléchargement des structures depuis PubChem"),
+        ("gen3d", "Récupération 2D et génération des structures 3D manquantes"),
+        ("write", "Assemblage du fichier groupé"),
+        ("split", "Découpe en fichiers individuels"),
+        ("index", "Calcul des tailles et écriture de l'index"),
+    ]
+
+    def __init__(self, parent=None, total=0):
+        super().__init__(parent)
+        self.setWindowTitle("Traitement en cours")
+        self.setModal(True)
+        self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowTitleHint)
+        self.setMinimumWidth(500)
+        self._idx = 0
+        self._detail = ""
+        self._seen = set()
+        self._dots = 0
+        lay = QVBoxLayout(self)
+        lay.setSpacing(12)
+        self._title = QLabel()
+        self._title.setTextFormat(Qt.TextFormat.RichText)
+        lay.addWidget(self._title)
+        bar = QProgressBar()
+        bar.setRange(0, 0)
+        bar.setTextVisible(False)
+        lay.addWidget(bar)
+        self._steps = QLabel()
+        self._steps.setTextFormat(Qt.TextFormat.RichText)
+        lay.addWidget(self._steps)
+        note = QLabel("Cela peut durer de quelques secondes à quelques minutes. "
+                      "Ne fermez pas le logiciel.")
+        note.setWordWrap(True)
+        note.setStyleSheet("color: #888;")
+        lay.addWidget(note)
+        self._total = total
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self._tick)
+        self._timer.start(400)
+        self._render()
+
+    def reject(self):
+        pass
+
+    def _tick(self):
+        self._dots = (self._dots + 1) % 4
+        self._render()
+
+    def set_stage(self, stage, detail=""):
+        keys = [k for k, _ in self.STAGES]
+        if stage not in keys:
+            return
+        i = keys.index(stage)
+        if i <= 1 and self._idx <= 1:
+            self._idx = i
+        else:
+            self._idx = max(self._idx, i)
+        self._seen.add(stage)
+        if i == self._idx:
+            self._detail = detail
+        self._render()
+
+    def _render(self):
+        dots = "." * self._dots
+        head = "<b>Veuillez patienter</b>" + dots
+        if self._total:
+            head += "<br><span style='color:#888;'>%d molécule(s) à traiter</span>" % self._total
+        self._title.setText(head)
+        rows = []
+        for j, (key, label) in enumerate(self.STAGES):
+            if j < self._idx:
+                if key == "gen3d" and "gen3d" not in self._seen:
+                    rows.append("<span style='color:#888;'>–&nbsp; %s (non nécessaire)</span>" % label)
+                else:
+                    rows.append("<span style='color:#2e7d4f;'>✓</span>&nbsp; %s" % label)
+            elif j == self._idx:
+                extra = (" &nbsp;<span style='color:#888;'>%s</span>" % self._detail) if self._detail else ""
+                rows.append("<b>●&nbsp; %s%s%s</b>" % (label, extra, dots))
+            else:
+                rows.append("<span style='color:#888;'>○&nbsp; %s</span>" % label)
+        self._steps.setText("<br>".join(rows))
+
+    def finish(self):
+        try:
+            self._timer.stop()
+            self.hide()
+            self.deleteLater()
+        except Exception:
+            pass
+
+
 class PhytoPage(QWidget):
     def __init__(self, lang_mgr=None, parent=None):
         super().__init__(parent)
@@ -1107,14 +1207,16 @@ class PhytoPage(QWidget):
         self.plant_name_label.setText(
             self._t("phyto_downloading", "Téléchargement PubChem en cours : ")
             + str(len(cids)) + " CID...")
+        self._open_progress(len(cids))
         self._run_async(
-            phyto_api.pubchem_download_sdf_batch,
+            self._download_with_progress,
             lambda path: self._on_family_downloaded(path, out_dir, safe_name),
             cids, out_file,
             on_fail=self._on_download_failed,
         )
 
     def _on_download_failed(self, kind, message):
+        self._close_progress()
         self._update_download_button()
         self.plant_name_label.setText(self._info_text)
         self._on_generic_error(kind, message)
@@ -1174,17 +1276,58 @@ class PhytoPage(QWidget):
         except Exception as _exc:
             print('[PHYTO] index CSV non écrit :', _exc)
 
+    # ---- fenêtre de progression -------------------------------------------
+
+    def _open_progress(self, total):
+        self._close_progress()
+        self._progress_bridge = _ProgressBridge()
+        self._progress_bridge.message.connect(self._on_progress_msg)
+        self._progress_dlg = _ProgressDialog(self.window(), total)
+        self._progress_dlg.show()
+        QApplication.processEvents()
+
+    def _download_with_progress(self, cids, out_file):
+        return phyto_api.pubchem_download_sdf_batch(cids, out_file, progress=self._progress_cb)
+
+    def _progress_cb(self, stage, detail=""):
+        try:
+            self._progress_bridge.message.emit(str(stage) + "|" + str(detail))
+        except Exception:
+            pass
+
+    def _on_progress_msg(self, text):
+        dlg = getattr(self, "_progress_dlg", None)
+        if dlg is not None:
+            stage, _, detail = text.partition("|")
+            dlg.set_stage(stage, detail)
+
+    def _progress_step(self, stage, detail=""):
+        dlg = getattr(self, "_progress_dlg", None)
+        if dlg is not None:
+            dlg.set_stage(stage, detail)
+            QApplication.processEvents()
+
+    def _close_progress(self):
+        dlg = getattr(self, "_progress_dlg", None)
+        self._progress_dlg = None
+        if dlg is not None:
+            dlg.finish()
+
     def _split_and_report(self, sdf_path, out_dir, prefix, done_msg):
         try:
+            self._progress_step("split")
             pairs = split_sdf_by_cid(sdf_path, out_dir, prefix)
             result = [p for _, p in pairs]
+            self._progress_step("index")
             self._write_cid_index(pairs, out_dir, prefix)
         except Exception as exc:
+            self._close_progress()
             QMessageBox.warning(
                 self, self._t("phyto_error_title", "Erreur"),
                 "Extraction SDF impossible (" + str(exc) + "). "
                 "Fichier SDF groupé disponible ici : " + str(sdf_path))
             return
+        self._close_progress()
         msg = done_msg
         if isinstance(result, (list, tuple, set, dict)):
             msg += "\n" + str(len(result)) + " " + self._t("phyto_files_extracted", "fichier(s) extrait(s).")
@@ -1324,14 +1467,16 @@ class PhytoPage(QWidget):
         safe_name = (re.sub(r"[^\w\-]+", "_", base).strip("_") or "molecule") + "_CID" + str(mol["cid"])
         out_file = out_dir / (safe_name + "_batch.sdf")
         self.btn_other_download.setEnabled(False)
+        self._open_progress(1)
         self._run_async(
-            phyto_api.pubchem_download_sdf_batch,
+            self._download_with_progress,
             lambda path: self._on_other_downloaded(path, out_dir, safe_name),
             [mol["cid"]], out_file,
             on_fail=self._on_other_download_failed,
         )
 
     def _on_other_download_failed(self, kind, message):
+        self._close_progress()
         self.btn_other_download.setEnabled(True)
         self._on_generic_error(kind, message)
 
