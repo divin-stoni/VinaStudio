@@ -295,6 +295,62 @@ def _make_table(headers, first_stretch=True):
     return table
 
 
+# Seuils de taille (atomes lourds), d'après le test de docking : jusqu'à 43 atomes
+# (15 torsions) le docking aboutit ; à 65 atomes (24 torsions) il dépasse 7 minutes.
+# Provisoires : rien n'a été mesuré entre les deux.
+SIZE_ORANGE_HA = 46
+SIZE_RED_HA = 65
+
+
+def _sdf_metrics(path):
+    """(poids moléculaire, liaisons rotatives, atomes lourds) d'un SDF ; None si inconnu."""
+    import re
+    try:
+        text = Path(path).read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return None, None, None
+
+    def prop(name):
+        m = re.search(r">\s*<" + name + r">\s*\r?\n\s*([^\r\n]+)", text)
+        return m.group(1).strip() if m else None
+
+    mw = rb = ha = None
+    try:
+        v = prop("PUBCHEM_MOLECULAR_WEIGHT")
+        mw = float(v) if v else None
+        v = prop("PUBCHEM_CACTVS_ROTATABLE_BOND")
+        rb = int(v) if v else None
+        v = prop("PUBCHEM_HEAVY_ATOM_COUNT")
+        ha = int(v) if v else None
+    except ValueError:
+        mw = rb = ha = None
+    if mw is None or rb is None or ha is None:
+        try:
+            from rdkit import Chem, RDLogger
+            from rdkit.Chem import Descriptors, rdMolDescriptors
+            RDLogger.DisableLog("rdApp.*")
+            mol = next((m for m in Chem.SDMolSupplier(str(path), removeHs=False) if m is not None), None)
+            if mol is not None:
+                frags = Chem.GetMolFrags(mol, asMols=True)
+                g = max(frags, key=lambda x: x.GetNumHeavyAtoms())
+                mw = mw if mw is not None else float(Descriptors.MolWt(g))
+                rb = rb if rb is not None else int(rdMolDescriptors.CalcNumRotatableBonds(g))
+                ha = ha if ha is not None else int(g.GetNumHeavyAtoms())
+        except Exception:
+            pass
+    return mw, rb, ha
+
+
+def _size_class(ha):
+    if ha is None:
+        return "inconnu"
+    if ha >= SIZE_RED_HA:
+        return "rouge"
+    if ha >= SIZE_ORANGE_HA:
+        return "orange"
+    return "vert"
+
+
 class PhytoPage(QWidget):
     def __init__(self, lang_mgr=None, parent=None):
         super().__init__(parent)
@@ -846,6 +902,7 @@ class PhytoPage(QWidget):
 
         usage_key = match.get("usageKey")
         self._current_usage_key = usage_key
+        self._current_plant_name = canonical
         self.plant_image.set_placeholder(
             self._t("phyto_image_loading", "Recherche de l'image de référence..."))
         self._run_async(
@@ -972,6 +1029,10 @@ class PhytoPage(QWidget):
             str(len(compounds)) + " " + self._t("phyto_molecules_count", "molécule(s) dans")
             + " " + str(len(self._current_families))
             + " " + self._t("phyto_families_count", "famille(s)."))
+        if len(compounds) >= 490:
+            lines.append(self._t(
+                "phyto_truncated",
+                "⚠ Liste probablement incomplète : LOTUS limite chaque requête à 500 lignes."))
         self._set_info("\n".join(lines))
 
         for family, mols in self._current_families.items():
@@ -1090,15 +1151,28 @@ class PhytoPage(QWidget):
             index_path = Path(out_dir) / (str(prefix) + "_index.csv")
             with index_path.open("w", encoding="utf-8-sig", newline="") as fh:
                 writer = csv.writer(fh, delimiter=";")
-                writer.writerow(["cid", "nom", "famille", "fichier"])
+                self._last_size_counts = {"vert": 0, "orange": 0, "rouge": 0, "inconnu": 0}
+                writer.writerow(["cid", "nom", "famille", "fichier", "plante",
+                                 "poids_moleculaire", "liaisons_rotatives", "atomes_lourds", "taille"])
                 for cid, path in pairs:
                     try:
                         key = int(cid)
                     except (TypeError, ValueError):
                         key = None
-                    writer.writerow([cid or "", names.get(key, ""), families.get(key, ""), Path(path).name])
-        except Exception:
-            pass
+                    _mw, _rb, _ha = _sdf_metrics(path)
+                    _cls = _size_class(_ha)
+                    self._last_size_counts[_cls] = self._last_size_counts.get(_cls, 0) + 1
+                    _plant = (getattr(self, "_current_plant_name", "") or "") if key in families else ""
+                    writer.writerow([
+                        cid or "", names.get(key, ""), families.get(key, ""), Path(path).name,
+                        _plant,
+                        ("%.1f" % _mw).replace(".", ",") if _mw is not None else "",
+                        _rb if _rb is not None else "",
+                        _ha if _ha is not None else "",
+                        _cls,
+                    ])
+        except Exception as _exc:
+            print('[PHYTO] index CSV non écrit :', _exc)
 
     def _split_and_report(self, sdf_path, out_dir, prefix, done_msg):
         try:
@@ -1115,6 +1189,14 @@ class PhytoPage(QWidget):
         if isinstance(result, (list, tuple, set, dict)):
             msg += "\n" + str(len(result)) + " " + self._t("phyto_files_extracted", "fichier(s) extrait(s).")
         msg += "\n" + str(out_dir)
+        _c = getattr(self, "_last_size_counts", None) or {}
+        if _c.get("orange") or _c.get("rouge"):
+            msg += "\n\n" + self._t(
+                "phyto_size_warning",
+                "Attention : {orange} molécule(s) orange et {rouge} rouge sur {total} "
+                "(grosses ou très flexibles : Vina sera lent ou peu fiable). "
+                "Détail dans la colonne « taille » du fichier index."
+            ).replace("{orange}", str(_c.get("orange", 0))).replace("{rouge}", str(_c.get("rouge", 0))).replace("{total}", str(sum(_c.values())))
         QMessageBox.information(self, self._t("phyto_done_title", "Terminé"), msg)
 
     # ------------------------------------------------ autres molécules organiques
