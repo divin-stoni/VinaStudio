@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+- Correction : le module de traduction de l'interface (i18n) manquait dans la version Windows, l'application ne démarrait pas.
+
 ## 1.1.1
 - Mémoire : images de fond chargées en taille réduite (environ 150 Mo gagnés)
 - Mémoire : RDKit chargé à la demande (diagrammes 2D)
