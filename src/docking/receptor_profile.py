@@ -196,6 +196,42 @@ def resolve_target_profile(target: str) -> ReceptorProfile:
         ) from None
 
 
+IMPORTED_FILES_DIR = PROFILES_DIR / "imported_files"
+
+
+def _keep_imports_enabled() -> bool:
+    """Mode B choisi dans Paramètres > Session : garder les récepteurs importés."""
+    try:
+        from PySide6.QtCore import QSettings
+        value = QSettings("VINA Studio", "VINA Studio").value("session/close_mode", "wipe")
+        return str(value) == "keep_imports"
+    except Exception:
+        return False
+
+
+def _persist_import_files(profile) -> None:
+    """Copie les PDB/PDBQT d'un profil importé dans un dossier permanent et
+    fait pointer le profil vers ces copies (le dossier de session est effacé
+    à la fermeture, pas celui-ci)."""
+    dest_dir = IMPORTED_FILES_DIR / profile.profile_id
+    for attr in ("pdbqt_path", "pdb_path_for_viewer"):
+        src = getattr(profile, attr, None)
+        if not src:
+            continue
+        src = Path(src)
+        if not src.exists():
+            continue
+        dest = dest_dir / src.name
+        try:
+            if src.resolve() == dest.resolve():
+                continue
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+            object.__setattr__(profile, attr, dest)
+        except Exception as exc:
+            print(f"[récepteurs importés] copie impossible ({src.name}) : {exc}")
+
+
 def save_user_profile(profile: ReceptorProfile, user_profiles_dir: Optional[Path] = None) -> Path:
     """
     Sauvegarde un profil `user_defined` (Mode 2, import libre) en local.
@@ -209,6 +245,9 @@ def save_user_profile(profile: ReceptorProfile, user_profiles_dir: Optional[Path
 
     target_dir = user_profiles_dir or PROFILES_DIR
     target_dir.mkdir(parents=True, exist_ok=True)
+
+    if _keep_imports_enabled():
+        _persist_import_files(profile)
 
     out_path = target_dir / f"{profile.profile_id}.json"
     with out_path.open("w", encoding="utf-8") as handle:
