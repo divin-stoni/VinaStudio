@@ -42,7 +42,10 @@ from PySide6.QtCore import QObject, Signal
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 from src.visualization.plip_runner import PLIPRunner
-from src.plip_2d_diagram import generate as render_2d_diagram
+def render_2d_diagram(*args, **kwargs):
+    # Import différé : RDKit n'est chargé qu'au premier diagramme 2D.
+    from src.plip_2d_diagram import generate
+    return generate(*args, **kwargs)
 from src.docking.receptor_profile import resolve_target_profile, TARGET_ALIASES
 
 DEFAULT_TARGET = "MexB"

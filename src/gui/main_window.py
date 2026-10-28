@@ -1842,6 +1842,7 @@ def install_glass_popup_manager(app=None):
 # ============================================================================
 
 import json as _json
+from src.i18n import ui_texts as _ui_texts
 
 try:
     _TEXT_OVERRIDES = {
@@ -1853,6 +1854,25 @@ try:
     }
 except (ValueError, TypeError, AttributeError):
     _TEXT_OVERRIDES = {}
+
+class _OverridesDict(dict):
+    """Meme dictionnaire que les libelles de l'utilisateur, mais « vrai » aussi quand une
+    traduction automatique est active : les portes `if _TEXT_OVERRIDES` existantes restent ouvertes."""
+
+    def __bool__(self):
+        return bool(len(self)) or _ui_texts.active()
+
+
+_TEXT_OVERRIDES = _OverridesDict(_TEXT_OVERRIDES)
+
+
+def _ui_text(text):
+    """Libelle personnalise de l'utilisateur d'abord, sinon traduction automatique de la langue active."""
+    mine = dict.get(_TEXT_OVERRIDES, text)
+    if mine is not None:
+        return mine
+    return _ui_texts.translate(text)
+
 
 _TEXT_RAW = {}          # méthodes Qt d'origine (non interceptées)
 _TEXT_KINDS = {
@@ -1907,7 +1927,7 @@ def _slot_put(kind, obj, idx, text):
 
 def _slot_note(kind, obj, idx, text):
     """Appelé quand le CODE pose un texte : on retient l'original, on affiche le remplaçant."""
-    shown = _TEXT_OVERRIDES.get(text, text) if _text_eligible(text) else text
+    shown = _ui_text(text) if _text_eligible(text) else text
     obj.setProperty(f"_txo_{kind}{idx}", text)
     obj.setProperty(f"_txl_{kind}{idx}", shown)
     return shown
@@ -2000,7 +2020,7 @@ def _sync_text_slot(kind, obj, idx):
         original = obj.property(key_orig)
         if original is None:
             original = current
-    wanted = _TEXT_OVERRIDES.get(original, original) if _text_eligible(original) else original
+    wanted = _ui_text(original) if _text_eligible(original) else original
     if wanted != current:
         _slot_put(kind, obj, idx, wanted)
     obj.setProperty(key_last, wanted)
@@ -2045,7 +2065,25 @@ def _install_text_timer(app):
     app._glass_text_timer = timer
 
 
+def _install_dialog_hooks():
+    """Traduit titre et texte des boites de dialogue statiques (information, warning, critical, question)."""
+    def make(raw):
+        def hook(*args, **kwargs):
+            args = list(args)
+            for i in (1, 2):
+                if len(args) > i and isinstance(args[i], str):
+                    args[i] = _ui_texts.translate(args[i])
+            return raw(*args, **kwargs)
+        return hook
+    try:
+        for name in ("information", "warning", "critical", "question"):
+            setattr(QMessageBox, name, staticmethod(make(getattr(QMessageBox, name))))
+    except Exception as exc:
+        _debug_once("libellés (boîtes de dialogue)", exc)
+
+
 _install_text_hooks()
+_install_dialog_hooks()
 
 
 
@@ -3674,6 +3712,530 @@ class GlassPreferencesDialog(QDialog):
         super().reject()
 
 
+# ----------------------------------------------------------------------
+# FENÊTRE PARAMÈTRES (catégories à gauche, pages à droite)
+# ----------------------------------------------------------------------
+
+SESSION_CLOSE_MODES = (
+    ("wipe", "Tout effacer à la fermeture",
+     "Les fichiers importés et les résultats sont supprimés quand tu fermes le "
+     "logiciel. Seuls tes exports sont conservés. Aucun ancien résultat ne peut "
+     "revenir au lancement suivant."),
+    ("keep_imports", "Garder mes récepteurs et molécules de référence",
+     "Les récepteurs importés et les molécules de référence sont conservés. Les "
+     "résultats de docking, d'analyse, de visualisation et de PLIP sont effacés "
+     "à la fermeture."),
+    ("keep_all", "Tout garder",
+     "Rien n'est effacé automatiquement. Un bouton « Nouvelle session » te "
+     "permettra de repartir de zéro quand tu le décides."),
+)
+# Modes réellement appliqués par le logiciel (les autres sont affichés grisés).
+SESSION_CLOSE_MODES_ACTIVE = {"wipe", "keep_imports"}
+
+
+def get_session_close_mode() -> str:
+    """Choix de l'utilisateur pour la fermeture (par défaut : tout effacer)."""
+    try:
+        value = str(_PREFERENCES.value("session/close_mode", "wipe"))
+    except Exception:
+        return "wipe"
+    return value if value in {m[0] for m in SESSION_CLOSE_MODES} else "wipe"
+
+
+def _kept_import_usable(profile) -> bool:
+    """Mode B : un récepteur importé est réaffiché au lancement si ses
+    fichiers conservés existent encore."""
+    try:
+        if get_session_close_mode() != "keep_imports":
+            return False
+        return Path(profile.pdbqt_path).exists()
+    except Exception:
+        return False
+
+
+class _EmbeddedAppearancePage(GlassPreferencesDialog):
+    """Page « Apparence » : même contenu que l'ancienne fenêtre, mais pilotée
+    par SettingsDialog (elle ne se ferme jamais toute seule)."""
+
+    _main_window = None
+    _owner = None
+
+    def parent(self):
+        # Le code d'origine cherche la fenêtre principale via parent().
+        if self._main_window is not None:
+            return self._main_window
+        return super().parent()
+
+    def accept(self):
+        pass
+
+    def reject(self):
+        if self._owner is not None:
+            self._owner.reject()
+
+    def commit(self):
+        self._save()
+
+    def cancel_changes(self):
+        self._style_timer.stop()
+        self._text_timer.stop()
+        GLASS_PREFERENCES.clear()
+        GLASS_PREFERENCES.update(self._original)
+        _TEXT_OVERRIDES.clear()
+        _TEXT_OVERRIDES.update(self._original_texts)
+        self._apply_now()
+        apply_text_overrides()
+
+
+class SettingsDialog(QDialog):
+    """Paramètres du logiciel : panneau de catégories à gauche, page à droite."""
+
+    _NAV_APPARENCE = (
+        ("Apparence", ("Matériau",)),
+        ("Texte", ("Style du texte",)),
+        ("Onglets", ("Onglets",)),
+        ("Boutons", ("Boutons",)),
+        ("Menus et flou", ("Menus et flou",)),
+        ("Avancé", None),
+    )
+
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        from PySide6.QtCore import QSize
+        from PySide6.QtGui import QIcon
+        from PySide6.QtWidgets import (
+            QButtonGroup, QFrame, QHBoxLayout, QListWidget, QListWidgetItem,
+            QRadioButton, QStackedWidget, QVBoxLayout,
+        )
+        self.setProperty("_no_text_override", True)
+        self.setWindowTitle("Paramètres")
+        self.setModal(True)
+        self.resize(1060, 800)
+        self.theme_background = getattr(parent, "theme_background", None)
+        radius = int(GLASS_PREFERENCES.get("radius", 16))
+        self._accent = str(GLASS_PREFERENCES.get("accent_green", "#3d915e"))
+
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(16, 16, 16, 16)
+        outer.setSpacing(14)
+
+        # Panneau de gauche
+        side = GlassPanel(radius=radius)
+        side.setFixedWidth(250)
+        side_lay = QVBoxLayout(side)
+        side_lay.setContentsMargins(14, 18, 14, 14)
+        side_lay.setSpacing(12)
+        side_title = QLabel("Paramètres")
+        side_title.setObjectName("SectionTitle")
+        side_title.setContentsMargins(8, 0, 0, 0)
+        side_lay.addWidget(side_title)
+
+        self.sidebar = QListWidget()
+        self.sidebar.setObjectName("SettingsSidebar")
+        self.sidebar.setFrameShape(QFrame.NoFrame)
+        self.sidebar.setIconSize(QSize(20, 20))
+        self.sidebar.setStyleSheet(
+            "QListWidget#SettingsSidebar { background: transparent; border: none; outline: 0; }"
+            "QListWidget#SettingsSidebar::item { padding: 12px 14px; margin: 2px 0; border-radius: 12px; }"
+            "QListWidget#SettingsSidebar::item:hover { background: rgba(255, 255, 255, 30); }"
+            "QListWidget#SettingsSidebar::item:selected { background: " + self._accent + "; color: white; }"
+        )
+
+        def _icon(*names):
+            for name in names:
+                icon = QIcon.fromTheme(name)
+                if not icon.isNull():
+                    return icon
+            return QIcon()
+
+        for label, icons in (
+            ("Apparence", ("preferences-desktop-theme", "applications-graphics", "preferences-desktop-wallpaper")),
+            ("Texte", ("preferences-desktop-font", "format-text-bold", "font-x-generic")),
+            ("Onglets", ("view-list-symbolic", "tab-new", "window-new")),
+            ("Boutons", ("input-mouse", "preferences-desktop-peripherals", "applications-other")),
+            ("Menus et flou", ("view-more-symbolic", "preferences-system", "applications-system")),
+            ("Avancé", ("preferences-other", "preferences-system", "applications-other")),
+            ("Session", ("document-open-recent", "folder-open", "preferences-system-time")),
+            ("Arrière-plan", ("preferences-desktop-wallpaper", "image-x-generic", "applications-graphics")),
+            ("À propos", ("help-about", "dialog-information", "help-browser")),
+        ):
+            self.sidebar.addItem(QListWidgetItem(_icon(*icons), label))
+        side_lay.addWidget(self.sidebar, 1)
+        outer.addWidget(side)
+
+        # Panneau de droite
+        main = GlassPanel(radius=radius)
+        main_lay = QVBoxLayout(main)
+        main_lay.setContentsMargins(24, 20, 24, 16)
+        main_lay.setSpacing(12)
+        self.page_title = QLabel("Apparence")
+        self.page_title.setObjectName("SectionTitle")
+        main_lay.addWidget(self.page_title)
+
+        self.pages = QStackedWidget()
+        main_lay.addWidget(self.pages, 1)
+
+        # Page Apparence : l'ancien dialogue intégré
+        self._appearance = _EmbeddedAppearancePage(self)
+        self._appearance._main_window = parent
+        self._appearance._owner = self
+        self._appearance.setWindowFlags(Qt.Widget)
+        self._appearance.setModal(False)
+        from PySide6.QtWidgets import QDialogButtonBox as _DBB
+        _own_buttons = self._appearance.findChild(_DBB)
+        if _own_buttons is not None:
+            _own_buttons.hide()
+        for _lab in self._appearance.findChildren(QLabel):
+            if _lab.text() == "Apparence du logiciel":
+                _lab.hide()
+        self.pages.addWidget(self._appearance)
+
+        # Page Session
+        self.pages.addWidget(self._build_session_page(QButtonGroup, QRadioButton, QVBoxLayout, QFrame))
+        self.pages.addWidget(self._build_background_page())
+        self.pages.addWidget(self._build_about_page())
+
+        # Boutons du bas
+        row = QHBoxLayout()
+        row.setSpacing(10)
+        self._reset_button = LiquidGlassButton("Réinitialiser l'apparence")
+        self._reset_button.setMinimumHeight(38)
+        self._reset_button.clicked.connect(self._appearance._restore_defaults)
+        row.addWidget(self._reset_button)
+        row.addStretch(1)
+        cancel = LiquidGlassButton("Annuler")
+        cancel.setMinimumHeight(38)
+        cancel.clicked.connect(self.reject)
+        row.addWidget(cancel)
+        save = create_button("Enregistrer", primary=True)
+        save.setMinimumHeight(38)
+        save.clicked.connect(self._save_all)
+        row.addWidget(save)
+        main_lay.addLayout(row)
+        outer.addWidget(main, 1)
+
+        self.sidebar.currentRowChanged.connect(self._on_page_changed)
+        self.sidebar.setCurrentRow(0)
+        install_dialog_background(self)
+
+    def _on_page_changed(self, row):
+        if row < 0:
+            return
+        n = len(self._NAV_APPARENCE)
+        if row < n:
+            titre, visibles = self._NAV_APPARENCE[row]
+            self.pages.setCurrentIndex(0)
+            self._montrer_onglets(visibles)
+            self.page_title.setText(titre)
+            self._reset_button.setVisible(True)
+        else:
+            self.pages.setCurrentIndex(row - n + 1)
+            self.page_title.setText(("Session", "Arrière-plan", "À propos")[row - n])
+            self._reset_button.setVisible(False)
+
+    def _build_session_page(self, QButtonGroup, QRadioButton, QVBoxLayout, QFrame):
+        page = QWidget()
+        lay = QVBoxLayout(page)
+        lay.setContentsMargins(0, 4, 0, 0)
+        lay.setSpacing(12)
+
+        intro = QLabel(
+            "Choisis ce que le logiciel fait de tes fichiers de travail quand "
+            "tu fermes l'application."
+        )
+        intro.setObjectName("SectionDescription")
+        intro.setWordWrap(True)
+        lay.addWidget(intro)
+
+        current = get_session_close_mode()
+        if current not in SESSION_CLOSE_MODES_ACTIVE:
+            current = "wipe"
+        self._session_group = QButtonGroup(self)
+        self._session_radios = {}
+        self._session_cards = {}
+        for key, label, detail in SESSION_CLOSE_MODES:
+            card = QFrame()
+            card.setObjectName("SettingsCard")
+            card_lay = QVBoxLayout(card)
+            card_lay.setContentsMargins(18, 14, 18, 14)
+            card_lay.setSpacing(4)
+            radio = QRadioButton(label)
+            active = key in SESSION_CLOSE_MODES_ACTIVE
+            radio.setEnabled(active)
+            if not active:
+                radio.setToolTip("Bientôt disponible.")
+            radio.setChecked(key == current)
+            radio.toggled.connect(self._refresh_cards)
+            self._session_group.addButton(radio)
+            card_lay.addWidget(radio)
+            note = QLabel(detail)
+            note.setObjectName("SectionDescription")
+            note.setWordWrap(True)
+            note.setContentsMargins(26, 0, 0, 0)
+            card_lay.addWidget(note)
+            card.mousePressEvent = (
+                lambda _e, r=radio: r.setChecked(True) if r.isEnabled() else None
+            )
+            self._session_radios[key] = radio
+            self._session_cards[key] = card
+            lay.addWidget(card)
+        lay.addStretch(1)
+        self._refresh_cards()
+        return page
+
+    def _refresh_cards(self, *_args):
+        for key, card in self._session_cards.items():
+            border = self._accent if self._session_radios[key].isChecked() else "rgba(255, 255, 255, 45)"
+            card.setStyleSheet(
+                "QFrame#SettingsCard { background: rgba(255, 255, 255, 18); "
+                "border: 1px solid " + border + "; border-radius: 14px; }"
+            )
+
+    def _build_background_page(self):
+        from PySide6.QtWidgets import QFrame, QHBoxLayout, QListView, QListWidget, QVBoxLayout
+        from src.gui import background_library as _bl
+
+        self._bl = _bl
+        self._bg_host = self.parent()
+        try:
+            self._bg_t = self._bg_host.lang_mgr.t
+        except Exception:
+            self._bg_t = lambda key, **kw: key
+
+        page = QWidget()
+        lay = QVBoxLayout(page)
+        lay.setContentsMargins(0, 4, 0, 0)
+        lay.setSpacing(12)
+
+        self.bg_list = QListWidget()
+        self.bg_list.setViewMode(QListView.IconMode)
+        self.bg_list.setResizeMode(QListView.Adjust)
+        self.bg_list.setMovement(QListView.Static)
+        self.bg_list.setIconSize(_bl.THUMB)
+        self.bg_list.setSpacing(4)
+        self.bg_list.setFrameShape(QFrame.NoFrame)
+        self.bg_list.setStyleSheet(
+            "QListWidget { background: transparent; border: none; outline: 0; }"
+            "QListWidget::item { padding: 6px; border-radius: 12px; }"
+            "QListWidget::item:hover { background: rgba(255, 255, 255, 30); }"
+            "QListWidget::item:selected { background: " + self._accent + "; color: white; }"
+        )
+        self.bg_list.itemClicked.connect(
+            lambda item: self._bg_appliquer(item.data(Qt.UserRole)))
+        lay.addWidget(self.bg_list, 1)
+
+        row = QHBoxLayout()
+        row.setSpacing(10)
+        t = self._bg_t
+        for texte, action in (
+            (t("bg_menu_none"), lambda: self._bg_appliquer(None)),
+            (t("bg_menu_add_image"), self._bg_choisir_images),
+            (t("bg_menu_add_folder"), self._bg_choisir_dossier),
+        ):
+            b = LiquidGlassButton(texte)
+            b.setMinimumHeight(38)
+            b.clicked.connect(action)
+            row.addWidget(b)
+        self._bg_remove_button = LiquidGlassButton(t("bg_menu_remove"))
+        self._bg_remove_button.setMinimumHeight(38)
+        self._bg_remove_button.clicked.connect(self._bg_retirer)
+        row.addWidget(self._bg_remove_button)
+        row.addStretch(1)
+        lay.addLayout(row)
+
+        self._bg_remplir()
+        self.bg_list.currentItemChanged.connect(lambda *_a: self._bg_maj_bouton())
+        return page
+
+    def _bg_remplir(self):
+        from PySide6.QtCore import QSize
+        from PySide6.QtGui import QIcon
+        from PySide6.QtWidgets import QListWidgetItem
+        from pathlib import Path as _P
+
+        self.bg_list.clear()
+        tb = getattr(self._bg_host, "theme_background", None)
+        cur = getattr(tb, "_current", None)
+        try:
+            cur = _P(cur).resolve() if cur else None
+        except Exception:
+            cur = None
+        for p, est_user in self._bl.list_images():
+            item = QListWidgetItem(p.stem)
+            try:
+                pm = self._bl.thumbnail(p)
+                if not pm.isNull():
+                    item.setIcon(QIcon(pm))
+            except Exception:
+                pass
+            item.setData(Qt.UserRole, str(p))
+            item.setData(Qt.UserRole + 1, bool(est_user))
+            item.setTextAlignment(Qt.AlignHCenter)
+            item.setSizeHint(QSize(164, 118))
+            item.setToolTip(p.stem)
+            self.bg_list.addItem(item)
+            if cur is not None and p.resolve() == cur:
+                self.bg_list.setCurrentItem(item)
+        self._bg_maj_bouton()
+
+    def _bg_maj_bouton(self):
+        item = self.bg_list.currentItem()
+        self._bg_remove_button.setEnabled(bool(item is not None and item.data(Qt.UserRole + 1)))
+
+    def _bg_appliquer(self, chemin):
+        tb = getattr(self._bg_host, "theme_background", None)
+        if tb is None:
+            return
+        tb.set_background(chemin)
+        fond = getattr(self, "_fond_dialogue", None)
+        if fond is not None:
+            fond._current = getattr(tb, "_current", None)
+            fond._load_theme()
+        self._bg_remplir()
+
+    def _bg_importer(self, fichiers):
+        dernier = None
+        for f in fichiers:
+            try:
+                dernier = self._bl.import_file(f)
+            except Exception as exc:
+                print(f"[Arrière-plan] import impossible : {exc}")
+        if dernier is not None:
+            self._bg_appliquer(dernier)
+
+    def _bg_choisir_images(self):
+        from PySide6.QtWidgets import QFileDialog
+        from pathlib import Path as _P
+        filtre = "Images (%s)" % " ".join("*" + e for e in sorted(self._bl.IMPORT_EXT))
+        fichiers, _f = QFileDialog.getOpenFileNames(
+            self, self._bg_t("bg_menu_add_image"), str(_P.home()), filtre)
+        if fichiers:
+            self._bg_importer(fichiers)
+
+    def _bg_choisir_dossier(self):
+        from PySide6.QtWidgets import QFileDialog
+        from pathlib import Path as _P
+        d = QFileDialog.getExistingDirectory(
+            self, self._bg_t("bg_menu_add_folder"), str(_P.home()))
+        if d:
+            self._bg_importer(sorted(
+                str(p) for p in _P(d).iterdir()
+                if p.is_file() and p.suffix.lower() in self._bl.IMPORT_EXT))
+
+    def _bg_retirer(self):
+        from pathlib import Path as _P
+        item = self.bg_list.currentItem()
+        if item is None or not item.data(Qt.UserRole + 1):
+            return
+        chemin = _P(item.data(Qt.UserRole))
+        tb = getattr(self._bg_host, "theme_background", None)
+        cur = getattr(tb, "_current", None)
+        try:
+            self._bl.remove_user_image(chemin)
+        except Exception as exc:
+            print(f"[Arrière-plan] retrait impossible : {exc}")
+            return
+        if tb is not None and cur is not None and _P(cur).resolve() == chemin.resolve():
+            tb.set_default_theme()
+            fond = getattr(self, "_fond_dialogue", None)
+            if fond is not None:
+                fond._current = getattr(tb, "_current", None)
+                fond._load_theme()
+        self._bg_remplir()
+
+    def select_page(self, name):
+        n = len(self._NAV_APPARENCE)
+        index = {"apparence": 0, "session": n, "fond": n + 1, "apropos": n + 2}.get(name, 0)
+        self.sidebar.setCurrentRow(index)
+
+    def _build_about_page(self):
+        import sys
+        from pathlib import Path as _P
+        from PySide6.QtWidgets import QFrame, QVBoxLayout
+
+        page = QWidget()
+        lay = QVBoxLayout(page)
+        lay.setContentsMargins(0, 4, 0, 0)
+        lay.setSpacing(12)
+        card = QFrame()
+        card.setObjectName("SettingsCard")
+        card.setStyleSheet(
+            "QFrame#SettingsCard { background: rgba(255, 255, 255, 18); "
+            "border: 1px solid rgba(255, 255, 255, 45); border-radius: 14px; }"
+        )
+        card_lay = QVBoxLayout(card)
+        card_lay.setContentsMargins(22, 18, 22, 18)
+        try:
+            t = self.parent().lang_mgr.t
+            base = _P(getattr(sys, "_MEIPASS", _P(__file__).resolve().parents[2]))
+            try:
+                version = (base / "VERSION").read_text().strip()
+            except OSError:
+                version = "?"
+            html = (
+                f"<b>{t('vina_app_name')}</b> v{version}<br>"
+                f"{t('vina_app_subtitle')}<br><br>"
+                f"{t('about_pipeline_desc')}"
+            )
+        except Exception:
+            html = "<b>VinaStudio</b>"
+        label = QLabel(html)
+        label.setTextFormat(Qt.RichText)
+        label.setOpenExternalLinks(False)
+        label.setWordWrap(True)
+        card_lay.addWidget(label)
+        lay.addWidget(card)
+        lay.addStretch(1)
+        return page
+
+    def _montrer_onglets(self, visibles):
+        tabs = self._appearance.tabs
+        bar = tabs.tabBar()
+        titres = [tabs.tabText(i) for i in range(tabs.count())]
+        reclames = {t for _nom, v in self._NAV_APPARENCE if v for t in v}
+        if visibles is None:
+            montrer = [i for i, t in enumerate(titres) if t not in reclames]
+        else:
+            montrer = [i for i, t in enumerate(titres) if t in visibles]
+        if not montrer:
+            montrer = list(range(len(titres)))
+        for i in range(len(titres)):
+            bar.setTabVisible(i, i in montrer)
+        tabs.setCurrentIndex(montrer[0])
+        bar.setVisible(len(montrer) > 1)
+
+    def _save_session(self):
+        for key, radio in self._session_radios.items():
+            if radio.isChecked():
+                _PREFERENCES.setValue("session/close_mode", key)
+        _PREFERENCES.sync()
+        if get_session_close_mode() == "keep_imports":
+            # Met à l'abri les récepteurs déjà importés pendant cette session.
+            try:
+                for _pid in list_profile_ids():
+                    _prof = resolve_target_profile(_pid)
+                    if _prof.profile_type == "user_defined":
+                        save_user_profile(_prof)
+            except Exception as exc:
+                print(f"[Paramètres] conservation des récepteurs importés : {exc}")
+
+    def _save_all(self):
+        try:
+            self._appearance.commit()
+        except Exception as exc:
+            print(f"[Paramètres] enregistrement de l'apparence : {exc}")
+        self._save_session()
+        self.accept()
+
+    def reject(self):
+        try:
+            self._appearance.cancel_changes()
+        except Exception as exc:
+            print(f"[Paramètres] annulation : {exc}")
+        super().reject()
+
+
 def create_button(text, primary=False):
     button = LiquidGlassButton(text)
 
@@ -5063,9 +5625,12 @@ class DockingPage(QWidget):
                 _profile = resolve_target_profile(_pid)
             except Exception:
                 continue
-            if _pid not in _paired_profile_ids:
+            if _pid not in _paired_profile_ids and not (
+                _profile.profile_type != "built_in"
+                and _kept_import_usable(_profile)
+            ):
                 continue
-            if _profile.profile_type != "built_in":
+            if _profile.profile_type != "built_in" and not _kept_import_usable(_profile):
                 # Récepteur importé (Mode 2) : lié au workspace de
                 # session, supprimé à la fermeture — ne doit pas
                 # réapparaître au prochain lancement une fois son
@@ -5110,6 +5675,16 @@ class DockingPage(QWidget):
                 _pump = resolve_target_profile(_pump_id)
                 _repressor = resolve_target_profile(_repressor_id)
             except Exception:
+                continue
+
+            # Couple de récepteurs importés : n'est proposé que si les
+            # fichiers des deux récepteurs existent encore (sinon le
+            # profil JSON survit seul, sans PDBQT, après la fermeture).
+            if any(
+                _p.profile_type != "built_in"
+                and not Path(_p.pdbqt_path).exists()
+                for _p in (_pump, _repressor)
+            ):
                 continue
 
             _pair_key = make_pair_key(_pump_id, _repressor_id)
@@ -5520,7 +6095,7 @@ class DockingPage(QWidget):
                 _profile = resolve_target_profile(_pid)
             except Exception:
                 continue
-            if _profile.profile_type != "built_in":
+            if _profile.profile_type != "built_in" and not _kept_import_usable(_profile):
                 # Récepteur importé (Mode 2) : lié au workspace de
                 # session, supprimé à la fermeture — ne doit pas
                 # réapparaître au prochain lancement une fois son
@@ -7057,6 +7632,14 @@ class DockingPage(QWidget):
                     str(src_json), str(trash / ("%s__%s.json" % (pid, stamp)))
                 )
                 deleted.append(pid)
+                try:
+                    _kept = Path(PROFILES_DIR) / "imported_files" / pid
+                    if _kept.exists():
+                        _shutil.move(
+                            str(_kept), str(trash / ("%s__%s__fichiers" % (pid, stamp)))
+                        )
+                except Exception as _exc:
+                    errors.append("%s : fichiers conserves non deplaces (%s)" % (pid, _exc))
                 try:
                     from src import guide_assistant as _ga
                     _ga.purge_receptor_data(pid, trash, stamp)
@@ -11380,6 +11963,31 @@ def gui_debug(message):
     print("====================\n")
 
 
+def install_dialog_background(dialog):
+    """Peint l'image de fond du logiciel derrière une fenêtre de dialogue."""
+    from PySide6.QtCore import QEvent, QObject
+    try:
+        bg = ThemeBackground(dialog)
+    except Exception as exc:
+        print(f"[fond] image de fond indisponible : {exc}")
+        return None
+    bg.setGeometry(dialog.rect())
+    bg.lower()
+    bg.show()
+
+    class _Suivi(QObject):
+        def eventFilter(self, obj, event):
+            if event.type() == QEvent.Resize:
+                bg.setGeometry(dialog.rect())
+                bg.lower()
+            return False
+
+    suivi = _Suivi(dialog)
+    dialog.installEventFilter(suivi)
+    dialog._fond_dialogue = bg
+    return bg
+
+
 class ThemeBackground(QWidget):
     """Paint a cover-scaled theme image behind the existing interface."""
 
@@ -11396,7 +12004,18 @@ class ThemeBackground(QWidget):
         if self._current is None:
             self._pixmap = QPixmap()
         else:
-            self._pixmap = QPixmap(str(self._current))
+            from PySide6.QtGui import QImageReader
+            reader = QImageReader(str(self._current))
+            reader.setAutoTransform(True)
+            taille = reader.size()
+            if taille.isValid() and (taille.width() > 2560 or taille.height() > 1600):
+                taille.scale(2560, 1600, Qt.KeepAspectRatio)
+                reader.setScaledSize(taille)
+            image = reader.read()
+            if image.isNull():
+                self._pixmap = QPixmap(str(self._current))
+            else:
+                self._pixmap = QPixmap.fromImage(image)
         self.update()
 
     def set_background(self, path):
@@ -11474,6 +12093,7 @@ class MainWindow(QMainWindow):
             initial_lang=_saved_lang if _saved_lang in _SUPPORTED_LANGS else None
         )
         self.lang_mgr.languageChanged.connect(self.retranslate_ui)
+        _ui_texts.set_language(self.lang_mgr.lang)
 
         self.setWindowTitle("VINA Studio")
 
@@ -11508,6 +12128,7 @@ class MainWindow(QMainWindow):
     def retranslate_ui(self, _code=None):
         """Re-applique les textes de l'interface dans la langue active."""
         t = self.lang_mgr.t
+        _ui_texts.set_language(self.lang_mgr.lang)
 
         self.setWindowTitle(t("vina_window_title"))
 
@@ -11608,6 +12229,8 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "status"):
             self.status.showMessage(t("status_ready"))
+
+        apply_text_overrides()
 
     def _lang_button_text(self) -> str:
         """
@@ -11726,7 +12349,7 @@ class MainWindow(QMainWindow):
             self.theme_background.next_theme()
 
     def _open_preferences(self):
-        dialog = GlassPreferencesDialog(self)
+        dialog = SettingsDialog(self)
         if dialog.exec() == QDialog.Accepted:
             self.status.showMessage(self.lang_mgr.t("status_glass_prefs_saved"))
         else:
@@ -11919,42 +12542,9 @@ class MainWindow(QMainWindow):
         self.menu_action_about = about_action
 
     def show_about_dialog(self):
-        from PySide6.QtWidgets import QDialog
-
-        t = self.lang_mgr.t
-
-        import sys
-        from pathlib import Path
-        base = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
-        try:
-            app_version = (base / 'VERSION').read_text().strip()
-        except OSError:
-            app_version = '?'
-
-        dialog = QDialog(self)
-        dialog.setWindowTitle(t("menu_about_vina"))
-        dialog.setMinimumWidth(380)
-
-        layout = QVBoxLayout(dialog)
-        layout.setContentsMargins(24, 20, 24, 16)
-        layout.setSpacing(14)
-
-        text_label = QLabel(
-            f"<b>{t('vina_app_name')}</b> v{app_version}<br>"
-            f"{t('vina_app_subtitle')}<br><br>"
-            f"{t('about_pipeline_desc')}"
-        )
-        text_label.setTextFormat(Qt.RichText)
-        text_label.setOpenExternalLinks(False)
-        text_label.setWordWrap(True)
-        layout.addWidget(text_label)
-
-        close_button = LiquidGlassButton(t("scan_btn_close"))
-        close_button.setCursor(Qt.PointingHandCursor)
-        close_button.clicked.connect(dialog.accept)
-        layout.addWidget(close_button, 0, Qt.AlignRight)
-
-        dialog.exec()
+        dlg = SettingsDialog(self)
+        dlg.select_page("apropos")
+        dlg.exec()
 
     # ------------------------------------------------------------------
     # TOOLBAR
@@ -12086,7 +12676,6 @@ class MainWindow(QMainWindow):
         self.theme_action = QAction(self.lang_mgr.t("toolbar_theme"), self)
         self.theme_action.setToolTip(self.lang_mgr.t("toolbar_tooltip_theme"))
         self.theme_action.triggered.connect(self._on_change_theme)
-        toolbar.addAction(self.theme_action)
         _set_pointer_cursor(self.theme_action)
 
         self.preferences_action = QAction(self.lang_mgr.t("toolbar_preferences"), self)
@@ -12107,7 +12696,6 @@ class MainWindow(QMainWindow):
 
         self.about_action = QAction(self.lang_mgr.t("toolbar_about"), self)
         self.about_action.triggered.connect(self.show_about_dialog)
-        toolbar.addAction(self.about_action)
         _set_pointer_cursor(self.about_action)
 
     # ------------------------------------------------------------------
