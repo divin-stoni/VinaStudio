@@ -656,8 +656,8 @@ TR = {
         "de": "Referenzreste", "zh": "参考残基", "ja": "参照残基",
     },
     "viz_tab_plip": {
-        "fr": "Calcul PLIP", "en": "PLIP calculation",
-        "de": "PLIP-Berechnung", "zh": "PLIP 计算", "ja": "PLIP計算",
+        "fr": "Erreur", "en": "Error",
+        "de": "Fehler", "zh": "错误", "ja": "エラー",
     },
     "viz_tab_interaction2d": {
         "fr": "Interaction 2D", "en": "Interaction 2D", "de": "Interaction 2D",
@@ -1110,11 +1110,11 @@ TR = {
         "fr": "Molécules", "en": "Molecules", "de": "Moleküle", "zh": "分子", "ja": "分子",
     },
     "viz_plip_desc": {
-        "fr": "Le calcul PLIP (extraction de pose, conversion PDB, interactions) est lancé automatiquement pour tous les hits — rien à configurer ici.",
-        "en": "The PLIP calculation (pose extraction, PDB conversion, interactions) is run automatically for all hits — nothing to configure here.",
-        "de": "Die PLIP-Berechnung (Pose-Extraktion, PDB-Konvertierung, Interaktionen) wird automatisch für alle Treffer ausgeführt — hier ist nichts zu konfigurieren.",
-        "zh": "PLIP 计算（姿势提取、PDB 转换、相互作用）会自动针对所有命中运行 — 此处无需配置。",
-        "ja": "PLIP計算（ポーズ抽出、PDB変換、相互作用）はすべてのヒットに対して自動的に実行されます。ここで設定する項目はありません。",
+        "fr": "Les erreurs de visualisation et de calcul PLIP sont affichées ici. Le traitement est lancé automatiquement.",
+        "en": "Visualization and PLIP errors are displayed here. Processing starts automatically.",
+        "de": "Visualisierungs- und PLIP-Fehler werden hier angezeigt. Die Verarbeitung startet automatisch.",
+        "zh": "此处显示可视化和 PLIP 错误。处理会自动启动。",
+        "ja": "可視化とPLIPのエラーをここに表示します。処理は自動的に開始されます。",
     },
     "viz_plip_state_panel_title": {
         "fr": "État du calcul", "en": "Calculation status",

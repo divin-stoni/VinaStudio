@@ -25,22 +25,32 @@ VIEWER_HTML = """<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+  <!-- Le premier domaine est historique ; le second évite une page blanche
+       sur des réseaux Windows qui filtrent 3Dmol.org. Le chargement reste
+       synchrone afin que $3Dmol existe avant le code du visualiseur. -->
+  <script src="https://3Dmol.org/build/3Dmol-min.js"
+          onerror="this.onerror=null;this.src='https://3dmol.csb.pitt.edu/build/3Dmol-min.js';"></script>
   <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
   <style>
     html, body {
       margin: 0;
       background: #ffffff;
+      width: 100%;
       height: 100%;
+      min-height: 0;
+      overflow: hidden;
     }
     #wrapper {
       position: relative;
       width: 100%;
-      height: 100vh;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
     }
     #container {
       width: 100%;
       height: 100%;
+      min-height: 0;
     }
     #residue-panel {
       position: absolute;

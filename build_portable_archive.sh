@@ -66,7 +66,7 @@ echo "=================================================="
 echo "ETAPE 5 : test final avant compression"
 echo "=================================================="
 cd "$STAGING_DIR"
-timeout 5 ./VinaStudio &
+QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}" timeout 5 ./VinaStudio &
 TESTPID=$!
 sleep 3
 if kill -0 $TESTPID 2>/dev/null; then

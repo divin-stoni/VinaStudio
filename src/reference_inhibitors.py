@@ -114,9 +114,27 @@ def fetch_compound(job, dest_dir):
                     "IdentifierList"]["CID"][0]
             except Exception:
                 pass
+            if cid is not None:
+                # Le CID devient le nom de fichier canonique : il est stable,
+                # sans ambiguïté et directement recherchable sur PubChem.
+                path = dest_dir / f"CID_{cid}.sdf"
             path.write_text(txt, encoding="utf-8")
-            return dict(base, fichier=str(path), source="PubChem '" + q + "'",
-                        url=url, dimension=rt.upper(), cid=cid, date=now)
+            pubchem_url = (
+                f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}"
+                if cid is not None else url
+            )
+            return dict(
+                base,
+                fichier=str(path),
+                source=(
+                    f"PubChem CID_{cid} ('{q}')"
+                    if cid is not None else "PubChem '" + q + "'"
+                ),
+                url=pubchem_url,
+                dimension=rt.upper(),
+                cid=cid,
+                date=now,
+            )
     raise RuntimeError("introuvable (" + "; ".join(errors[-3:]) + ")" if errors else "introuvable")
 
 

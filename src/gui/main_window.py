@@ -75,13 +75,12 @@ class _ViewerDragRepaintPoller:
         if self.viewer is None or not self.viewer.isVisible():
             return
         
-        # Le rafraîchissement doit être constant pendant l'interaction
-        # On force le rendu JS.
-        # Ne rend que pendant un vrai glisser de souris (sinon 60 appels JS/s
-        # en permanence saturent QtWebEngine et gelent l'interface).
+        # 3Dmol.js redessine déjà pendant ses propres événements de drag.
+        # Forcer un second rendu JS ici crée une boucle de repaint coûteuse
+        # et peut faire trembler la vue quand QtWebEngine adapte le DPI ou
+        # la taille du viewport sur un écran Windows.
         if QApplication.mouseButtons() == Qt.NoButton:
             return
-        self.viewer.page().runJavaScript("if (typeof viewer !== 'undefined') { viewer.render(); }")
 
 
 class _ResidueHoverBridge(QObject):
@@ -3734,12 +3733,12 @@ SESSION_CLOSE_MODES_ACTIVE = {"wipe", "keep_imports"}
 
 
 def get_session_close_mode() -> str:
-    """Choix de l'utilisateur pour la fermeture (par défaut : tout effacer)."""
+    """Choix de l'utilisateur pour la fermeture (par défaut : garder les imports)."""
     try:
-        value = str(_PREFERENCES.value("session/close_mode", "wipe"))
+        value = str(_PREFERENCES.value("session/close_mode", "keep_imports"))
     except Exception:
-        return "wipe"
-    return value if value in {m[0] for m in SESSION_CLOSE_MODES} else "wipe"
+        return "keep_imports"
+    return value if value in {m[0] for m in SESSION_CLOSE_MODES} else "keep_imports"
 
 
 def _kept_import_usable(profile) -> bool:
@@ -3950,7 +3949,7 @@ class SettingsDialog(QDialog):
 
         current = get_session_close_mode()
         if current not in SESSION_CLOSE_MODES_ACTIVE:
-            current = "wipe"
+            current = "keep_imports"
         self._session_group = QButtonGroup(self)
         self._session_radios = {}
         self._session_cards = {}
@@ -6563,9 +6562,9 @@ class DockingPage(QWidget):
             is_generic_pair = pair_members is not None
 
             if is_generic_pair:
-                # Les deux protéines du couple doivent être chargées et
-                # affichées avec leurs valeurs PRÉDÉFINIES, jamais des
-                # valeurs éditées — même règle qu'en mode MexB + MexR.
+                # Le couple reprend la configuration active de chaque cible.
+                # Recharger le JSON ici annulait les réglages de boîte faits
+                # en mode récepteur seul et rendait les scores incomparables.
                 for member_key in pair_members:
                     if member_key in self.generic_panels:
                         self._load_generic_panel(member_key)
@@ -6576,24 +6575,9 @@ class DockingPage(QWidget):
             if is_generic and self.generic_panels[target]["profile"] is None:
                 self._load_generic_panel(target)
 
-            # Mode double cible : la grid box de chaque protéine n'est
-            # JAMAIS modifiable à la main — on réaffiche les valeurs
-            # PRÉDÉFINIES (pas d'éventuelles valeurs éditées) et on
-            # verrouille les deux panneaux.
-            if is_dual:
-                self._load_profile_into_fields(
-                    resolve_target_profile("MexB"),
-                    self.mexb_fields,
-                    self.grid_sliders,
-                    self.grid_scales,
-                )
-                self._load_profile_into_fields(
-                    resolve_target_profile("MexR"),
-                    self.mexr_fields,
-                    self.mexr_grid_sliders,
-                    self.mexr_grid_scales,
-                )
-
+            # Mode double cible : chaque protéine garde sa propre boîte
+            # active ; les panneaux sont seulement verrouillés pendant le
+            # choix du couple.
             self._set_fields_enabled(
                 self.mexb_fields, self.grid_sliders, is_mexb_only
             )
@@ -6625,8 +6609,8 @@ class DockingPage(QWidget):
 
                 panel_data["panel"].setVisible(visible)
 
-                # En campagne de couple, la grid box de chaque protéine
-                # est verrouillée sur ses valeurs prédéfinies.
+                # En campagne de couple, chaque récepteur conserve sa
+                # configuration active, identique à celle du mode seul.
                 if is_generic_pair and visible:
                     self._set_fields_enabled(
                         panel_data["fields"],
@@ -8249,6 +8233,8 @@ class DockingPage(QWidget):
         """Charge (paresseusement) le profil d'un récepteur générique."""
 
         panel_data = self.generic_panels[target_key]
+        if panel_data["profile"] is not None:
+            return
         panel_data["profile"] = resolve_target_profile(target_key)
 
         self._load_profile_into_fields(
@@ -8715,6 +8701,17 @@ class DockingPage(QWidget):
                 # differentes) et n'est PAS ecrasee ici.
                 sub_config.exhaustiveness = config.exhaustiveness
                 sub_config.num_modes = config.num_modes
+
+                _fields = (
+                    self.mexb_fields if sub_target == "MexB"
+                    else self.mexr_fields
+                )
+                sub_config.center_x = _fields["center_x"].value()
+                sub_config.center_y = _fields["center_y"].value()
+                sub_config.center_z = _fields["center_z"].value()
+                sub_config.size_x = _fields["size_x"].value()
+                sub_config.size_y = _fields["size_y"].value()
+                sub_config.size_z = _fields["size_z"].value()
 
                 engines[sub_target] = VinaEngine(sub_config)
 
@@ -11178,9 +11175,9 @@ class VisualizationPage(QWidget):
             "Visualisation",
             [
                 "Résidus de référence",
-                "Calcul PLIP",
                 "Interaction 2D",
                 "Interaction 3D",
+                "Erreur",
             ],
             self.switch_tab,
         )
@@ -11191,9 +11188,9 @@ class VisualizationPage(QWidget):
         body.addWidget(self.stack, 1)
 
         self.stack.addWidget(self.residues_page())
-        self.stack.addWidget(self.plip_page())
         self.stack.addWidget(self.interaction_page())
         self.stack.addWidget(self.interaction_3d_page())
+        self.stack.addWidget(self.plip_page())
 
         root.addWidget(body_widget, 1)
 
@@ -11552,14 +11549,14 @@ class VisualizationPage(QWidget):
         layout.setSpacing(14)
 
         layout.addWidget(
-            self._t_label("viz_tab_plip", "Calcul PLIP", "SectionTitle")
+            self._t_label("viz_tab_plip", "Erreur", "SectionTitle")
         )
 
         layout.addWidget(
             self._t_label(
                 "viz_plip_desc",
-                "Le calcul PLIP (extraction de pose, conversion PDB, interactions) "
-                "est lancé automatiquement pour tous les hits — rien à configurer ici.",
+                "Les erreurs de visualisation et de calcul PLIP sont affichées ici. "
+                "Le traitement est lancé automatiquement.",
                 "SectionDescription",
             )
         )
@@ -12180,7 +12177,12 @@ class MainWindow(QMainWindow):
             nav = self.visualization_page.secondary
             if hasattr(nav, "title_label"):
                 nav.title_label.setText(t("side_visualization").upper())
-            viz_labels = [t("viz_tab_residues"), t("viz_tab_plip"), t("viz_tab_interaction2d")]
+            viz_labels = [
+                t("viz_tab_residues"),
+                t("viz_tab_interaction2d"),
+                t("viz_tab_interaction3d"),
+                t("viz_tab_plip"),
+            ]
             for btn, lbl in zip(nav.buttons, viz_labels):
                 btn.setText(lbl)
             if hasattr(self.visualization_page, "recompute_button"):

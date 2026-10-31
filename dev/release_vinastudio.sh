@@ -1,74 +1,129 @@
-#!/bin/bash
-# Publication de VinaStudio : verifications, commit, compilation Linux
-# (.deb et .tar.gz), puis push GitHub (declenche la compilation Windows).
-# A lancer depuis n'importe ou : bash release_vinastudio.sh
-set -uo pipefail
-VERSION="$(cat "$(dirname "$(readlink -f "$0")")/../VERSION")"
-PROJ="$HOME/MexAB_MexR_Analyzer_BETA"
-cd "$PROJ" || exit 1
-STAMP=$(date +%Y%m%d_%H%M%S)
-MARK=$(mktemp)
-PY="$PROJ/venv/bin/python"; [ -x "$PY" ] || PY=python3
-step(){ echo; echo "=================================================="; echo "$1"; echo "=================================================="; }
-die(){ echo "ERREUR : $1"; exit 1; }
-FILES="src/gui/main_window.py src/gui/viewer_template.py src/gui/phyto_page.py src/phyto_api.py src/residue_center.py src/translations.py"
+#!/usr/bin/env bash
+# Release locale VINA Studio : verification, build Linux, installation locale,
+# paquets versionnes et publication GitHub (le workflow GitHub construit Windows).
+set -euo pipefail
 
-step "1. Verification du code"
-for k in "residue_block:src/gui/main_window.py" "_couple_receptors_dialog:src/gui/main_window.py" "split_sdf_by_cid:src/gui/phyto_page.py" "PROTEIN_COLOR:src/gui/viewer_template.py"; do
-  pat=${k%%:*}; f=${k##*:}
-  grep -q "$pat" "$f" || die "patch absent : $pat dans $f"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
+usage() {
+    cat <<'USAGE'
+Usage:
+  bash dev/release_vinastudio.sh VERSION [--push]
+
+VERSION doit etre une nouvelle version semver, par exemple 1.1.3.
+Sans --push, le build et l'installation locale sont effectues mais aucun
+commit, tag ou push GitHub n'est realise.
+USAGE
+}
+
+[[ $# -ge 1 && $# -le 2 ]] || { usage; exit 2; }
+VERSION="$1"
+PUSH=false
+[[ "${2:-}" == "--push" ]] && PUSH=true
+[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]] || {
+    echo "ERREUR : version invalide : $VERSION" >&2
+    exit 2
+}
+
+PY="$PROJECT_ROOT/venv/bin/python"
+[[ -x "$PY" ]] || PY=python3
+PYI="$PROJECT_ROOT/venv/bin/pyinstaller"
+
+step() {
+    echo
+    echo "=================================================="
+    echo "$1"
+    echo "=================================================="
+}
+
+die() {
+    echo "ERREUR : $1" >&2
+    exit 1
+}
+
+step "1. Preparation de la version $VERSION"
+CURRENT_VERSION="$(tr -d '[:space:]' < VERSION)"
+[[ "$VERSION" != "$CURRENT_VERSION" ]] || die "VERSION est deja $VERSION ; choisis une nouvelle version"
+git diff --check || die "espaces ou conflits detectes par git diff --check"
+printf '%s\n' "$VERSION" > VERSION
+if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+    die "le tag v$VERSION existe deja"
+fi
+
+step "2. Verification du code et tests"
+python_files=(
+    src/docking/receptor_profile.py
+    src/gui/main_window.py
+    src/gui/quick_themes.py
+    src/reference_inhibitors.py
+    src/translations.py
+)
+for file in "${python_files[@]}"; do
+    "$PY" -m py_compile "$file" || die "syntaxe invalide : $file"
 done
-for f in $FILES; do "$PY" -m py_compile "$f" || die "syntaxe $f"; done
-QT_QPA_PLATFORM=offscreen "$PY" -c "import src.gui.main_window, src.gui.phyto_page" || die "import des modules"
-echo "OK"
+QT_QPA_PLATFORM=offscreen "$PY" -m pytest -q || die "les tests ont echoue"
 
-step "2. Tests (resume)"
-QT_QPA_PLATFORM=offscreen timeout 300 "$PY" -m pytest -q 2>&1 | tail -8
+step "3. Nettoyage cible des anciens artefacts compiles"
+# Seules les sorties explicitement generees par les scripts de release sont
+# supprimees. Les profils, rapports, sauvegardes et donnees utilisateur restent.
+rm -rf "$PROJECT_ROOT/src/build" "$PROJECT_ROOT/src/dist" "$PROJECT_ROOT/dist"
+find "$HOME/Desktop" -maxdepth 1 -type f \( \
+    -name 'vinastudio_*_amd64.deb' -o \
+    -name 'VinaStudio-Linux-x86_64-*.tar.gz' \
+\) -delete 2>/dev/null || true
+find "$PROJECT_ROOT" -maxdepth 1 -type f \( \
+    -name 'vinastudio_*_amd64.deb' -o \
+    -name 'VinaStudio-Linux-x86_64-*.tar.gz' \
+\) -delete
 
-step "3. Commit local (fichiers de code uniquement)"
-git add $FILES
-git commit -q -m "feat: couplage de récepteurs, centrage sur résidu, noms de fichiers SDF par CID" \
-  -m "- téléchargement SDF 3D PubChem avec repli 2D vers 3D local, saisie nom ou CID
-- fichiers SDF nommés par CID avec index CSV
-- récepteurs importés : configuration enregistrée et réutilisée
-- bouton Coupler deux récepteurs, import individuel uniquement
-- visualiseur : protéine d'une couleur, grid box épaisse
-- champ de centrage de la grid box sur un résidu de référence" || echo "(rien de nouveau a committer)"
-[ -z "$(git status --short -- $FILES)" ] || die "commit echoue (git config user.name / user.email ?)"
-git log --oneline -3
+step "4. Compilation Linux avec PyInstaller"
+[[ -x "$PYI" ]] || die "PyInstaller absent : $PYI"
+(cd src && "$PYI" --noconfirm VinaStudio.spec) || die "PyInstaller"
+[[ -x src/dist/VinaStudio/VinaStudio ]] || die "executable Linux absent apres le build"
 
-step "4. Compilation Linux (PyInstaller)"
-[ -f src/VinaStudio.spec ] || die "src/VinaStudio.spec introuvable"
-[ -f dev/scripts_maintenance/install_vinastudio_local.sh ] || die "install_vinastudio_local.sh introuvable"
-rm -rf src/build src/dist
-PYI="$PROJ/venv/bin/pyinstaller"; [ -x "$PYI" ] || PYI="$PY -m PyInstaller"
-( cd src && $PYI --noconfirm VinaStudio.spec ) || die "PyInstaller"
-[ -f src/dist/VinaStudio/VinaStudio ] || die "executable absent apres le build"
-if grep -rq "residue_center" src/build/VinaStudio 2>/dev/null; then echo "module residue_center inclus dans le build"; else echo "ATTENTION : residue_center non detecte dans le build"; fi
-# (credit_du_logiciel retiré : l'onglet Crédits n'existe plus)
+step "5. Installation locale de cette version"
+mkdir -p dist
+cp -a src/dist/VinaStudio dist/VinaStudio
+bash dev/scripts_maintenance/install_vinastudio_local.sh
 
-step "5. Paquets .deb et archive compressee"
+step "6. Generation des paquets Linux"
+bash build_deb_package.sh
+bash build_portable_archive.sh
 DEB="$HOME/Desktop/vinastudio_${VERSION}_amd64.deb"
 TGZ="$HOME/Desktop/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
-mkdir -p "$HOME/Desktop" "_archive_backups/releases_$STAMP"
-for f in "$DEB" "$TGZ" "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"; do
-  [ -f "$f" ] && mv "$f" "_archive_backups/releases_$STAMP/$(basename "$(dirname "$f")")_$(basename "$f")"
-done
-bash build_deb_final.sh || die "build_deb_final.sh"
-[ "$DEB" -nt "$MARK" ] || { bash build_deb_package.sh || die "build_deb_package.sh"; }
-bash build_portable_archive.sh || die "build_portable_archive.sh"
-[ "$DEB" -nt "$MARK" ] || die "le .deb n'a pas ete regenere"
-[ "$TGZ" -nt "$MARK" ] || die "l'archive n'a pas ete regeneree"
-cp -f "$DEB" "$TGZ" "$PROJ/"
-echo; ls -lh "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
-sha256sum "$PROJ/vinastudio_${VERSION}_amd64.deb" "$PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz"
+[[ -f "$DEB" ]] || die ".deb absent : $DEB"
+[[ -f "$TGZ" ]] || die "archive absente : $TGZ"
+cp -f "$DEB" "$TGZ" .
+sha256sum "$DEB" "$TGZ"
 
-step "6. Push GitHub (declenche la compilation Windows)"
-git fetch -q origin
-BEHIND=$(git rev-list --count HEAD..origin/main)
-[ "$BEHIND" -gt 0 ] && die "le depot distant a $BEHIND commit(s) absents en local : fais d'abord git pull --rebase"
-git push origin main || die "push (identifiants GitHub ou reseau)"
+step "7. Commit et publication GitHub"
+git add VERSION \
+    .github/workflows/build-windows.yml VinaStudio.iss \
+    dev/release_vinastudio.sh dev/scripts_maintenance/install_vinastudio_local.sh \
+    build_portable_archive.sh \
+    src/docking/receptor_profile.py src/gui/main_window.py \
+    src/gui/quick_themes.py src/gui/viewer_template.py \
+    src/reference_inhibitors.py src/translations.py \
+    image_theme _corbeille_theme_images
+git diff --cached --check || die "erreur de format dans les fichiers prepares"
+git diff --cached --quiet && die "aucune modification de release a committer"
+git commit -m "release: VinaStudio $VERSION"
+git tag -a "v$VERSION" -m "VinaStudio $VERSION"
+
+if [[ "$PUSH" == true ]]; then
+    git fetch origin
+    [[ "$(git rev-list --count HEAD..origin/main)" == 0 ]] || die "origin/main contient des commits absents localement"
+    git push origin main
+    git push origin "v$VERSION"
+    echo "Publication terminee : https://github.com/divin-stoni/VinaStudio/releases"
+else
+    echo "Build termine sans push. Pour publier : git push origin main && git push origin v$VERSION"
+fi
+
 echo
-echo "TERMINE."
-echo "Windows : https://github.com/divin-stoni/VinaStudio/actions (l'.exe sera dans les artifacts du run)"
-echo "Linux   : $PROJ/vinastudio_${VERSION}_amd64.deb et $PROJ/VinaStudio-Linux-x86_64-${VERSION}.tar.gz (copies sur le Bureau)"
+echo "Version installee : $VERSION"
+echo ".deb : $DEB"
+echo "Archive : $TGZ"
+echo "Le .exe Windows sera produit par GitHub Actions sur le tag v$VERSION."

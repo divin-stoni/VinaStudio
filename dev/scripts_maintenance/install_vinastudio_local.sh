@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-PROJECT_ROOT="$HOME/MexAB_MexR_Analyzer_BETA"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 SRC_DIR="$PROJECT_ROOT/src"
 APP_NAME="VinaStudio"
 INSTALL_DIR="$HOME/.local/share/${APP_NAME}"
@@ -15,9 +16,6 @@ echo "=================================================="
 rm -f "$PROJECT_ROOT"/*.AppImage
 rm -rf "$PROJECT_ROOT/squashfs-root"
 rm -rf "$SRC_DIR/appimage_build"
-rm -f "$PROJECT_ROOT"/*_log.txt "$PROJECT_ROOT"/*_report.txt
-rm -f "$SRC_DIR"/*_log.txt "$SRC_DIR"/*_report.txt
-rm -f "$SRC_DIR"/diag_*.sh "$SRC_DIR"/fix_*.sh "$SRC_DIR"/rebuild_*.sh
 echo "Nettoyage termine."
 
 echo "=================================================="
@@ -74,7 +72,7 @@ update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
 echo "=================================================="
 echo "ETAPE 7 : test direct de l'installation finale"
 echo "=================================================="
-timeout 5 "$BIN_DIR/vinastudio" &
+QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}" timeout 5 "$BIN_DIR/vinastudio" &
 TESTPID=$!
 sleep 3
 if kill -0 $TESTPID 2>/dev/null; then

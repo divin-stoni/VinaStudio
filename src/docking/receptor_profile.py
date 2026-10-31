@@ -18,6 +18,7 @@ multi-récepteurs) ne nécessite QUE :
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -203,7 +204,12 @@ def _keep_imports_enabled() -> bool:
     """Mode B choisi dans Paramètres > Session : garder les récepteurs importés."""
     try:
         from PySide6.QtCore import QSettings
-        value = QSettings("VINA Studio", "VINA Studio").value("session/close_mode", "wipe")
+        # Les profils importés sont des données utilisateur : ils doivent
+        # rester utilisables après fermeture, même si aucune préférence n'a
+        # encore été enregistrée.
+        value = QSettings("VINA Studio", "VINA Studio").value(
+            "session/close_mode", "keep_imports"
+        )
         return str(value) == "keep_imports"
     except Exception:
         return False

@@ -76,18 +76,13 @@ DARK = {
     "Graphite":          dict(image="black-background", accent="#c0c6cf", deep="#14161a", veil=35),
     "Aurore boréale":    dict(image="vincent-guth-62V7ntlKgL8-unsplash", accent="#5fe0a0", deep="#0b1713", veil=40),
     "Molécules":         dict(image="pexels-googledeepmind-25626509", accent="#5aa9ff", deep="#0b1626", veil=45),
-    "Lune de sang":      dict(image="anders-jilden-GjwsHRIcQjU-unsplash", accent="#f0705f", deep="#0d0f1a", veil=30),
     "Voie lactée":       dict(image="greg-rakozy-oMpAz-DN-9I-unsplash", accent="#b48cf0", deep="#100e1a", veil=38),
-    "Crépuscule rose":   dict(image="wade-meng-LgCj9qcrfhI-unsplash", accent="#ff8fb0", deep="#1a1020", veil=48),
-    "Montagne dorée":    dict(image="urban-vintage-78A265wPiO4-unsplash", accent="#ffbe6f", deep="#17130c", veil=58),
     "Horizon":           dict(image="steve-a-johnson-PyOuwV2_dyA-unsplash", accent="#5fd3c7", deep="#08141a", veil=30),
     "ADN":               dict(image="pexels-nicola-narracci-157460431-35967917", accent="#9fb4ff", deep="#080a16", veil=30),
 }
 LIGHT = {
     "Verre clair":       dict(image="texture-ciment-fond-beton-espace-vide_53876-129755", accent="#1f4fbf", veil=55),
     "Laboratoire":       dict(image="pexels-mikhail-nilov-8851079", accent="#1f7a4d", veil=62),
-    "Pêche":             dict(image="sean-fahrenbruch-Ir2dJmcJpys-unsplash", accent="#b9400d", veil=58),
-    "Pastel":            dict(image="plufow-le-studio-EoLAWkskAIc-unsplash", accent="#9d174d", veil=58),
 }
 
 THEMES = {"Enregistré": {"kind": "saved"},
